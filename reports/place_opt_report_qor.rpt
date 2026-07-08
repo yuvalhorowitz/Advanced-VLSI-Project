@@ -2,7 +2,7 @@
 Report : qor
 Design : riscv_core
 Version: V-2023.12-SP3
-Date   : Wed Jul  8 13:29:39 2026
+Date   : Wed Jul  8 14:18:36 2026
 ****************************************
 
 
@@ -18,8 +18,8 @@ Scenario           'FUNC_Slow'
 Timing Path Group  '**in2reg_default**'
 ----------------------------------------
 Levels of Logic:                     82
-Critical Path Length:              6.05
-Critical Path Slack:               3.74
+Critical Path Length:              5.98
+Critical Path Slack:               3.81
 Critical Path Clk Period:         10.00
 Total Negative Slack:              0.00
 No. of Violating Paths:               0
@@ -28,9 +28,9 @@ No. of Violating Paths:               0
 Scenario           'FUNC_Slow'
 Timing Path Group  '**reg2out_default**'
 ----------------------------------------
-Levels of Logic:                     29
-Critical Path Length:              3.89
-Critical Path Slack:               5.76
+Levels of Logic:                     30
+Critical Path Length:              4.07
+Critical Path Slack:               5.58
 Critical Path Clk Period:         10.00
 Total Negative Slack:              0.00
 No. of Violating Paths:               0
@@ -40,8 +40,8 @@ Scenario           'FUNC_Slow'
 Timing Path Group  '**in2out_default**'
 ----------------------------------------
 Levels of Logic:                     28
-Critical Path Length:              3.68
-Critical Path Slack:               5.97
+Critical Path Length:              3.67
+Critical Path Slack:               5.98
 Critical Path Clk Period:         10.00
 Total Negative Slack:              0.00
 No. of Violating Paths:               0
@@ -50,9 +50,9 @@ No. of Violating Paths:               0
 Scenario           'FUNC_Slow'
 Timing Path Group  'clk_i'
 ----------------------------------------
-Levels of Logic:                     83
-Critical Path Length:              6.27
-Critical Path Slack:               3.53
+Levels of Logic:                     84
+Critical Path Length:              6.38
+Critical Path Slack:               3.42
 Critical Path Clk Period:         10.00
 Total Negative Slack:              0.00
 No. of Violating Paths:               0
@@ -62,8 +62,8 @@ Scenario           'FUNC_Typical'
 Timing Path Group  '**in2reg_default**'
 ----------------------------------------
 Levels of Logic:                     82
-Critical Path Length:              2.90
-Critical Path Slack:               6.92
+Critical Path Length:              2.88
+Critical Path Slack:               6.95
 Critical Path Clk Period:         10.00
 Total Negative Slack:              0.00
 No. of Violating Paths:               0
@@ -72,9 +72,9 @@ No. of Violating Paths:               0
 Scenario           'FUNC_Typical'
 Timing Path Group  '**reg2out_default**'
 ----------------------------------------
-Levels of Logic:                     29
-Critical Path Length:              1.94
-Critical Path Slack:               7.71
+Levels of Logic:                     30
+Critical Path Length:              2.03
+Critical Path Slack:               7.62
 Critical Path Clk Period:         10.00
 Total Negative Slack:              0.00
 No. of Violating Paths:               0
@@ -94,9 +94,9 @@ No. of Violating Paths:               0
 Scenario           'FUNC_Typical'
 Timing Path Group  'clk_i'
 ----------------------------------------
-Levels of Logic:                     83
-Critical Path Length:              2.94
-Critical Path Slack:               6.89
+Levels of Logic:                     84
+Critical Path Length:              3.01
+Critical Path Slack:               6.81
 Critical Path Clk Period:         10.00
 Total Negative Slack:              0.00
 No. of Violating Paths:               0
@@ -109,11 +109,11 @@ No. of Hold Violations:               0
 Cell Count
 ----------------------------------------
 Hierarchical Cell Count:             15
-Hierarchical Port Count:           1567
+Hierarchical Port Count:           1572
 Leaf Cell Count:                  12254
-Buf/Inv Cell Count:                1249
-Buf Cell Count:                      79
-Inv Cell Count:                    1170
+Buf/Inv Cell Count:                1251
+Buf Cell Count:                      86
+Inv Cell Count:                    1165
 Combinational Cell Count:          9935
    Single-bit Isolation Cell Count:                        0
    Multi-bit Isolation Cell Count:                         0
@@ -137,25 +137,25 @@ Macro Count:                          0
 
 Area
 ----------------------------------------
-Combinational Area:             3805.21
+Combinational Area:             3808.81
 Noncombinational Area:          2879.70
-Buf/Inv Area:                    228.84
-Total Buffer Area:                21.05
-Total Inverter Area:             207.79
+Buf/Inv Area:                    229.86
+Total Buffer Area:                22.91
+Total Inverter Area:             206.95
 Macro/Black Box Area:              0.00
 Net Area:                             0
-Net XLength:                   63624.14
-Net YLength:                   62215.72
+Net XLength:                   64927.79
+Net YLength:                   61850.42
 ----------------------------------------
-Cell Area (netlist):                           6684.91
-Cell Area (netlist and physical only):         7231.74
-Net Length:                   125839.86
+Cell Area (netlist):                           6688.50
+Cell Area (netlist and physical only):         7235.34
+Net Length:                   126778.21
 
 
 Design Rules
 ----------------------------------------
 Total Number of Nets:             13089
-Nets with Violations:              4498
+Nets with Violations:              4384
 Max Trans Violations:                 0
 Max Cap Violations:                   0
 ----------------------------------------

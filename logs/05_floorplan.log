@@ -972,3 +972,10 @@ Saving library 'riscv_core.dlib'
 # NOTE: no 'exit' — block/lib already saved; run 'gui_start' to inspect, 'exit' when done.
 Information: 6554 out of 6564 POW-046 messages were not printed due to limit 10  (MSG-3913)
 Information: 11 out of 21 SQM-1067 messages were not printed due to limit 10  (MSG-3913)
+fc_shell> exit
+Maximum memory usage for this session: 1334.67 MB
+Maximum memory usage for this session including child processes: 1334.67 MB
+CPU usage for this session:     68 seconds (  0.02 hours)
+Elapsed time for this session:    287 seconds (  0.08 hours)
+Thank you for using Fusion Compiler.
+

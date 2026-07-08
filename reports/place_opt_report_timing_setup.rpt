@@ -7,11 +7,11 @@ Report : timing
         -report_by design
 Design : riscv_core
 Version: V-2023.12-SP3
-Date   : Wed Jul  8 13:29:39 2026
+Date   : Wed Jul  8 14:18:36 2026
 ****************************************
 
   Startpoint: u_fetch/skid_valid_q_reg (rising edge-triggered flip-flop clocked by clk_i)
-  Endpoint: u_fetch/branch_pc_q_reg[6] (rising edge-triggered flip-flop clocked by clk_i)
+  Endpoint: u_fetch/branch_pc_q_reg[17] (rising edge-triggered flip-flop clocked by clk_i)
   Mode: FUNC
   Corner: Slow
   Scenario: FUNC_Slow
@@ -26,168 +26,170 @@ Date   : Wed Jul  8 13:29:39 2026
   u_fetch/skid_valid_q_reg/CK (SAEDHVT14_FSDPRBQ_V2LP_2)
                                                    0.00      0.00 r
   u_fetch/skid_valid_q_reg/Q (SAEDHVT14_FSDPRBQ_V2LP_2)
-                                                   0.27      0.27 r
-  place_optHFSINV_1578_2490/X (SAEDLVT14_INV_S_1)
-                                                   0.10      0.37 f
-  ctmi_41312/X (SAEDHVT14_OAI22_0P5)               0.51      0.88 r
-  ctmi_41410/X (SAEDHVT14_ND2_CDC_0P5)             0.40      1.28 f
-  ctmi_41413/X (SAEDHVT14_INV_0P5)                 0.28      1.55 r
-  ctmi_41648/X (SAEDHVT14_NR2_1)                   0.21      1.77 f
-  ctmi_41691/X (SAEDHVT14_ND2_CDC_0P5)             0.10      1.86 r
-  ctmi_41778/X (SAEDHVT14_INV_S_0P5)               0.07      1.93 f
-  ctmi_41777/X (SAEDHVT14_NR2_1)                   0.06      1.99 r
-  ctmi_41826/X (SAEDHVT14_AN2B_MM_1)               0.04      2.03 r
-  ctmi_41926/X (SAEDHVT14_ND2B_U_0P5)              0.70      2.73 f
-  ctmi_42145/X (SAEDHVT14_OAI22_0P5)               0.48      3.21 r
-  ctmi_42141/X (SAEDHVT14_OR4_1)                   0.11      3.33 r
-  ctmi_42119/X (SAEDHVT14_OR4_1)                   0.09      3.42 r
+                                                   0.26      0.26 r
+  place_optHFSINV_1457_2486/X (SAEDLVT14_INV_0P75)
+                                                   0.12      0.39 f
+  place_optHFSBUF_1103_2485/X (SAEDRVT14_BUF_UCDC_1)
+                                                   0.14      0.52 f
+  ctmi_41312/X (SAEDHVT14_OAI22_0P5)               0.53      1.05 r
+  ctmi_41410/X (SAEDHVT14_ND2_CDC_0P5)             0.41      1.47 f
+  ctmi_41413/X (SAEDHVT14_INV_0P5)                 0.27      1.74 r
+  ctmi_41648/X (SAEDHVT14_NR2_1)                   0.20      1.94 f
+  ctmi_41691/X (SAEDHVT14_ND2_CDC_0P5)             0.09      2.03 r
+  ctmi_41778/X (SAEDHVT14_INV_0P5)                 0.06      2.09 f
+  ctmi_41777/X (SAEDHVT14_NR2_1)                   0.06      2.15 r
+  ctmi_41826/X (SAEDHVT14_AN2B_MM_1)               0.05      2.20 r
+  ctmi_41926/X (SAEDHVT14_ND2B_U_0P5)              0.66      2.86 f
+  ctmi_42158/X (SAEDHVT14_OAI22_0P5)               0.46      3.32 r
+  ctmi_42154/X (SAEDHVT14_OR4_1)                   0.10      3.42 r
+  ctmi_42119/X (SAEDHVT14_OR4_1)                   0.10      3.52 r
   u_exec/sub_3243_C3321/ctmi_49771/X (SAEDHVT14_INV_S_0P5)
-                                                   0.07      3.48 f
+                                                   0.07      3.59 f
   u_exec/sub_3243_C3321/ctmi_49772/X (SAEDHVT14_OA22_1)
-                                                   0.05      3.53 f
+                                                   0.05      3.64 f
   u_exec/sub_3243_C3321/ctmi_49770/X (SAEDHVT14_AOI21_0P5)
-                                                   0.02      3.55 r
+                                                   0.02      3.66 r
   u_exec/sub_3243_C3321/ctmi_49769/X (SAEDHVT14_OA21B_1)
-                                                   0.03      3.58 f
+                                                   0.03      3.69 f
   u_exec/sub_3243_C3321/ctmi_49767/X (SAEDHVT14_AOI21_0P5)
-                                                   0.02      3.60 r
+                                                   0.03      3.71 r
   u_exec/sub_3243_C3321/ctmi_49766/X (SAEDHVT14_OA21B_1)
-                                                   0.03      3.63 f
+                                                   0.03      3.74 f
   u_exec/sub_3243_C3321/ctmi_49764/X (SAEDHVT14_AOI21_0P5)
-                                                   0.02      3.65 r
+                                                   0.03      3.76 r
   u_exec/sub_3243_C3321/ctmi_49763/X (SAEDHVT14_OA21B_1)
-                                                   0.03      3.68 f
+                                                   0.03      3.79 f
   u_exec/sub_3243_C3321/ctmi_49761/X (SAEDHVT14_AOI21_0P5)
-                                                   0.02      3.70 r
+                                                   0.03      3.82 r
   u_exec/sub_3243_C3321/ctmi_49760/X (SAEDHVT14_OA21B_1)
-                                                   0.03      3.73 f
+                                                   0.03      3.85 f
   u_exec/sub_3243_C3321/ctmi_49758/X (SAEDHVT14_AOI21_0P5)
-                                                   0.02      3.75 r
+                                                   0.02      3.88 r
   u_exec/sub_3243_C3321/ctmi_49757/X (SAEDHVT14_OA21B_1)
-                                                   0.03      3.78 f
+                                                   0.03      3.90 f
   u_exec/sub_3243_C3321/ctmi_49755/X (SAEDHVT14_AOI21_0P5)
-                                                   0.02      3.80 r
+                                                   0.03      3.93 r
   u_exec/sub_3243_C3321/ctmi_49754/X (SAEDHVT14_OA21B_1)
-                                                   0.03      3.83 f
-  u_exec/sub_3243_C3321/ctmi_49752/X (SAEDHVT14_AOI21_0P5)
-                                                   0.03      3.86 r
-  u_exec/sub_3243_C3321/ctmi_49751/X (SAEDHVT14_OA21B_1)
-                                                   0.04      3.90 f
-  u_exec/sub_3243_C3321/ctmi_49749/X (SAEDHVT14_AOI21_0P5)
-                                                   0.03      3.92 r
-  u_exec/sub_3243_C3321/ctmi_49748/X (SAEDHVT14_OA21B_1)
                                                    0.03      3.95 f
+  u_exec/sub_3243_C3321/ctmi_49752/X (SAEDHVT14_AOI21_0P5)
+                                                   0.02      3.98 r
+  u_exec/sub_3243_C3321/ctmi_49751/X (SAEDHVT14_OA21B_1)
+                                                   0.03      4.01 f
+  u_exec/sub_3243_C3321/ctmi_49749/X (SAEDHVT14_AOI21_0P5)
+                                                   0.02      4.04 r
+  u_exec/sub_3243_C3321/ctmi_49748/X (SAEDHVT14_OA21B_1)
+                                                   0.02      4.06 f
   u_exec/sub_3243_C3321/ctmi_49746/X (SAEDHVT14_AOI21_0P5)
-                                                   0.02      3.97 r
+                                                   0.02      4.08 r
   u_exec/sub_3243_C3321/ctmi_49745/X (SAEDHVT14_OA21B_1)
-                                                   0.03      4.00 f
+                                                   0.03      4.11 f
   u_exec/sub_3243_C3321/ctmi_49743/X (SAEDHVT14_AOI21_0P5)
-                                                   0.02      4.02 r
+                                                   0.02      4.13 r
   u_exec/sub_3243_C3321/ctmi_49742/X (SAEDHVT14_OA21B_1)
-                                                   0.03      4.05 f
+                                                   0.02      4.16 f
   u_exec/sub_3243_C3321/ctmi_49740/X (SAEDHVT14_AOI21_0P5)
-                                                   0.02      4.07 r
+                                                   0.02      4.18 r
   u_exec/sub_3243_C3321/ctmi_49739/X (SAEDHVT14_OA21B_1)
-                                                   0.03      4.10 f
+                                                   0.03      4.21 f
   u_exec/sub_3243_C3321/ctmi_49737/X (SAEDHVT14_AOI21_0P5)
-                                                   0.02      4.12 r
+                                                   0.03      4.24 r
   u_exec/sub_3243_C3321/ctmi_49736/X (SAEDHVT14_OA21B_1)
-                                                   0.03      4.15 f
+                                                   0.03      4.27 f
   u_exec/sub_3243_C3321/ctmi_49734/X (SAEDHVT14_AOI21_0P5)
-                                                   0.02      4.17 r
+                                                   0.03      4.30 r
   u_exec/sub_3243_C3321/ctmi_49733/X (SAEDHVT14_OA21B_1)
-                                                   0.03      4.20 f
+                                                   0.03      4.33 f
   u_exec/sub_3243_C3321/ctmi_49731/X (SAEDHVT14_AOI21_0P5)
-                                                   0.03      4.23 r
+                                                   0.02      4.35 r
   u_exec/sub_3243_C3321/ctmi_49730/X (SAEDHVT14_OA21B_1)
-                                                   0.03      4.26 f
+                                                   0.03      4.38 f
   u_exec/sub_3243_C3321/ctmi_49728/X (SAEDHVT14_AOI21_0P5)
-                                                   0.03      4.28 r
+                                                   0.02      4.40 r
   u_exec/sub_3243_C3321/ctmi_49727/X (SAEDHVT14_OA21B_1)
-                                                   0.03      4.31 f
+                                                   0.03      4.43 f
   u_exec/sub_3243_C3321/ctmi_49725/X (SAEDHVT14_AOI21_0P5)
-                                                   0.03      4.34 r
+                                                   0.02      4.45 r
   u_exec/sub_3243_C3321/ctmi_49724/X (SAEDHVT14_OA21B_1)
-                                                   0.04      4.38 f
+                                                   0.03      4.48 f
   u_exec/sub_3243_C3321/ctmi_49722/X (SAEDHVT14_AOI21_0P5)
-                                                   0.04      4.42 r
+                                                   0.02      4.50 r
   u_exec/sub_3243_C3321/ctmi_49721/X (SAEDHVT14_OA21B_1)
-                                                   0.04      4.47 f
+                                                   0.03      4.53 f
   u_exec/sub_3243_C3321/ctmi_49719/X (SAEDHVT14_AOI21_0P5)
-                                                   0.03      4.49 r
+                                                   0.03      4.56 r
   u_exec/sub_3243_C3321/ctmi_49718/X (SAEDHVT14_OA21B_1)
-                                                   0.03      4.52 f
+                                                   0.03      4.59 f
   u_exec/sub_3243_C3321/ctmi_49716/X (SAEDHVT14_AOI21_0P5)
-                                                   0.03      4.55 r
+                                                   0.04      4.63 r
   u_exec/sub_3243_C3321/ctmi_49715/X (SAEDHVT14_OA21B_1)
-                                                   0.04      4.59 f
+                                                   0.04      4.67 f
   u_exec/sub_3243_C3321/ctmi_49713/X (SAEDHVT14_AOI21_0P5)
-                                                   0.03      4.62 r
+                                                   0.03      4.70 r
   u_exec/sub_3243_C3321/ctmi_49712/X (SAEDHVT14_OA21B_1)
-                                                   0.03      4.65 f
+                                                   0.03      4.73 f
   u_exec/sub_3243_C3321/ctmi_49710/X (SAEDHVT14_AOI21_0P5)
-                                                   0.02      4.67 r
+                                                   0.02      4.76 r
   u_exec/sub_3243_C3321/ctmi_49709/X (SAEDHVT14_OA21B_1)
-                                                   0.03      4.71 f
+                                                   0.03      4.79 f
   u_exec/sub_3243_C3321/ctmi_49707/X (SAEDHVT14_AOI21_0P5)
-                                                   0.04      4.75 r
+                                                   0.04      4.83 r
   u_exec/sub_3243_C3321/ctmi_49706/X (SAEDHVT14_OA21B_1)
-                                                   0.04      4.79 f
+                                                   0.05      4.87 f
   u_exec/sub_3243_C3321/ctmi_49704/X (SAEDHVT14_AOI21_0P5)
-                                                   0.03      4.82 r
+                                                   0.03      4.91 r
   u_exec/sub_3243_C3321/ctmi_49703/X (SAEDHVT14_OA21B_1)
-                                                   0.04      4.86 f
+                                                   0.03      4.94 f
   u_exec/sub_3243_C3321/ctmi_49701/X (SAEDHVT14_AOI21_0P5)
-                                                   0.03      4.89 r
+                                                   0.03      4.97 r
   u_exec/sub_3243_C3321/ctmi_49700/X (SAEDHVT14_OA21B_1)
-                                                   0.03      4.92 f
+                                                   0.03      5.00 f
   u_exec/sub_3243_C3321/ctmi_49698/X (SAEDHVT14_AOI21_0P5)
-                                                   0.02      4.94 r
+                                                   0.02      5.02 r
   u_exec/sub_3243_C3321/ctmi_49697/X (SAEDHVT14_OA21B_1)
-                                                   0.03      4.97 f
+                                                   0.03      5.05 f
   u_exec/sub_3243_C3321/ctmi_49695/X (SAEDHVT14_AOI21_0P5)
-                                                   0.03      5.00 r
+                                                   0.04      5.09 r
   u_exec/sub_3243_C3321/ctmi_49694/X (SAEDHVT14_OA21B_1)
-                                                   0.03      5.03 f
+                                                   0.04      5.13 f
   u_exec/sub_3243_C3321/ctmi_49692/X (SAEDHVT14_AOI21_0P5)
-                                                   0.03      5.05 r
+                                                   0.03      5.16 r
   u_exec/sub_3243_C3321/ctmi_49691/X (SAEDHVT14_OA21B_1)
-                                                   0.03      5.09 f
+                                                   0.04      5.20 f
   u_exec/sub_3243_C3321/ctmi_49689/X (SAEDHVT14_AOI21_0P5)
-                                                   0.03      5.11 r
+                                                   0.03      5.22 r
   u_exec/sub_3243_C3321/ctmi_49688/X (SAEDHVT14_OA21B_1)
-                                                   0.03      5.14 f
+                                                   0.03      5.25 f
   u_exec/sub_3243_C3321/ctmi_49686/X (SAEDHVT14_AOI21_0P5)
-                                                   0.03      5.17 r
+                                                   0.02      5.27 r
   u_exec/sub_3243_C3321/ctmi_49684/X (SAEDHVT14_OAI22_0P5)
-                                                   0.07      5.23 f
+                                                   0.06      5.33 f
   u_exec/sub_3243_C3321/ctmi_49683/X (SAEDHVT14_EN3_1)
-                                                   0.09      5.32 r
-  ctmi_45846/X (SAEDHVT14_OAI21_0P75)              0.02      5.34 f
-  ctmi_45845/X (SAEDHVT14_OAI21_0P75)              0.02      5.37 r
-  ctmi_45843/X (SAEDHVT14_AO221_0P5)               0.04      5.40 r
-  ctmi_45842/X (SAEDHVT14_AOI21_0P5)               0.02      5.43 f
-  ctmi_45841/X (SAEDHVT14_OAI21_0P75)              0.12      5.55 r
-  ctmi_45861/X (SAEDHVT14_ND2_CDC_0P5)             0.08      5.63 f
-  ctmi_45860/X (SAEDHVT14_NR2_1)                   0.31      5.94 r
-  ctmi_45921/X (SAEDHVT14_AO22_0P5)                0.26      6.20 r
-  ctmi_45920/X (SAEDHVT14_AO221_0P5)               0.07      6.27 r
-  u_fetch/branch_pc_q_reg[6]/D (SAEDHVT14_FSDPRBQ_V2LP_2)
-                                                   0.00      6.27 r
-  data arrival time                                          6.27
+                                                   0.08      5.41 r
+  ctmi_45846/X (SAEDHVT14_OAI21_0P75)              0.03      5.44 f
+  ctmi_45845/X (SAEDHVT14_OAI21_0P75)              0.03      5.47 r
+  ctmi_45843/X (SAEDHVT14_AO221_0P5)               0.04      5.51 r
+  ctmi_45842/X (SAEDHVT14_AOI21_0P5)               0.03      5.53 f
+  ctmi_45841/X (SAEDHVT14_OAI21_0P75)              0.12      5.65 r
+  ctmi_45861/X (SAEDHVT14_ND2_CDC_0P5)             0.07      5.72 f
+  ctmi_45860/X (SAEDHVT14_NR2_1)                   0.32      6.05 r
+  ctmi_45891/X (SAEDHVT14_AO22_0P5)                0.26      6.31 r
+  ctmi_45890/X (SAEDHVT14_AO221_0P5)               0.07      6.38 r
+  u_fetch/branch_pc_q_reg[17]/D (SAEDHVT14_FSDPRBQ_V2LP_2)
+                                                   0.00      6.38 r
+  data arrival time                                          6.38
 
   clock clk_i (rise edge)                         10.00     10.00
   clock network delay (ideal)                      0.00     10.00
-  u_fetch/branch_pc_q_reg[6]/CK (SAEDHVT14_FSDPRBQ_V2LP_2)
+  u_fetch/branch_pc_q_reg[17]/CK (SAEDHVT14_FSDPRBQ_V2LP_2)
                                                    0.00     10.00 r
   clock uncertainty                               -0.15      9.85
   library setup time                              -0.05      9.80
   data required time                                         9.80
   ------------------------------------------------------------------------
   data required time                                         9.80
-  data arrival time                                         -6.27
+  data arrival time                                         -6.38
   ------------------------------------------------------------------------
-  slack (MET)                                                3.53
+  slack (MET)                                                3.42
 
 
 1

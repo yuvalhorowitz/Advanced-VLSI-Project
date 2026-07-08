@@ -2,7 +2,7 @@
 Report : design
 Design : riscv_core
 Version: V-2023.12-SP3
-Date   : Wed Jul  8 13:29:39 2026
+Date   : Wed Jul  8 14:18:36 2026
 ****************************************
 
 Total number of std cells in library : 2229
@@ -16,30 +16,30 @@ Total number of ICGs                 : 0
 
 Cell Instance Type  Count         Area
 --------------------------------------
-TOTAL LEAF CELLS    13962     7231.739
-unit                12254     6684.908
-Standard cells      12254     6684.908
-unit                12254     6684.908
+TOTAL LEAF CELLS    13962     7235.335
+unit                12254     6688.505
+Standard cells      12254     6688.505
+unit                12254     6688.505
 Hard macro cells        0        0.000
-unit                12254     6684.908
+unit                12254     6688.505
 Soft macro cells        0        0.000
-unit                12254     6684.908
+unit                12254     6688.505
 Always on cells         0        0.000
-unit                12254     6684.908
+unit                12254     6688.505
 Physical only        1708      546.830
-unit                12254     6684.908
+unit                12254     6688.505
 Fixed cells          1708      546.830
-unit                12254     6684.908
-Moveable cells      12254     6684.908
-unit                12254     6684.908
-Placed cells        12254     6684.908
-unit                12254     6684.908
+unit                12254     6688.505
+Moveable cells      12254     6688.505
+unit                12254     6688.505
+Placed cells        12254     6688.505
+unit                12254     6688.505
 Sequential           2319     2879.695
-unit                12254     6684.908
-Buffer/inverter      1249      228.838
-unit                12254     6684.908
+unit                12254     6688.505
+Buffer/inverter      1251      229.859
+unit                12254     6688.505
 ICG cells               0        0.000
-unit                12254     6684.908
+unit                12254     6688.505
 
 Logic Hierarchies                    : 15
 Design Masters count                 : 101
@@ -71,5 +71,5 @@ Number of Tech Layers                : 66 (56 of them have unknown routing dir.)
 
 Total wire length                    : 0.00 micron
 Total number of wires                : 0
-Total number of contacts             : 8354
+Total number of contacts             : 19508
 1
