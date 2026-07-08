@@ -68,9 +68,40 @@ elaborate the top module, and run initial technology mapping. (Based on Lab 1.)
 **Blocks produced:** `riscv_core/rtl_read`, `riscv_core/inital_syn`.
 **Outputs:** `results/riscv_core.dlib`, `results/riscv_core_initial_syn.v`.
 
-**Run result:** _pending — to be filled in after the VNC run (ref-lib count, any unresolved
-modules from the Xilinx `RAM16X1D`/regfile, area/power numbers)._
+**Run result (verified on VNC, `logs/01_syn.log`):** ✅ success.
+- All three Vt reference libraries linked (`report_ref_libs`): `saed14lvt/rvt/hvt_base_frame_timing.ndm`.
+- Full `riscv_core` hierarchy elaborated; **0 black boxes** — the Xilinx `RAM16X1D` /
+  `SUPPORT_REGFILE_XILINX` path is not instantiated, so the register file maps to real cells.
+- `compile_fusion -to initial_map` completed (balanced-flow mode).
+- Netlist: **14,104 nets · 11,962 cells · 2,319 sequential**.
+- Area: combinational 3628.55 + noncombinational 2820.87 → **total cell area ≈ 6449 µm²**.
+- Timing report empty — expected (no SDC/clock read until the floorplan stage).
+- `rtl_read` + `inital_syn` blocks and the library saved successfully.
+
+**Benign messages (no action):** `POW-034` (no clocks in `default` mode — expected, no SDC yet),
+`POW-046` ×13k (power info, suppressed), `VER-*` RTL lint (unnamed generate blocks; a few `reg`
+nets not driven by an `always`).
+
+**⚠ Known issue — GUI crash:** running with `-gui` segfaults in the Qt idle loop
+(`QTimer::timeout → QApplication::notify`) *after* the flow finishes and the library is saved.
+It is a GUI-over-VNC instability and does **not** affect results. **Run every stage headless**
+(no `-gui`); when you need to inspect the layout, type `gui_start` at the `fc_shell>` prompt
+(`gui_stop` to close).
 
 ---
 
-<!-- Steps 2–6 (floorplan+PG, place, CTS, route, sign-off) will be documented here as each is verified. -->
+## Step 2 — Floorplan + PG network  (`scripts/05_floorplan.tcl`)  — NEXT
+
+Planned (based on Lab 5.2/5.3). Copies `rtl_read` → `final_floorplan`, then:
+1. `source ../Setup/tech_setup.tcl`, `read_sdc ../common/sdc/riscv.sdc`, `source ../Setup/mcmm_setup.tcl`
+   — constraints/MCMM enter here (this is why timing was empty in Step 1).
+2. `initialize_floorplan` (core utilization / offset / aspect) + `set_block_pin_constraints`
+   and `set_individual_pin_constraints` for the **`clk_i`** clock pin + `place_pins`.
+3. `source ../scripts/insert_boundary_and_tap_cells.tcl` (boundary/tap cells, `SAEDRVT14` prefix).
+4. `source ../scripts/create_pg_network.tcl` (rails/rings/mesh/vias — M4-strategy bug already fixed).
+5. `write_def` + `collect_reports floorplan`.
+
+**Open items to watch at this stage:** the floorplan utilization/offset values (tune for the
+RISC-V size, larger than the lab i2c); confirm `clk_i` pin side/layer; verify `check_pg_drc`
+and `check_pg_connectivity` are clean.
+
