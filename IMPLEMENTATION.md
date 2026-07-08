@@ -83,19 +83,22 @@ elaborate the top module, and run initial technology mapping. (Based on Lab 1.)
 `POW-046` ×13k (power info, suppressed), `VER-*` RTL lint (unnamed generate blocks; a few `reg`
 nets not driven by an `always`).
 
-**Results analysis:**
-| Metric | Value | Reading |
-|---|---|---|
-| Total cells | 11,962 | reasonable for a small RV32 core |
-| Combinational | 9,643 | — |
-| Sequential (flops) | 2,319 | register file + pipeline mapped to real flops (no Xilinx RAM) |
-| Buf/Inv | 1,157 | pre-opt; CTS/opt will rebalance |
-| References (cell types) | 60 | multi-Vt library cells in use |
-| Total cell area | 6,449.4 µm² | netlist area *before* floorplan/placement |
-| Timing | none | expected — constraints not read until Step 2 |
+**Results analysis:** (Step 1 uses `report_*` to console, captured in `logs/01_syn.log` —
+no `collect_reports` at this stage.)
+| Metric | Value | Reading | Source |
+|---|---|---|---|
+| Total cells | 11,962 | reasonable for a small RV32 core | `logs/01_syn.log` (`report_area`) |
+| Combinational | 9,643 | — | `logs/01_syn.log` (`report_area`) |
+| Sequential (flops) | 2,319 | register file + pipeline mapped to real flops (no Xilinx RAM) | `logs/01_syn.log` (`report_area`) |
+| Buf/Inv | 1,157 | pre-opt; CTS/opt will rebalance | `logs/01_syn.log` (`report_area`) |
+| References (cell types) | 60 | multi-Vt library cells in use | `logs/01_syn.log` (`report_area`) |
+| Total cell area | 6,449.4 µm² | netlist area *before* floorplan/placement | `logs/01_syn.log` (`report_area`) |
+| Timing | none | expected — constraints not read until Step 2 | `logs/01_syn.log` (`report_timing`) |
+| Black boxes | 0 | RTL fully synthesizable against SAED14 | `logs/01_syn.log` (`report_area`) |
 
 Takeaway: a healthy technology-mapped netlist with **0 black boxes** — the RTL is fully
 synthesizable against SAED14 and ready to floorplan.
+
 
 
 **⚠ Known issue — GUI crash:** running with `-gui` segfaults in the Qt idle loop
@@ -137,23 +140,24 @@ and the block copy rerun-safe (drop stale `final_floorplan`).
 **Expected caveat:** `check_pg_connectivity` shows many floating std cells (9453 VDD / 11161 VSS)
 — normal at floorplan stage (cells not on rows yet); resolves after placement (Step 3).
 
-**Results analysis (`reports/final_floorplan_*`):**
-| Metric | Value | Reading |
-|---|---|---|
-| Ports | 1,801 | large I/O count → pin placement is the tight constraint, not core area |
-| Core area | 10,699.2 µm² | site-row area for cells |
-| Chip area | 12,867.9 µm² | includes the 5 µm core-to-die offset + PG rings |
-| Core utilization | 60.28% | matches the 0.60 target; comfortable headroom for place/CTS |
-| Master clocks | 1 (`clk_i`) | SDC applied correctly |
-| Setup (Slow/Typical) | 0 violating paths, WNS ≈ +3.3 ns | 10 ns period is very relaxed → large positive slack |
-| Hold (FUNC_Slow) | 124 paths, TNS −0.44 ns, worst −0.00 | tiny; hold is normally fixed at CTS/route — not a concern now |
-| Max-trans / max-cap | 2 / 2 | minor DRV, cleaned during opto/route |
-| Dynamic power | ≈1.13 mW (Fast) / 0.32 mW (Slow) | internal-dominated (98.7%); leakage N/A (not in frame_timing NDM) |
-| PG `check_pg_drc` | No errors | PG mesh/rings/rails DRC-clean |
+**Results analysis:**
+| Metric | Value | Reading | Source |
+|---|---|---|---|
+| Ports | 1,801 | large I/O count → pin placement is the tight constraint, not core area | `reports/final_floorplan_report_area.rpt` |
+| Core area | 10,699.2 µm² | site-row area for cells | `reports/final_floorplan_report_design.rpt` |
+| Chip area | 12,867.9 µm² | includes the 5 µm core-to-die offset + PG rings | `reports/final_floorplan_report_design.rpt` |
+| Core utilization | 60.28% | matches the 0.60 target; comfortable headroom | `logs/05_floorplan.log` (`report_utilization`) |
+| Master clocks | 1 (`clk_i`) | SDC applied correctly | `reports/final_floorplan_report_design.rpt` |
+| Setup (Slow/Typical) | 0 violating paths, WNS ≈ +3.3 ns | 10 ns period is very relaxed → large positive slack | `reports/final_floorplan_report_qor.rpt`, `..._report_timing_setup.rpt` |
+| Hold (FUNC_Slow) | 124 paths, TNS −0.44 ns, worst −0.00 | tiny; hold normally fixed at CTS/route | `reports/final_floorplan_report_qor.rpt`, `..._report_timing_hold.rpt` |
+| Max-trans / max-cap | 2 / 2 | minor DRV, cleaned during opto/route | `reports/final_floorplan_report_qor.rpt` |
+| Dynamic power | ≈1.13 mW (Fast) / 0.32 mW (Slow) | internal-dominated (98.7%); leakage N/A (not in frame_timing NDM) | `reports/final_floorplan_report_power.rpt` |
+| PG `check_pg_drc` | No errors | PG mesh/rings/rails DRC-clean | `reports/final_floorplan_pg_drc.rpt` |
 
 Takeaway: the floorplan is healthy — ample timing margin at the 10 ns target, DRC-clean PG,
 and utilization on target. Only pre-placement hold/DRV noise remains, expected to clear
 downstream. Ready for placement.
+
 
 
 ---
