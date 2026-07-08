@@ -178,5 +178,29 @@ Lab 3 knobs (`compile.flow.high_effort_timing` etc.).
 **To watch:** legality clean, congestion overflows, whether PG floating std cells drop to ~0
 after placement, and setup/hold slack across the 3 scenarios.
 
+---
+
+## Step 4 — Clock Tree Synthesis  (`scripts/07_cts.tcl`)  — written, run pending
+
+Based on HW4 / `lab7_cts/clock_opt.tcl`. Branches `place_opt` → `clock_opt`, then:
+1. CTS app options (`cts.common.max_fanout 50`, `enable_cell_relocation timing_aware`,
+   `size_pre_existing_cell_to_cts_references true`) + on-grid routing options.
+2. `set_driving_cell SAEDRVT14_BUF_16 [get_ports clk_i]` (clock port has no I/O pad).
+3. `set_lib_cell_purpose -include cts {…RVT INV/BUF…}` — restrict CTS to RVT inverters/buffers.
+4. `create_routing_rule CLK_NDR` (2× width/spacing + shielding) + `set_clock_routing_rules`
+   (M2–M5) + `set_clock_tree_options -target_skew 0.1`.
+5. `clock_opt` in 3 stages (`build_clock` → `route_clock` → `final_opto`),
+   `remove_routes -global_route`, then `create_shields … -with_ground VSS` on the clock nets.
+6. Reconnect PG; `check_legality`/`report_congestion`/`report_utilization`;
+   `collect_reports clock_opt` **+ `report_clock_skew clock_opt`** → the **clock-skew
+   deliverable** (`reports/clock_opt_clock_skew.rpt`, via `report_clock_timing -type skew`).
+
+Rerun-safe (drops stale `clock_opt`); no `exit`.
+
+**To watch:** `report_clock_skew` worst skew near the 0.1 target; setup/hold slack after real
+clock (setup should stay positive at 10 ns, hold should be handled by the clock tree + opto);
+legality clean; the clock net routed on M2–M5 with VSS shields.
+
+
 
 
