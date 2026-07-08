@@ -1,3 +1,4 @@
 -e *.swp
 *.log
 work/fc_output.txt
+/Labs reference/
