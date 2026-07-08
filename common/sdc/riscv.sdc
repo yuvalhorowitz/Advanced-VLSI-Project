@@ -1,5 +1,8 @@
 # remove any constraints that were applied from previous runs:
-remove_sdc -design
+# NOTE: 'remove_sdc' is not valid inside read_sdc in Fusion Compiler and aborts
+# the whole file (CMD-005). It is unnecessary here (each scenario reads a fresh
+# SDC), so it is commented out to let the constraints below actually load.
+# remove_sdc -design
 
 # Set the physical library:
 
@@ -8,7 +11,9 @@ remove_sdc -design
 # Create clock object and set uncertainty
 create_clock -period 10 [get_ports clk_i]
 set_clock_uncertainty -setup 0.15 [get_clocks clk_i]
-set_case_analysis 0 [get_port rst_i]
+# NOTE: original used 'get_port' (singular), which is not a valid FC command
+# and aborts read_sdc; corrected to 'get_ports'.
+set_case_analysis 0 [get_ports rst_i]
 # Set constraints on input ports
 #suppress_message UID-401
 #suppress_message DCT-306

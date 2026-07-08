@@ -21,6 +21,10 @@ source -echo ../Setup/fc_flow_setup.tcl
 
 #### Open the design library and branch a fresh block
 open_lib ${RESULTS_PATH}/${DESIGN_LIBRARY}
+# rerun-safe: drop a stale target block from a previous run if present
+if {[sizeof_collection [get_blocks -quiet ${DESIGN_NAME}/final_floorplan]] > 0} {
+	remove_blocks -force ${DESIGN_NAME}/final_floorplan
+}
 copy_block -from ${DESIGN_NAME}/inital_syn -to ${DESIGN_NAME}/final_floorplan
 open_block ${DESIGN_NAME}/final_floorplan
 
