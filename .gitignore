@@ -1,4 +1,27 @@
--e *.swp
+# ---- Fusion Compiler design libraries (large, binary, regenerable) ----
+*.dlib/
+*.dlib_backup/
+
+# ---- run scratch produced under work/ ----
+work/*
+!work/.gitkeep
+fc_output.txt
+command.log
+legalizer_debug_plots/
+HDL_LIBRARIES/
+signoff_drc_run/
+
+# ---- tool logs ----
 *.log
-work/fc_output.txt
+
+# ---- editor / OS cruft ----
+*.swp
+.DS_Store
+
+# ---- local reference material (not part of the deliverable) ----
 /Labs reference/
+
+# ---- KEEP deliverable outputs tracked (do NOT ignore): ----
+# results/  -> final netlists, sdc, spef, gds, def
+# reports/  -> clock-skew, final timing, PG-DRC and all collect_reports output
+# The *.dlib rule above still excludes the design library that lives inside results/.
