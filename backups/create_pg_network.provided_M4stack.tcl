@@ -48,11 +48,16 @@ set_pg_strategy PG_Ring_VDD -core -pattern {{ name: PG_Ring_VDD} { nets: "VDD" }
 
 compile_pg -strategies { PG_Ring_VDD PG_Ring_VSS } -via_rule VIA_NIL
 
-# NOTE (Option B): the provided script created M4 *vertical* straps + M4->M1 vias,
-# but tech_setup declares M4 horizontal (lab convention), so M4 straps could not
-# via down to the horizontal M1 rails and VSS was left floating. We drop the M4
-# straps and distribute vertically on M5 (M5->M1), exactly like the lab PG.
-# (Original M4-strap version kept in backups/create_pg_network.provided_M4stack.tcl.)
+#### Create M4 Vertical PG Straps
+create_pg_mesh_pattern M4_PG \
+        -layers { {vertical_layer: M4}   {width: 0.1} {spacing: interleaving} {pitch: 4} {offset: 0.5} }
+
+set_pg_strategy M4_PG_Strategy \
+        -core \
+        -pattern   { {name: M4_PG} {nets:{VSS VDD}} } \
+        -extension { {stop: design_boundary_and_generate_pin} }
+
+compile_pg -strategies {M4_PG_Strategy} -via_rule VIA_NIL
 
 #### Create M5 Vertical PG Straps
 create_pg_mesh_pattern M5_PG \
@@ -88,8 +93,9 @@ set_pg_strategy M7_PG_Strategy \
 compile_pg -strategies {M7_PG_Strategy} -via_rule VIA_NIL
 
 
-#### Create PG VIAs (distribute down from the M5 vertical mesh to the M1 rails)
-create_pg_vias -from_layers M5 -to_layers M1 -via_masters default -nets {VDD VSS}
+#### Create PG VIAs
+create_pg_vias -from_layers M4 -to_layers M1 -via_masters default -nets {VDD VSS}
+create_pg_vias -from_layers M5 -to_layers M4 -via_masters default -nets {VDD VSS}
 create_pg_vias -from_layers M6 -to_layers M5 -via_masters default -nets {VDD VSS}
 create_pg_vias -from_layers M7 -to_layers M6 -via_masters default -nets {VDD VSS}
 
