@@ -37,33 +37,39 @@ the files.
 
 ---
 
-## Issue 2 — `riscv.sdc`: `remove_sdc` aborts the whole constraints file
+## Issue 2 — `riscv.sdc`: Tcl/app commands invalid inside `read_sdc`
 
-- **File:** `common/sdc/riscv.sdc` (provided constraints), line 2.
-- **Original code:**
-  ```tcl
-  # remove any constraints that were applied from previous runs:
-  remove_sdc -design
-  ```
+- **File:** `common/sdc/riscv.sdc` (provided constraints), lines 2 and 17.
+- **Context:** the lab constraint file (`i2c_master_top.sdc`) is **pure SDC** — only
+  `create_clock`, `set_clock_uncertainty`, `set_clock_transition`, `get_ports`/`get_clocks`
+  and Tcl `set` — so `read_sdc` worked there. The provided `riscv.sdc` additionally uses
+  **application/Tcl commands** that `read_sdc`'s restricted interpreter does not expose:
+  - line 2: `remove_sdc -design`
+  - line 17: `set_input_delay ... [remove_from_collection [all_inputs] [get_ports clk_i]]`
 - **Symptom (from `logs/05_floorplan.log`):**
   ```
-  Loading SDC version 2.1 file '.../riscv.sdc' (FILE-007)
   remove_sdc -design
   Error: unknown command 'remove_sdc' (CMD-005)
   script '.../riscv.sdc' stopped at line 2 due to error. (CMD-081)
   Error: Errors reading SDC file: ... (SDC-5)
   ```
-- **Impact:** `read_sdc` executes the file in an SDC interpreter where `remove_sdc` is not a
-  valid command. The error **aborts the entire file at line 2**, so *none* of the real
-  constraints below it are applied — no `create_clock`, no clock uncertainty, no I/O delays.
-  The design ends up with **no clock**, which would silently break timing analysis and CTS.
-- **Root cause:** `remove_sdc` is a shell-level command, not a constraint valid inside
-  `read_sdc`; and it is unnecessary here because each MCMM scenario reads a fresh SDC.
-- **Fix:** comment it out (kept in the file for reference):
-  ```tcl
-  # remove_sdc -design      ;# not valid inside read_sdc (CMD-005); unnecessary per-scenario
+  and after fixing line 2, the next run hit:
   ```
-- **Status:** fixed. (Re-run of Step 2 pending to confirm the clock/constraints now load.)
+  set_input_delay -max 0.2 -clock clk_i [remove_from_collection [all_inputs] [get_ports clk_i]]
+  Error: unknown command 'remove_from_collection' (CMD-005)
+  script '.../riscv.sdc' stopped at line 22 due to error. (CMD-081)
+  ```
+- **Impact:** each unknown command **aborts the whole file at that line**. On the first run no
+  clock/constraints loaded at all; on the second run the clock loaded but the input/output-delay
+  and clock-transition constraints were dropped. Either way the design is under-constrained.
+- **Root cause:** `remove_sdc` and `remove_from_collection` are shell/collection commands, not
+  part of the SDC command set that `read_sdc` accepts.
+- **Fix:**
+  - line 2 — comment out `remove_sdc -design` (unnecessary; each MCMM scenario reads a fresh SDC).
+  - line 17 — replace `[remove_from_collection [all_inputs] [get_ports clk_i]]` with `[all_inputs]`
+    (SDC-native). The clock port also receiving a 0.2 input delay is harmless — it is driven by
+    `create_clock`.
+- **Status:** fixed. (Re-run of Step 2 pending to confirm all constraints load with no CMD-005/SDC-5.)
 
 ---
 
@@ -75,9 +81,7 @@ the files.
   set_case_analysis 0 [get_port rst_i]
   ```
 - **Symptom:** `get_port` (singular) is not a valid Fusion Compiler command; like Issue 2 it
-  aborts `read_sdc` at that line, dropping every constraint after it
-  (`set_input_delay`, `set_output_delay`, `set_clock_transition`). *(Not reached in the log
-  because the run aborted earlier on Issue 2 — found by inspection and fixed pre-emptively.)*
+  aborts `read_sdc` at that line, dropping every constraint after it.
 - **Root cause:** typo — the correct accessor is `get_ports` (plural).
 - **Fix:**
   ```tcl
@@ -103,5 +107,8 @@ the files.
 | # | File (provided) | Defect | Effect | Fix |
 |---|---|---|---|---|
 | 1 | `create_pg_network.tcl` | M4 strap strategy named `M5_PG_Strategy` but compiled as `M4_PG_Strategy` | M4 straps not built / name collision | rename strategy to `M4_PG_Strategy` |
-| 2 | `riscv.sdc` (l.2) | `remove_sdc -design` invalid in `read_sdc` | whole SDC aborts → no clock/constraints | comment it out |
-| 3 | `riscv.sdc` (l.11) | `get_port` (singular) invalid | aborts SDC → drops I/O-delay constraints | use `get_ports` |
+| 2 | `riscv.sdc` (l.2, l.17) | `remove_sdc` / `remove_from_collection` — Tcl/app commands invalid in `read_sdc` | whole SDC aborts (CMD-005) → clock and/or I/O constraints not loaded | comment `remove_sdc`; use `[all_inputs]` |
+| 3 | `riscv.sdc` (l.11) | `get_port` (singular) invalid | aborts SDC → drops constraints | use `get_ports` |
+
+*Note:* the lab SDC (`i2c_master_top.sdc`) is pure SDC, which is why `read_sdc` worked in the
+labs; the project `riscv.sdc` additionally used shell/Tcl commands that `read_sdc` rejects.

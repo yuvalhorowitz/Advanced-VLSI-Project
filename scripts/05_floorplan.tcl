@@ -69,6 +69,8 @@ source -echo ../scripts/insert_boundary_and_tap_cells.tcl
 source -echo ../scripts/create_pg_network.tcl
 
 #### Save the floorplan for the record (script form + DEF)
+# write_floorplan errors if the output dir already exists — clear it for rerun safety
+file delete -force -- ${RESULTS_PATH}/write_floorplan_files
 write_floorplan -output ${RESULTS_PATH}/write_floorplan_files
 write_def ${RESULTS_PATH}/${DESIGN_NAME}_floorplan.def
 

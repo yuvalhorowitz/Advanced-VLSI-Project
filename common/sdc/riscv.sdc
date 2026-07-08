@@ -19,7 +19,11 @@ set_case_analysis 0 [get_ports rst_i]
 #suppress_message DCT-306
 
 #set_input_delay 0.2 -max -clock clk_i  [all_inputs]
-set_input_delay -max 0.2 -clock clk_i [remove_from_collection [all_inputs] [get_ports clk_i]]
+# NOTE: original used 'remove_from_collection' (a Tcl/app command) which is not
+# valid inside read_sdc and aborts the file (CMD-005). read_sdc accepts only SDC
+# + basic Tcl (as in the lab i2c SDC). Rewritten with all_inputs; the clock port
+# also receiving an input delay is harmless (it is driven by create_clock).
+set_input_delay -max 0.2 -clock clk_i [all_inputs]
 
 
 #Set constraints on output ports:
