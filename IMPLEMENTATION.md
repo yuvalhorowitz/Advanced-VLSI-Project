@@ -91,7 +91,7 @@ no `collect_reports` at this stage.)
 | Combinational | 9,643 | — | `logs/01_syn.log` (`report_area`) |
 | Sequential (flops) | 2,319 | register file + pipeline mapped to real flops (no Xilinx RAM) | `logs/01_syn.log` (`report_area`) |
 | Buf/Inv | 1,157 | pre-opt; CTS/opt will rebalance | `logs/01_syn.log` (`report_area`) |
-| References (cell types) | 60 | multi-Vt library cells in use | `logs/01_syn.log` (`report_area`) |
+| References (cell types) | 56 | multi-Vt library cells in use | `logs/01_syn.log` (`report_area`) |
 | Total cell area | 6,449.4 µm² | netlist area *before* floorplan/placement | `logs/01_syn.log` (`report_area`) |
 | Timing | none | expected — constraints not read until Step 2 | `logs/01_syn.log` (`report_timing`) |
 | Black boxes | 0 | RTL fully synthesizable against SAED14 | `logs/01_syn.log` (`report_area`) |
@@ -148,15 +148,18 @@ and the block copy rerun-safe (drop stale `final_floorplan`).
 | Chip area | 12,867.9 µm² | includes the 5 µm core-to-die offset + PG rings | `reports/final_floorplan_report_design.rpt` |
 | Core utilization | 60.28% | matches the 0.60 target; comfortable headroom | `logs/05_floorplan.log` (`report_utilization`) |
 | Master clocks | 1 (`clk_i`) | SDC applied correctly | `reports/final_floorplan_report_design.rpt` |
-| Setup (Slow/Typical) | 0 violating paths, WNS ≈ +3.3 ns | 10 ns period is very relaxed → large positive slack | `reports/final_floorplan_report_qor.rpt`, `..._report_timing_setup.rpt` |
-| Hold (FUNC_Slow) | 124 paths, TNS −0.44 ns, worst −0.00 | tiny; hold normally fixed at CTS/route | `reports/final_floorplan_report_qor.rpt`, `..._report_timing_hold.rpt` |
+| Setup (Slow/Typical) | 0 violating paths; worst slack +3.34 ns (Slow), +6.48 ns (Typ) | 10 ns period is very relaxed → large positive slack (Fast has setup disabled) | `reports/final_floorplan_report_qor.rpt` |
+| Hold (FUNC_Typical) | 124 paths, TNS −0.44 ns, worst −0.00 ns | tiny; hold fixed at CTS/route. Fast hold = 0; Slow does not check hold | `reports/final_floorplan_report_qor.rpt` |
 | Max-trans / max-cap | 2 / 2 | minor DRV, cleaned during opto/route | `reports/final_floorplan_report_qor.rpt` |
-| Dynamic power | ≈1.13 mW (Fast) / 0.32 mW (Slow) | internal-dominated (98.7%); leakage N/A (not in frame_timing NDM) | `reports/final_floorplan_report_power.rpt` |
+| Dynamic power | 1.13 mW (Fast) / 0.45 mW (Typ) / 0.32 mW (Slow) | **clock_network ≈ 95–98%** — ideal high-fanout clock pre-CTS; drops after a real tree | `reports/final_floorplan_report_power.rpt` |
+| Leakage power | N/A (Fast) / 3.15e6 pW (Typ) / 4.94e4 pW (Slow) | N/A on Fast only because leakage analysis is **disabled** for that scenario, not a data gap | `reports/final_floorplan_report_power.rpt` |
 | PG `check_pg_drc` | No errors | PG mesh/rings/rails DRC-clean | `reports/final_floorplan_pg_drc.rpt` |
 
 Takeaway: the floorplan is healthy — ample timing margin at the 10 ns target, DRC-clean PG,
-and utilization on target. Only pre-placement hold/DRV noise remains, expected to clear
-downstream. Ready for placement.
+and utilization on target. Total power is dominated by the still-ideal clock network (pre-CTS)
+and will shift once a real clock tree is built. Only pre-placement hold/DRV noise remains,
+expected to clear downstream. Ready for placement.
+
 
 
 
