@@ -69,7 +69,9 @@ the files.
   - line 17 — replace `[remove_from_collection [all_inputs] [get_ports clk_i]]` with `[all_inputs]`
     (SDC-native). The clock port also receiving a 0.2 input delay is harmless — it is driven by
     `create_clock`.
-- **Status:** fixed. (Re-run of Step 2 pending to confirm all constraints load with no CMD-005/SDC-5.)
+- **Status:** fixed and **verified** — after the fixes, `read_sdc` loads all constraints into
+  the 3 MCMM scenarios with no `CMD-005`/`SDC-5`, the clock `clk_i` is created, and setup timing
+  is reported (Step 2 floorplan run, `logs/05_floorplan.log`).
 
 ---
 
