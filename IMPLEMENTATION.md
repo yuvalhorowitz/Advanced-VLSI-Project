@@ -90,18 +90,23 @@ It is a GUI-over-VNC instability and does **not** affect results. **Run every st
 
 ---
 
-## Step 2 — Floorplan + PG network  (`scripts/05_floorplan.tcl`)  — NEXT
+## Step 2 — Floorplan + PG network  (`scripts/05_floorplan.tcl`)  — written, run pending
 
-Planned (based on Lab 5.2/5.3). Copies `rtl_read` → `final_floorplan`, then:
+Based on Lab 5.2 (manual floorplan) + 5.3 (PG). Branches `inital_syn` → `final_floorplan`
+(the **mapped** block — `initialize_floorplan -core_utilization` needs real cell area; the lab
+used `rtl_read` only because it read a pre-built `floorplan.def`). Then:
 1. `source ../Setup/tech_setup.tcl`, `read_sdc ../common/sdc/riscv.sdc`, `source ../Setup/mcmm_setup.tcl`
    — constraints/MCMM enter here (this is why timing was empty in Step 1).
-2. `initialize_floorplan` (core utilization / offset / aspect) + `set_block_pin_constraints`
-   and `set_individual_pin_constraints` for the **`clk_i`** clock pin + `place_pins`.
-3. `source ../scripts/insert_boundary_and_tap_cells.tcl` (boundary/tap cells, `SAEDRVT14` prefix).
-4. `source ../scripts/create_pg_network.tcl` (rails/rings/mesh/vias — M4-strategy bug already fixed).
-5. `write_def` + `collect_reports floorplan`.
+2. `initialize_floorplan` (core util 0.60 / offset 5 / shape R / square) + `set_block_pin_constraints`
+   (M3/M4, left+bottom) + `set_individual_pin_constraints` for the **`clk_i`** pin (top, M5) + `place_pins`.
+3. `source ../scripts/insert_boundary_and_tap_cells.tcl` (boundary/tap, `SAEDRVT14` prefix).
+4. `source ../scripts/create_pg_network.tcl` (rails/rings/mesh/vias + connect + checks; M4-strategy bug fixed).
+5. `write_floorplan` + `write_def` → `results/`; `report_utilization`, `report_pg_drc final_floorplan`,
+   `collect_reports final_floorplan`; save block+lib (no `exit`).
 
-**Open items to watch at this stage:** the floorplan utilization/offset values (tune for the
-RISC-V size, larger than the lab i2c); confirm `clk_i` pin side/layer; verify `check_pg_drc`
-and `check_pg_connectivity` are clean.
+**Run notes / to watch:** tune `-core_utilization`/`-core_offset` for the RISC-V size if the
+die is too tight or sparse; confirm `clk_i` pin side/layer; verify `check_pg_connectivity` and
+`check_pg_drc` (in `reports/final_floorplan_pg_drc.rpt`) are clean. Does **not** need `clean.sh`
+— it opens the existing `.dlib` and branches from `inital_syn`.
+
 
