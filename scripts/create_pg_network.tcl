@@ -52,7 +52,7 @@ compile_pg -strategies { PG_Ring_VDD PG_Ring_VSS } -via_rule VIA_NIL
 create_pg_mesh_pattern M4_PG \
         -layers { {vertical_layer: M4}   {width: 0.1} {spacing: interleaving} {pitch: 4} {offset: 0.5} }
 
-set_pg_strategy M5_PG_Strategy \
+set_pg_strategy M4_PG_Strategy \
         -core \
         -pattern   { {name: M4_PG} {nets:{VSS VDD}} } \
         -extension { {stop: design_boundary_and_generate_pin} }

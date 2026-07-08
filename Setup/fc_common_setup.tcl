@@ -16,6 +16,9 @@ set DESIGN_NAME		"riscv_core"			; # top module (confirmed: riscv_core_all.v line
 set DESIGN_LIBRARY	"${DESIGN_NAME}.dlib"		; # design library name
 set WORK_DIR		"[pwd]"				; # current working directory (expected: <repo>/work)
 
+set CLOCK_PORT		"clk_i"				; # clock port (riscv.sdc: create_clock -period 10 [get_ports clk_i])
+set RESET_PORT		"rst_i"				; # reset port (riscv.sdc: set_case_analysis 0 [get_port rst_i])
+
 set LIBNAME		"saed14rvt"			; # primary std-cell library name
 set CELL_PREFIX		"SAEDRVT14"			; # RVT cell prefix (used by PG/boundary/tap/CTS scripts)
 set TECH_NODE		"saed14nm"			; # technology node name
