@@ -2,7 +2,7 @@
 Report : design
 Design : riscv_core
 Version: V-2023.12-SP3
-Date   : Wed Jul  8 12:41:18 2026
+Date   : Wed Jul  8 13:10:52 2026
 ****************************************
 
 Total number of std cells in library : 2229
@@ -46,9 +46,9 @@ Design Masters count                 : 60
 Total Flat nets count                : 12822
 Total FloatingNets count             : 4
 Total no of Ports                    : 269
-Number of Master Clocks in design    : 0
+Number of Master Clocks in design    : 1
 Number of Generated Clocks in design : 0
-Number of Path Groups in design      : 6 (0 of them Non Default)
+Number of Path Groups in design      : 7 (1 of them Non Default)
 Number of Scan Chains in design      : 0
 List of Modes                        : FUNC
 List of Corners                      : Fast, Typical, Slow

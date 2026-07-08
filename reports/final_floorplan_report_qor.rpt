@@ -2,9 +2,108 @@
 Report : qor
 Design : riscv_core
 Version: V-2023.12-SP3
-Date   : Wed Jul  8 12:41:18 2026
+Date   : Wed Jul  8 13:10:52 2026
 ****************************************
 
+
+Scenario           'FUNC_Fast'
+Timing Path Group  'clk_i'
+----------------------------------------
+Worst Hold Violation:              0.00
+Total Hold Violation:              0.00
+No. of Hold Violations:               0
+----------------------------------------
+
+Scenario           'FUNC_Slow'
+Timing Path Group  '**in2reg_default**'
+----------------------------------------
+Levels of Logic:                     57
+Critical Path Length:              6.45
+Critical Path Slack:               3.34
+Critical Path Clk Period:         10.00
+Total Negative Slack:              0.00
+No. of Violating Paths:               0
+----------------------------------------
+
+Scenario           'FUNC_Slow'
+Timing Path Group  '**reg2out_default**'
+----------------------------------------
+Levels of Logic:                     15
+Critical Path Length:              4.00
+Critical Path Slack:               5.65
+Critical Path Clk Period:         10.00
+Total Negative Slack:              0.00
+No. of Violating Paths:               0
+----------------------------------------
+
+Scenario           'FUNC_Slow'
+Timing Path Group  '**in2out_default**'
+----------------------------------------
+Levels of Logic:                     15
+Critical Path Length:              4.03
+Critical Path Slack:               5.62
+Critical Path Clk Period:         10.00
+Total Negative Slack:              0.00
+No. of Violating Paths:               0
+----------------------------------------
+
+Scenario           'FUNC_Slow'
+Timing Path Group  'clk_i'
+----------------------------------------
+Levels of Logic:                     57
+Critical Path Length:              6.42
+Critical Path Slack:               3.36
+Critical Path Clk Period:         10.00
+Total Negative Slack:              0.00
+No. of Violating Paths:               0
+----------------------------------------
+
+Scenario           'FUNC_Typical'
+Timing Path Group  '**in2reg_default**'
+----------------------------------------
+Levels of Logic:                     90
+Critical Path Length:              3.47
+Critical Path Slack:               6.36
+Critical Path Clk Period:         10.00
+Total Negative Slack:              0.00
+No. of Violating Paths:               0
+----------------------------------------
+
+Scenario           'FUNC_Typical'
+Timing Path Group  '**reg2out_default**'
+----------------------------------------
+Levels of Logic:                     15
+Critical Path Length:              1.88
+Critical Path Slack:               7.77
+Critical Path Clk Period:         10.00
+Total Negative Slack:              0.00
+No. of Violating Paths:               0
+----------------------------------------
+
+Scenario           'FUNC_Typical'
+Timing Path Group  '**in2out_default**'
+----------------------------------------
+Levels of Logic:                     15
+Critical Path Length:              2.00
+Critical Path Slack:               7.65
+Critical Path Clk Period:         10.00
+Total Negative Slack:              0.00
+No. of Violating Paths:               0
+----------------------------------------
+
+Scenario           'FUNC_Typical'
+Timing Path Group  'clk_i'
+----------------------------------------
+Levels of Logic:                     90
+Critical Path Length:              3.35
+Critical Path Slack:               6.48
+Critical Path Clk Period:         10.00
+Total Negative Slack:              0.00
+No. of Violating Paths:               0
+Worst Hold Violation:             -0.00
+Total Hold Violation:             -0.44
+No. of Hold Violations:             124
+----------------------------------------
 
 
 Cell Count
@@ -56,8 +155,8 @@ Net Length:                    23499.40
 Design Rules
 ----------------------------------------
 Total Number of Nets:             12822
-Nets with Violations:              8182
-Max Trans Violations:              1054
+Nets with Violations:              8124
+Max Trans Violations:                 2
 Max Cap Violations:                   2
 ----------------------------------------
 

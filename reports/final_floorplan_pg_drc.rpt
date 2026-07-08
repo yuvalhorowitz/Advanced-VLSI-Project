@@ -36,8 +36,8 @@ Number of VSS Terminals: 156
   Number of floating hierarchical blocks: 0
 ************************************************************
 Overall runtime: 0 seconds.
-Command check_pg_drc started  at Wed Jul  8 12:41:15 2026
-Command check_pg_drc finished at Wed Jul  8 12:41:15 2026
-CPU usage for check_pg_drc: 0.14 seconds ( 0.00 hours)
-Elapsed time for check_pg_drc: 0.03 seconds ( 0.00 hours)
+Command check_pg_drc started  at Wed Jul  8 13:10:47 2026
+Command check_pg_drc finished at Wed Jul  8 13:10:47 2026
+CPU usage for check_pg_drc: 0.25 seconds ( 0.00 hours)
+Elapsed time for check_pg_drc: 0.04 seconds ( 0.00 hours)
 No errors found.

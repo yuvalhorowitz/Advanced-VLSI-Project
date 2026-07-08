@@ -7,7 +7,127 @@ Report : timing
         -report_by design
 Design : riscv_core
 Version: V-2023.12-SP3
-Date   : Wed Jul  8 12:41:18 2026
+Date   : Wed Jul  8 13:10:52 2026
 ****************************************
-No paths.
+
+  Startpoint: mem_d_ack_i (input port clocked by clk_i)
+  Endpoint: u_exec/result_q_reg[0] (rising edge-triggered flip-flop clocked by clk_i)
+  Mode: FUNC
+  Corner: Slow
+  Scenario: FUNC_Slow
+  Path Group: **in2reg_default**
+  Path Type: max
+
+  Point                                            Incr      Path  
+  ------------------------------------------------------------------------
+  clock clk_i (rise edge)                          0.00      0.00
+  clock network delay (ideal)                      0.00      0.00
+  input external delay                             0.20      0.20 r
+  mem_d_ack_i (in)                                 0.00      0.20 r
+  ctmi_41433/X (SAEDHVT14_INV_0P5)                 0.02      0.22 f
+  ctmi_41432/X (SAEDHVT14_ND2_CDC_0P5)             0.02      0.24 r
+  ctmi_41435/X (SAEDHVT14_INV_0P5)                 0.02      0.27 f
+  ctmi_41431/X (SAEDHVT14_OAI21_0P5)               0.02      0.29 r
+  ctmi_41429/X (SAEDHVT14_OAI21_0P5)               1.50      1.78 f
+  ctmi_41785/X (SAEDHVT14_INV_0P5)                 2.01      3.80 r
+  ctmi_41829/X (SAEDHVT14_AN3_0P5)                 0.36      4.16 r
+  ctmi_41839/X (SAEDHVT14_ND2_CDC_0P5)             0.04      4.20 f
+  ctmi_41957/X (SAEDHVT14_MUXI2_U_0P5)             0.04      4.25 f
+  ctmi_41956/X (SAEDHVT14_AO221_0P5)               0.05      4.30 f
+  ctmi_41954/X (SAEDHVT14_OR4_1)                   0.05      4.34 f
+  ctmi_41978/X (SAEDHVT14_ND2_CDC_0P5)             0.02      4.36 r
+  ctmi_41982/X (SAEDHVT14_OR3_0P5)                 0.03      4.39 r
+  ctmi_41999/X (SAEDHVT14_NR2_1)                   0.03      4.43 f
+  ctmi_42023/X (SAEDHVT14_ND2_CDC_0P5)             0.02      4.45 r
+  ctmi_42024/X (SAEDHVT14_INV_0P5)                 0.09      4.54 f
+  ctmi_45111/X (SAEDHVT14_AO221_0P5)               0.12      4.66 f
+  ctmi_45108/X (SAEDHVT14_OR4_1)                   0.05      4.71 f
+  ctmi_45095/X (SAEDHVT14_OR4_1)                   0.07      4.78 f
+  ctmi_45233/X (SAEDHVT14_INV_0P5)                 0.05      4.83 r
+  ctmi_45230/X (SAEDHVT14_OAI22_0P5)               0.14      4.96 f
+  u_exec/u_alu/lt_831/ctmi_49590/X (SAEDHVT14_OAI22_0P5)
+                                                   0.12      5.08 r
+  u_exec/u_alu/lt_831/ctmi_49587/X (SAEDHVT14_AOI21_0P5)
+                                                   0.03      5.11 f
+  u_exec/u_alu/lt_831/ctmi_49585/X (SAEDHVT14_AO221_0P5)
+                                                   0.06      5.17 f
+  u_exec/u_alu/lt_831/ctmi_49583/X (SAEDHVT14_OA221_U_0P5)
+                                                   0.03      5.20 f
+  u_exec/u_alu/lt_831/ctmi_49581/X (SAEDHVT14_AO221_0P5)
+                                                   0.05      5.24 f
+  u_exec/u_alu/lt_831/ctmi_49579/X (SAEDHVT14_OA221_U_0P5)
+                                                   0.03      5.27 f
+  u_exec/u_alu/lt_831/ctmi_49577/X (SAEDHVT14_AO221_0P5)
+                                                   0.05      5.32 f
+  u_exec/u_alu/lt_831/ctmi_49575/X (SAEDHVT14_OA221_U_0P5)
+                                                   0.03      5.35 f
+  u_exec/u_alu/lt_831/ctmi_49573/X (SAEDHVT14_AO221_0P5)
+                                                   0.05      5.40 f
+  u_exec/u_alu/lt_831/ctmi_49571/X (SAEDHVT14_OA221_U_0P5)
+                                                   0.03      5.43 f
+  u_exec/u_alu/lt_831/ctmi_49569/X (SAEDHVT14_AO221_0P5)
+                                                   0.05      5.47 f
+  u_exec/u_alu/lt_831/ctmi_49567/X (SAEDHVT14_OA221_U_0P5)
+                                                   0.03      5.50 f
+  u_exec/u_alu/lt_831/ctmi_49565/X (SAEDHVT14_AO221_0P5)
+                                                   0.05      5.55 f
+  u_exec/u_alu/lt_831/ctmi_49563/X (SAEDHVT14_OA221_U_0P5)
+                                                   0.03      5.58 f
+  u_exec/u_alu/lt_831/ctmi_49561/X (SAEDHVT14_AO221_0P5)
+                                                   0.05      5.63 f
+  u_exec/u_alu/lt_831/ctmi_49559/X (SAEDHVT14_OA221_U_0P5)
+                                                   0.03      5.66 f
+  u_exec/u_alu/lt_831/ctmi_49557/X (SAEDHVT14_AO221_0P5)
+                                                   0.05      5.70 f
+  u_exec/u_alu/lt_831/ctmi_49555/X (SAEDHVT14_OA221_U_0P5)
+                                                   0.03      5.73 f
+  u_exec/u_alu/lt_831/ctmi_49553/X (SAEDHVT14_AO221_0P5)
+                                                   0.05      5.78 f
+  u_exec/u_alu/lt_831/ctmi_49551/X (SAEDHVT14_OA221_U_0P5)
+                                                   0.03      5.81 f
+  u_exec/u_alu/lt_831/ctmi_49549/X (SAEDHVT14_AO221_0P5)
+                                                   0.05      5.85 f
+  u_exec/u_alu/lt_831/ctmi_49547/X (SAEDHVT14_OA221_U_0P5)
+                                                   0.03      5.88 f
+  u_exec/u_alu/lt_831/ctmi_49545/X (SAEDHVT14_AO221_0P5)
+                                                   0.05      5.93 f
+  u_exec/u_alu/lt_831/ctmi_49543/X (SAEDHVT14_OA221_U_0P5)
+                                                   0.03      5.96 f
+  u_exec/u_alu/lt_831/ctmi_49541/X (SAEDHVT14_AO221_0P5)
+                                                   0.05      6.01 f
+  u_exec/u_alu/lt_831/ctmi_49539/X (SAEDHVT14_OA221_U_0P5)
+                                                   0.03      6.04 f
+  u_exec/u_alu/lt_831/ctmi_49537/X (SAEDHVT14_AO221_0P5)
+                                                   0.05      6.08 f
+  u_exec/u_alu/lt_831/ctmi_49535/X (SAEDHVT14_OA221_U_0P5)
+                                                   0.03      6.11 f
+  u_exec/u_alu/lt_831/ctmi_49533/X (SAEDHVT14_AO221_0P5)
+                                                   0.05      6.16 f
+  u_exec/u_alu/lt_831/ctmi_49531/X (SAEDHVT14_OA221_U_0P5)
+                                                   0.03      6.19 f
+  u_exec/u_alu/lt_831/ctmi_49527/X (SAEDHVT14_OAI22_0P5)
+                                                   0.03      6.21 r
+  ctmi_45821/X (SAEDHVT14_OAI21_0P5)               0.02      6.24 f
+  ctmi_45820/X (SAEDHVT14_OAI22_0P5)               0.03      6.26 r
+  ctmi_45819/X (SAEDHVT14_OR4_1)                   0.04      6.30 r
+  ctmi_45818/X (SAEDHVT14_OAI22_0P5)               0.02      6.32 f
+  ctmi_45817/X (SAEDHVT14_OAI21_0P5)               0.13      6.45 r
+  u_exec/result_q_reg[0]/D (SAEDHVT14_FSDPRBQ_V2_0P5)
+                                                   0.00      6.45 r
+  data arrival time                                          6.45
+
+  clock clk_i (rise edge)                         10.00     10.00
+  clock network delay (ideal)                      0.00     10.00
+  u_exec/result_q_reg[0]/CK (SAEDHVT14_FSDPRBQ_V2_0P5)
+                                                   0.00     10.00 r
+  clock uncertainty                               -0.15      9.85
+  library setup time                              -0.07      9.78
+  data required time                                         9.78
+  ------------------------------------------------------------------------
+  data required time                                         9.78
+  data arrival time                                         -6.45
+  ------------------------------------------------------------------------
+  slack (MET)                                                3.34
+
+
 1

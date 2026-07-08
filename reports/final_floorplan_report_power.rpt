@@ -1,16 +1,14 @@
-Information: Timer using 8 threads
 Information: Corner Fast: no PVT mismatches. (PVT-032)
 Information: Corner Typical: no PVT mismatches. (PVT-032)
 Information: Corner Slow: no PVT mismatches. (PVT-032)
-Warning: No valid clocks available in mode 'FUNC'. Setting clock frequency to 1 GHz. (POW-034)
 ****************************************
 Report : power
         -significant_digits 2
 Design : riscv_core
 Version: V-2023.12-SP3
-Date   : Wed Jul  8 12:41:15 2026
+Date   : Wed Jul  8 13:10:48 2026
 ****************************************
-Information: Activity propagation will be performed for scenario FUNC_Typical.
+Information: Activity propagation will be performed for scenario FUNC_Fast.
 Warning: Mapping to scan cell 'SAEDLVT14_FSDPRBSBQ_V2_0P5' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
 Warning: Mapping to scan cell 'SAEDLVT14_FSDPRBSBQ_V2_1' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
 Warning: Mapping to scan cell 'SAEDLVT14_FSDPRBSBQ_V2_2' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
@@ -21,14 +19,13 @@ Warning: Mapping to scan cell 'SAEDLVT14_FSDPRBSBQ_V2LP_2' in library is not pos
 Warning: Mapping to scan cell 'SAEDRVT14_FSDPRBSBQ_V2_0P5' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
 Warning: Mapping to scan cell 'SAEDRVT14_FSDPRBSBQ_V2_1' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
 Warning: Mapping to scan cell 'SAEDRVT14_FSDPRBSBQ_V2_2' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
-Information: Doing activity propagation for mode 'FUNC' and corner 'Typical' with effort level 'medium'. (POW-024)
-Information: Timer-derived activity data is cached on scenario FUNC_Typical (POW-052)
-Warning: No valid clocks available in mode 'FUNC'. Setting clock frequency to 1 GHz. (POW-034)
+Information: Doing activity propagation for mode 'FUNC' and corner 'Fast' with effort level 'medium'. (POW-024)
+Information: Timer-derived activity data is cached on scenario FUNC_Fast (POW-052)
 Infomation: Fast mode activity propagation power.rtl_activity_annotation setup is ignored. Always use accurate mode.
 Information: Running switching activity propagation with 8 threads!
 
  **** Information : No. of simulation cycles = 7 ****
-Information: Propagated activity on scenario FUNC_Fast identical to that on FUNC_Typical (POW-006)
+Information: Propagated activity on scenario FUNC_Typical identical to that on FUNC_Fast (POW-006)
 Information: Propagated activity on scenario FUNC_Slow identical to that on FUNC_Fast (POW-006)
 Information: The stitching and editing of coupling caps is turned OFF for design 'riscv_core.dlib:riscv_core/final_floorplan.design'. (TIM-125)
 Information: Design Average RC for design riscv_core  (NEX-011)
@@ -61,7 +58,6 @@ Time Unit            : 1ns
 Temperature Unit     : 1C
 Dynamic Power Unit   : 1pW
 Leakage Power Unit   : 1pW
-Warning: No valid clocks available in mode 'FUNC'. Setting clock frequency to 1 GHz. (POW-034)
 
 Switched supply net power scaling:
 scaling for leakage power
@@ -69,21 +65,24 @@ scaling for leakage power
 Supply nets:
 VDD (power) probability 1.00 (default)
 VSS (ground) probability 1.00 (default)
+Warning: Power table extrapolation (extrapolation mode) for port A2 on cell ctmi_48052 for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 1.162872 (POW-046)
 Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_48052 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.385300, value = 0.000568 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port D on cell u_issue/u_regfile/REGFILE.reg_r15_q_reg[29] for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 45.877285 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port CK on cell u_issue/u_regfile/REGFILE.reg_r15_q_reg[29] for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 0.000000 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port QN on cell u_issue/u_regfile/REGFILE.reg_r15_q_reg[29] for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 0.000000 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port B2 on cell ctmi_47263 for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 717.294556 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_47263 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.097200, value = 0.000470 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_47263 for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 514.039978 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port A2 on cell ctmi_47264 for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 717.294556 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_47264 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.097200, value = 0.000470 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_47264 for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 514.039978 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_48052 for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 1.162872 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_45737 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.384500, value = 0.000559 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_47294 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.097200, value = 0.000470 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port A1 on cell ctmi_49159 for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 1.162872 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_49159 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.295900, value = 0.000568 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_49159 for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 1.162872 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port A1 on cell ctmi_49160 for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 1.162872 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_49160 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.295900, value = 0.000568 (POW-046)
 Note - message 'POW-046' limit (10) exceeded. Remainder will be suppressed.
+Warning: Fall toggles on pin u_issue/u_regfile/REGFILE.reg_r22_q_reg[2]/Q are impossible given input states; converted to rise toggles. (POW-069)
+Warning: Fall toggles on pin u_issue/u_regfile/REGFILE.reg_r26_q_reg[0]/Q are impossible given input states; converted to rise toggles. (POW-069)
+Warning: Fall toggles on pin u_issue/u_regfile/REGFILE.reg_r13_q_reg[0]/Q are impossible given input states; converted to rise toggles. (POW-069)
 
-  Cell Internal Power    = 1.56e+11 pW ( 80.1%)
-  Net Switching Power    = 3.88e+10 pW ( 19.9%)
-Total Dynamic Power      = 1.95e+11 pW (100.0%)
+  Cell Internal Power    = 1.11e+09 pW ( 98.7%)
+  Net Switching Power    = 1.46e+07 pW (  1.3%)
+Total Dynamic Power      = 1.13e+09 pW (100.0%)
 
 Cell Leakage Power       = N/A
 
@@ -91,18 +90,19 @@ Cell Leakage Power       = N/A
   Attributes
   ----------
       u  -  User defined power group
+      i  -  Includes clock pin internal power
 
 Power Group         Internal Power        Switching Power          Leakage Power            Total Power    (   %  )    Attrs
 -----------------------------------------------------------------------------------------------------------------------------
 io_pad                    0.00e+00               0.00e+00                    N/A               0.00e+00    (  0.0%)         
 memory                    0.00e+00               0.00e+00                    N/A               0.00e+00    (  0.0%)         
 black_box                 0.00e+00               0.00e+00                    N/A               0.00e+00    (  0.0%)         
-clock_network             0.00e+00               0.00e+00                    N/A               0.00e+00    (  0.0%)         
-register                  0.00e+00               0.00e+00                    N/A               0.00e+00    (  0.0%)         
-sequential                1.85e+10               2.18e+06                    N/A               1.85e+10    (  9.5%)         
-combinational             1.38e+11               3.88e+10                    N/A               1.77e+11    ( 90.5%)         
+clock_network             1.10e+09               0.00e+00                    N/A               1.10e+09    ( 97.5%)        i
+register                  2.36e+06               1.70e+06                    N/A               4.06e+06    (  0.4%)         
+sequential                0.00e+00               0.00e+00                    N/A               0.00e+00    (  0.0%)         
+combinational             1.12e+07               1.29e+07                    N/A               2.40e+07    (  2.1%)         
 -----------------------------------------------------------------------------------------------------------------------------
-Total                     1.56e+11 pW            3.88e+10 pW                 N/A               1.95e+11 pW
+Total                     1.11e+09 pW            1.46e+07 pW                 N/A               1.13e+09 pW
 Mode: FUNC
 Corner: Slow
 Scenario: FUNC_Slow
@@ -115,7 +115,6 @@ Time Unit            : 1ns
 Temperature Unit     : 1C
 Dynamic Power Unit   : 1pW
 Leakage Power Unit   : 1pW
-Warning: No valid clocks available in mode 'FUNC'. Setting clock frequency to 1 GHz. (POW-034)
 
 Switched supply net power scaling:
 scaling for leakage power
@@ -123,29 +122,33 @@ scaling for leakage power
 Supply nets:
 VDD (power) probability 1.00 (default)
 VSS (ground) probability 1.00 (default)
+Warning: Fall toggles on pin u_issue/u_regfile/REGFILE.reg_r22_q_reg[2]/Q are impossible given input states; converted to rise toggles. (POW-069)
+Warning: Fall toggles on pin u_issue/u_regfile/REGFILE.reg_r26_q_reg[0]/Q are impossible given input states; converted to rise toggles. (POW-069)
+Warning: Fall toggles on pin u_issue/u_regfile/REGFILE.reg_r13_q_reg[0]/Q are impossible given input states; converted to rise toggles. (POW-069)
 
-  Cell Internal Power    = -9.66e+08 pW ( -3.9%)
-  Net Switching Power    = 2.60e+10 pW (103.9%)
-Total Dynamic Power      = 2.50e+10 pW (100.0%)
+  Cell Internal Power    = 3.09e+08 pW ( 97.7%)
+  Net Switching Power    = 7.37e+06 pW (  2.3%)
+Total Dynamic Power      = 3.17e+08 pW (100.0%)
 
-Cell Leakage Power       = 4.91e+04 pW
+Cell Leakage Power       = 4.94e+04 pW
 
 
   Attributes
   ----------
       u  -  User defined power group
+      i  -  Includes clock pin internal power
 
 Power Group         Internal Power        Switching Power          Leakage Power            Total Power    (   %  )    Attrs
 -----------------------------------------------------------------------------------------------------------------------------
 io_pad                    0.00e+00               0.00e+00               0.00e+00               0.00e+00    (  0.0%)         
 memory                    0.00e+00               0.00e+00               0.00e+00               0.00e+00    (  0.0%)         
 black_box                 0.00e+00               0.00e+00               0.00e+00               0.00e+00    (  0.0%)         
-clock_network             0.00e+00               0.00e+00               0.00e+00               0.00e+00    (  0.0%)         
-register                  0.00e+00               0.00e+00               0.00e+00               0.00e+00    (  0.0%)         
-sequential                2.13e+07               1.27e+06               2.40e+04               2.26e+07    (  0.1%)         
-combinational            -9.88e+08               2.60e+10               2.50e+04               2.50e+10    ( 99.9%)         
+clock_network             3.03e+08               0.00e+00               0.00e+00               3.03e+08    ( 95.6%)        i
+register                  1.31e+06               1.05e+06               2.45e+04               2.39e+06    (  0.8%)         
+sequential                0.00e+00               0.00e+00               0.00e+00               0.00e+00    (  0.0%)         
+combinational             5.16e+06               6.31e+06               2.49e+04               1.15e+07    (  3.6%)         
 -----------------------------------------------------------------------------------------------------------------------------
-Total                    -9.66e+08 pW            2.60e+10 pW            4.91e+04 pW            2.50e+10 pW
+Total                     3.09e+08 pW            7.37e+06 pW            4.94e+04 pW            3.17e+08 pW
 Mode: FUNC
 Corner: Typical
 Scenario: FUNC_Typical
@@ -158,7 +161,6 @@ Time Unit            : 1ns
 Temperature Unit     : 1C
 Dynamic Power Unit   : 1pW
 Leakage Power Unit   : 1pW
-Warning: No valid clocks available in mode 'FUNC'. Setting clock frequency to 1 GHz. (POW-034)
 
 Switched supply net power scaling:
 scaling for leakage power
@@ -166,27 +168,31 @@ scaling for leakage power
 Supply nets:
 VDD (power) probability 1.00 (default)
 VSS (ground) probability 1.00 (default)
+Warning: Fall toggles on pin u_issue/u_regfile/REGFILE.reg_r22_q_reg[2]/Q are impossible given input states; converted to rise toggles. (POW-069)
+Warning: Fall toggles on pin u_issue/u_regfile/REGFILE.reg_r26_q_reg[0]/Q are impossible given input states; converted to rise toggles. (POW-069)
+Warning: Fall toggles on pin u_issue/u_regfile/REGFILE.reg_r13_q_reg[0]/Q are impossible given input states; converted to rise toggles. (POW-069)
 
-  Cell Internal Power    = 1.64e+10 pW ( 33.8%)
-  Net Switching Power    = 3.21e+10 pW ( 66.2%)
-Total Dynamic Power      = 4.84e+10 pW (100.0%)
+  Cell Internal Power    = 4.43e+08 pW ( 97.5%)
+  Net Switching Power    = 1.11e+07 pW (  2.5%)
+Total Dynamic Power      = 4.54e+08 pW (100.0%)
 
-Cell Leakage Power       = 3.10e+06 pW
+Cell Leakage Power       = 3.15e+06 pW
 
 
   Attributes
   ----------
       u  -  User defined power group
+      i  -  Includes clock pin internal power
 
 Power Group         Internal Power        Switching Power          Leakage Power            Total Power    (   %  )    Attrs
 -----------------------------------------------------------------------------------------------------------------------------
 io_pad                    0.00e+00               0.00e+00               0.00e+00               0.00e+00    (  0.0%)         
 memory                    0.00e+00               0.00e+00               0.00e+00               0.00e+00    (  0.0%)         
 black_box                 0.00e+00               0.00e+00               0.00e+00               0.00e+00    (  0.0%)         
-clock_network             0.00e+00               0.00e+00               0.00e+00               0.00e+00    (  0.0%)         
-register                  0.00e+00               0.00e+00               0.00e+00               0.00e+00    (  0.0%)         
-sequential                2.59e+09               1.76e+06               6.09e+05               2.59e+09    (  5.3%)         
-combinational             1.38e+10               3.21e+10               2.49e+06               4.58e+10    ( 94.7%)         
+clock_network             4.33e+08               0.00e+00               0.00e+00               4.33e+08    ( 94.8%)        i
+register                  1.91e+06               1.40e+06               6.21e+05               3.93e+06    (  0.9%)         
+sequential                0.00e+00               0.00e+00               0.00e+00               0.00e+00    (  0.0%)         
+combinational             7.66e+06               9.72e+06               2.53e+06               1.99e+07    (  4.4%)         
 -----------------------------------------------------------------------------------------------------------------------------
-Total                     1.64e+10 pW            3.21e+10 pW            3.10e+06 pW            4.84e+10 pW
+Total                     4.43e+08 pW            1.11e+07 pW            3.15e+06 pW            4.57e+08 pW
 1
