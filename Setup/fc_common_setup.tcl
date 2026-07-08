@@ -90,4 +90,4 @@ set RESULTS_PATH	"${WORK_DIR}/../results"			; # design library + final netlists/
 set REPORTS_PATH	"${WORK_DIR}/../reports"			; # all .rpt deliverables
 
 #### Source the reporting utilities
-source ${WORK_DIR}/../setup/utilities.tcl
+source ${WORK_DIR}/../Setup/utilities.tcl

@@ -10,8 +10,8 @@
 # Run from the work/ directory:  fc_shell -f ../scripts/01_syn.tcl
 
 #### Sourcing setup scripts
-source -echo ../setup/fc_common_setup.tcl
-source -echo ../setup/fc_flow_setup.tcl
+source -echo ../Setup/fc_common_setup.tcl
+source -echo ../Setup/fc_flow_setup.tcl
 
 #### Create the design library (TECH_FILE + three-Vt frame_timing ref libs)
 create_lib ${RESULTS_PATH}/${DESIGN_LIBRARY} -technology ${TECH_FILE} -ref_libs ${REFERENCE_LIBRARY}
