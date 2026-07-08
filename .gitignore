@@ -12,7 +12,15 @@ HDL_LIBRARIES/
 signoff_drc_run/
 
 # ---- tool logs ----
+# Ignore stray logs everywhere, but TRACK the per-stage logs under logs/
+# so they can be shared/reviewed via git.
 *.log
+!logs/*.log
+
+# ---- crash traces / NFS temp files (never track) ----
+Synopsys_stack_trace_*.txt
+crte_*.txt
+.nfs*
 
 # ---- editor / OS cruft ----
 *.swp

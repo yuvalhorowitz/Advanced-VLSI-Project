@@ -16,6 +16,6 @@ rm -f  reports/*.rpt
 rm -rf work/* logs/*
 
 # keep the empty tracked dirs alive in git
-touch work/.gitkeep results/.gitkeep reports/.gitkeep
+touch work/.gitkeep results/.gitkeep reports/.gitkeep logs/.gitkeep
 
 echo "clean: reset results/, reports/, work/, logs/ (sources kept)."
