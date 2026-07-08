@@ -142,7 +142,12 @@ Information: Loading library file '/tech/synopsys/lib/SAED14_EDK/SAED14nm_EDK_ST
 Information: Loading library file '/tech/synopsys/lib/SAED14_EDK/SAED14nm_EDK_STD_RVT/ndm/saed14rvt_base_frame_timing.ndm' (FILE-007)
 Information: Loading library file '/tech/synopsys/lib/SAED14_EDK/SAED14nm_EDK_STD_HVT/ndm/saed14hvt_base_frame_timing.ndm' (FILE-007)
 {riscv_core.dlib}
+# rerun-safe: drop a stale target block from a previous run if present
+if {[sizeof_collection [get_blocks -quiet ${DESIGN_NAME}/final_floorplan]] > 0} {
+        remove_blocks -force ${DESIGN_NAME}/final_floorplan
+}
 copy_block -from ${DESIGN_NAME}/inital_syn -to ${DESIGN_NAME}/final_floorplan
+Information: Overwriting block 'riscv_core/final_floorplan.design' in library 'riscv_core.dlib'. (DES-025)
 Information: User units loaded from library 'saed14lvt_base_frame_timing' (LNK-040)
 {riscv_core.dlib:riscv_core/final_floorplan.design}
 open_block ${DESIGN_NAME}/final_floorplan
@@ -173,12 +178,15 @@ Information: The command 'read_parasitic_tech' cleared the undo history. (UNDO-0
 WARNING: Layer mapping file warning. Tech layer 'M1_3' mapped in layer mapping file cannot be found in technology section.
 WARNING: Layer mapping file warning. Tech layer 'M2_3' mapped in layer mapping file cannot be found in technology section.
 WARNING: Layer mapping file warning. Tech layer 'M3_3' mapped in layer mapping file cannot be found in technology section.
+NEX(WARNING): parasitic_tech file: /tech/synopsys/lib/SAED14_EDK/SAED14nm_EDK_TECH_DATA/tlup/saed14nm_1p9m_Cmax.tlup already read in, mandatory 1-to-1 map between tluplus file and paraTech
 WARNING: Layer mapping file warning. Tech layer 'M1_3' mapped in layer mapping file cannot be found in technology section.
 WARNING: Layer mapping file warning. Tech layer 'M2_3' mapped in layer mapping file cannot be found in technology section.
 WARNING: Layer mapping file warning. Tech layer 'M3_3' mapped in layer mapping file cannot be found in technology section.
+NEX(WARNING): parasitic_tech file: /tech/synopsys/lib/SAED14_EDK/SAED14nm_EDK_TECH_DATA/tlup/saed14nm_1p9m_Cnom.tlup already read in, mandatory 1-to-1 map between tluplus file and paraTech
 WARNING: Layer mapping file warning. Tech layer 'M1_3' mapped in layer mapping file cannot be found in technology section.
 WARNING: Layer mapping file warning. Tech layer 'M2_3' mapped in layer mapping file cannot be found in technology section.
 WARNING: Layer mapping file warning. Tech layer 'M3_3' mapped in layer mapping file cannot be found in technology section.
+NEX(WARNING): parasitic_tech file: /tech/synopsys/lib/SAED14_EDK/SAED14nm_EDK_TECH_DATA/tlup/saed14nm_1p9m_Cmin.tlup already read in, mandatory 1-to-1 map between tluplus file and paraTech
 suppress_message ATTR-12
 set_attribute [get_layers {M1 M3 M5 M7 M9}]   routing_direction vertical
 set_attribute [get_layers {M2 M4 M6 M8 MRDL}] routing_direction horizontal
@@ -192,15 +200,33 @@ Warning: No valid clocks available in mode 'default'. Setting clock frequency to
 Design 'riscv_core' was successfully linked.
 Information: Loading SDC version 2.1 file '/project/advvlsi/users/yh3/ws/project_2026/common/sdc/riscv.sdc' (FILE-007)
 # remove any constraints that were applied from previous runs:
-remove_sdc -design
-Error: unknown command 'remove_sdc' (CMD-005)
+# NOTE: 'remove_sdc' is not valid inside read_sdc in Fusion Compiler and aborts
+# the whole file (CMD-005). It is unnecessary here (each scenario reads a fresh
+# SDC), so it is commented out to let the constraints below actually load.
+# remove_sdc -design
+# Set the physical library:
+#set_current_design TOP
+# Create clock object and set uncertainty
+create_clock -period 10 [get_ports clk_i]
+set_clock_uncertainty -setup 0.15 [get_clocks clk_i]
+# NOTE: original used 'get_port' (singular), which is not a valid FC command
+# and aborts read_sdc; corrected to 'get_ports'.
+set_case_analysis 0 [get_ports rst_i]
+# Set constraints on input ports
+#suppress_message UID-401
+#suppress_message DCT-306
+#set_input_delay 0.2 -max -clock clk_i  [all_inputs]
+set_input_delay -max 0.2 -clock clk_i [remove_from_collection [all_inputs] [get_ports clk_i]]
+Error: unknown command 'remove_from_collection' (CMD-005)
 Information: script '/project/advvlsi/users/yh3/ws/project_2026/common/sdc/riscv.sdc'
-                stopped at line 2 due to error. (CMD-081)
+                stopped at line 22 due to error. (CMD-081)
 Extended error info:
 
     while executing
-"remove_sdc -design"
-    (file "/project/advvlsi/users/yh3/ws/project_2026/common/sdc/riscv.sdc" line 2)
+"remove_from_collection [all_inputs] [get_ports clk_i]"
+    invoked from within
+"set_input_delay -max 0.2 -clock clk_i [remove_from_collection [all_inputs] [get_ports clk_i]]"
+    (file "/project/advvlsi/users/yh3/ws/project_2026/common/sdc/riscv.sdc" line 22)
  -- End Extended Error Info
 Error: Errors reading SDC file:
         .
@@ -248,40 +274,46 @@ foreach scenario ${scenarios} {
         read_sdc ${SDC_FILE}
 }
 Information: Loading SDC version 2.1 file '/project/advvlsi/users/yh3/ws/project_2026/common/sdc/riscv.sdc' (FILE-007)
-Error: unknown command 'remove_sdc' (CMD-005)
+Error: unknown command 'remove_from_collection' (CMD-005)
 Information: script '/project/advvlsi/users/yh3/ws/project_2026/common/sdc/riscv.sdc'
-                stopped at line 2 due to error. (CMD-081)
+                stopped at line 22 due to error. (CMD-081)
 Extended error info:
 
     while executing
-"remove_sdc -design"
-    (file "/project/advvlsi/users/yh3/ws/project_2026/common/sdc/riscv.sdc" line 2)
+"remove_from_collection [all_inputs] [get_ports clk_i]"
+    invoked from within
+"set_input_delay -max 0.2 -clock clk_i [remove_from_collection [all_inputs] [get_ports clk_i]]"
+    (file "/project/advvlsi/users/yh3/ws/project_2026/common/sdc/riscv.sdc" line 22)
  -- End Extended Error Info
 Error: Errors reading SDC file:
         .
         Use error_info for more info. (SDC-5)
 Information: Loading SDC version 2.1 file '/project/advvlsi/users/yh3/ws/project_2026/common/sdc/riscv.sdc' (FILE-007)
-Error: unknown command 'remove_sdc' (CMD-005)
+Error: unknown command 'remove_from_collection' (CMD-005)
 Information: script '/project/advvlsi/users/yh3/ws/project_2026/common/sdc/riscv.sdc'
-                stopped at line 2 due to error. (CMD-081)
+                stopped at line 22 due to error. (CMD-081)
 Extended error info:
 
     while executing
-"remove_sdc -design"
-    (file "/project/advvlsi/users/yh3/ws/project_2026/common/sdc/riscv.sdc" line 2)
+"remove_from_collection [all_inputs] [get_ports clk_i]"
+    invoked from within
+"set_input_delay -max 0.2 -clock clk_i [remove_from_collection [all_inputs] [get_ports clk_i]]"
+    (file "/project/advvlsi/users/yh3/ws/project_2026/common/sdc/riscv.sdc" line 22)
  -- End Extended Error Info
 Error: Errors reading SDC file:
         .
         Use error_info for more info. (SDC-5)
 Information: Loading SDC version 2.1 file '/project/advvlsi/users/yh3/ws/project_2026/common/sdc/riscv.sdc' (FILE-007)
-Error: unknown command 'remove_sdc' (CMD-005)
+Error: unknown command 'remove_from_collection' (CMD-005)
 Information: script '/project/advvlsi/users/yh3/ws/project_2026/common/sdc/riscv.sdc'
-                stopped at line 2 due to error. (CMD-081)
+                stopped at line 22 due to error. (CMD-081)
 Extended error info:
 
     while executing
-"remove_sdc -design"
-    (file "/project/advvlsi/users/yh3/ws/project_2026/common/sdc/riscv.sdc" line 2)
+"remove_from_collection [all_inputs] [get_ports clk_i]"
+    invoked from within
+"set_input_delay -max 0.2 -clock clk_i [remove_from_collection [all_inputs] [get_ports clk_i]]"
+    (file "/project/advvlsi/users/yh3/ws/project_2026/common/sdc/riscv.sdc" line 22)
  -- End Extended Error Info
 Error: Errors reading SDC file:
         .
@@ -342,9 +374,9 @@ set_individual_pin_constraints \
 1
 place_pins -self -ports ${ports}
 Information: Starting 'place_pins' (FLW-8000)
-Information: Time: 2026-07-08 12:41:10 / Session:  00:00:13 / Command:  00:00:00 / CPU:  00:00:00 / Memory: 737 MB (FLW-8100)
+Information: Time: 2026-07-08 12:55:08 / Session:  00:00:17 / Command:  00:00:00 / CPU:  00:00:00 / Memory: 736 MB (FLW-8100)
 Load DB...
-CPU Time for load db: 00:00:00.01u 00:00:00.00s 00:00:00.01e: 
+CPU Time for load db: 00:00:00.01u 00:00:00.00s 00:00:00.02e: 
 
 Min routing layer: M1
 Max routing layer: MRDL
@@ -375,10 +407,10 @@ Note - message 'DPPA-379' limit (10) exceeded. Remainder will be suppressed.
 Number of PG ports on blocks: 0
 Number of pins created: 267
 Warning: 62 pins on block riscv_core have been placed with relaxed pin spacing constraint(s). (DPPA-089)
-CPU Time for Pin Creation: 00:00:00.03u 00:00:00.00s 00:00:00.03e: 
-Total Pin Placement CPU Time: 00:00:00.04u 00:00:00.00s 00:00:00.04e: 
+CPU Time for Pin Creation: 00:00:00.04u 00:00:00.00s 00:00:00.04e: 
+Total Pin Placement CPU Time: 00:00:00.07u 00:00:00.00s 00:00:00.07e: 
 Information: Ending   'place_pins' (FLW-8001)
-Information: Time: 2026-07-08 12:41:10 / Session:  00:00:13 / Command:  00:00:00 / CPU:  00:00:00 / Memory: 741 MB (FLW-8100)
+Information: Time: 2026-07-08 12:55:08 / Session:  00:00:17 / Command:  00:00:00 / CPU:  00:00:00 / Memory: 741 MB (FLW-8100)
 1
 #### Insert boundary and TAP cells (provided script; SAEDRVT14 prefix)
 source -echo ../scripts/insert_boundary_and_tap_cells.tcl
@@ -623,7 +655,7 @@ Number of threads: 8
 Number of partitions: 5
 Direction of partitions: vertical
 Number of wires: 52
-Checking DRC for 52 wires:5% 10% 20% 30% 40% 45% 60% 70% 80% 85% 95% 100%
+Checking DRC for 52 wires:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 70% 75% 80% 85% 90% 95% 100%
 Creating 104 wires after DRC fixing.
 Wire DRC checking runtime 0.00 seconds.
 Creating via shapes for strategies M4_PG_Strategy .
@@ -675,7 +707,7 @@ Number of threads: 8
 Number of partitions: 5
 Direction of partitions: vertical
 Number of wires: 52
-Checking DRC for 52 wires:10% 30% 35% 45% 50% 55% 65% 75% 80% 85% 90% 95% 100%
+Checking DRC for 52 wires:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
 Creating 52 wires after DRC fixing.
 Wire DRC checking runtime 0.00 seconds.
 Creating via shapes for strategies M5_PG_Strategy .
@@ -725,7 +757,7 @@ Number of threads: 8
 Number of partitions: 5
 Direction of partitions: horizontal
 Number of wires: 52
-Checking DRC for 52 wires:5% 10% 20% 25% 30% 35% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
+Checking DRC for 52 wires:10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
 Creating 52 wires after DRC fixing.
 Wire DRC checking runtime 0.00 seconds.
 Creating via shapes for strategies M6_PG_Strategy .
@@ -775,7 +807,7 @@ Number of threads: 8
 Number of partitions: 5
 Direction of partitions: vertical
 Number of wires: 52
-Checking DRC for 52 wires:10% 20% 45% 70% 75% 85% 90% 95% 100%
+Checking DRC for 52 wires:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
 Creating 52 wires after DRC fixing.
 Wire DRC checking runtime 0.00 seconds.
 Creating via shapes for strategies M7_PG_Strategy .
@@ -814,13 +846,13 @@ Number of threads: 8
 Number of partitions: 8
 Direction of partitions: horizontal
 Number of vias: 2262
-Checking DRC for 2262 stacked vias:10% 15% 20% 25% 35% 40% 45% 55% 60% 65% 70% 80% 85% 90% 100%
-Overall via DRC checking runtime: 0 seconds.
+Checking DRC for 2262 stacked vias:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
+Overall via DRC checking runtime: 1 seconds.
 Checking dangling/floating vias.
 Start iteration 1: Checking 2262 stacked vias:0% 10% 20% 30% 40% 50% 60% 70% 80% 90% 100%
 Committed 6786 vias.
 Committing vias takes 0.00 seconds.
-Overall runtime: 0 seconds.
+Overall runtime: 1 seconds.
 Successfully created PG Vias.
 create_pg_vias -from_layers M5 -to_layers M4 -via_masters default -nets {VDD VSS}
 Initializing drc engine runtime: 0 seconds.
@@ -837,13 +869,13 @@ Number of threads: 8
 Number of partitions: 3
 Direction of partitions: vertical
 Number of vias: 52
-Checking DRC for 52 stacked vias:5% 15% 30% 35% 45% 50% 55% 60% 75% 85% 95% 100%
-Overall via DRC checking runtime: 1 seconds.
+Checking DRC for 52 stacked vias:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
+Overall via DRC checking runtime: 0 seconds.
 Checking dangling/floating vias.
 Start iteration 1: Checking 52 stacked vias:0% 10% 20% 30% 40% 50% 60% 70% 80% 90% 100%
 Committed 52 vias.
 Committing vias takes 0.00 seconds.
-Overall runtime: 1 seconds.
+Overall runtime: 0 seconds.
 Successfully created PG Vias.
 create_pg_vias -from_layers M6 -to_layers M5 -via_masters default -nets {VDD VSS}
 Initializing drc engine runtime: 0 seconds.
@@ -860,12 +892,12 @@ Number of threads: 8
 Number of partitions: 3
 Direction of partitions: vertical
 Number of vias: 52
-Checking DRC for 52 stacked vias:5% 20% 50% 60% 70% 90% 95% 100%
+Checking DRC for 52 stacked vias:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
 Number of threads: 8
 Number of partitions: 5
 Direction of partitions: horizontal
 Number of vias: 1404
-Checking DRC for 1404 stacked vias:5% 10% 15% 20% 35% 40% 45% 50% 55% 65% 80% 90% 95% 100%
+Checking DRC for 1404 stacked vias:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 95% 100%
 Overall via DRC checking runtime: 0 seconds.
 Checking dangling/floating vias.
 Start iteration 1: Checking 1456 stacked vias:0% 10% 20% 30% 40% 50% 60% 70% 80% 90% 100%
@@ -888,13 +920,13 @@ Number of threads: 8
 Number of partitions: 3
 Direction of partitions: vertical
 Number of vias: 52
-Checking DRC for 52 stacked vias:5% 15% 20% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
+Checking DRC for 52 stacked vias:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
 52 large vertical vias are not fixed
-0% Number of threads: 8
+Number of threads: 8
 Number of partitions: 5
 Direction of partitions: horizontal
 Number of vias: 1404
-Checking DRC for 1404 stacked vias:5% 10% 15% 15% 20% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 90% 100%
+Checking DRC for 1404 stacked vias:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
 1352 regular vias are not fixed
 Overall via DRC checking runtime: 0 seconds.
 Checking dangling/floating vias.
@@ -947,112 +979,19 @@ Number of VSS Terminals: 156
 ************************************************************
 Overall runtime: 0 seconds.
 check_pg_drc
-Command check_pg_drc started  at Wed Jul  8 12:41:14 2026
-Command check_pg_drc finished at Wed Jul  8 12:41:14 2026
-CPU usage for check_pg_drc: 0.13 seconds ( 0.00 hours)
-Elapsed time for check_pg_drc: 0.02 seconds ( 0.00 hours)
+Command check_pg_drc started  at Wed Jul  8 12:55:16 2026
+Command check_pg_drc finished at Wed Jul  8 12:55:16 2026
+CPU usage for check_pg_drc: 0.26 seconds ( 0.00 hours)
+Elapsed time for check_pg_drc: 0.04 seconds ( 0.00 hours)
 No errors found.
 #### Save the floorplan for the record (script form + DEF)
 write_floorplan -output ${RESULTS_PATH}/write_floorplan_files
-Writing floorplan for riscv_core.design
-Information: Fill shapes with 'active_fill' purpose will be skipped from output DEF. (DEFW-032)
-Information: Creating dummy net '_dummynet0' for unconnected port 'mem_d_resp_tag_i[10]'. (DEFW-006)
-Information: Creating dummy net '_dummynet1' for unconnected port 'mem_d_resp_tag_i[9]'. (DEFW-006)
-Information: Creating dummy net '_dummynet2' for unconnected port 'mem_d_resp_tag_i[8]'. (DEFW-006)
-Information: Creating dummy net '_dummynet3' for unconnected port 'mem_d_resp_tag_i[7]'. (DEFW-006)
-Information: Creating dummy net '_dummynet4' for unconnected port 'mem_d_resp_tag_i[6]'. (DEFW-006)
-Information: Creating dummy net '_dummynet5' for unconnected port 'mem_d_resp_tag_i[5]'. (DEFW-006)
-Information: Creating dummy net '_dummynet6' for unconnected port 'mem_d_resp_tag_i[4]'. (DEFW-006)
-Information: Creating dummy net '_dummynet7' for unconnected port 'mem_d_resp_tag_i[3]'. (DEFW-006)
-Information: Creating dummy net '_dummynet8' for unconnected port 'mem_d_resp_tag_i[2]'. (DEFW-006)
-Information: Creating dummy net '_dummynet9' for unconnected port 'mem_d_resp_tag_i[1]'. (DEFW-006)
-Information: Creating dummy net '_dummynet10' for unconnected port 'mem_d_resp_tag_i[0]'. (DEFW-006)
-Information: Creating dummy net '_dummynet11' for unconnected port 'reset_vector_i[1]'. (DEFW-006)
-Information: Creating dummy net '_dummynet12' for unconnected port 'reset_vector_i[0]'. (DEFW-006)
-1
-write_def ${RESULTS_PATH}/${DESIGN_NAME}_floorplan.def
-****************************************
-Report : Data Mismatches
-Version: V-2023.12-SP3
-Date   : Wed Jul  8 12:41:14 2026
-****************************************
-No mismatches exist on the design.
-Information: Fill shapes with 'active_fill' purpose will be skipped from output DEF. (DEFW-032)
-Information: Creating dummy net '_dummynet0' for unconnected port 'mem_d_resp_tag_i[10]'. (DEFW-006)
-Information: Creating dummy net '_dummynet1' for unconnected port 'mem_d_resp_tag_i[9]'. (DEFW-006)
-Information: Creating dummy net '_dummynet2' for unconnected port 'mem_d_resp_tag_i[8]'. (DEFW-006)
-Information: Creating dummy net '_dummynet3' for unconnected port 'mem_d_resp_tag_i[7]'. (DEFW-006)
-Information: Creating dummy net '_dummynet4' for unconnected port 'mem_d_resp_tag_i[6]'. (DEFW-006)
-Information: Creating dummy net '_dummynet5' for unconnected port 'mem_d_resp_tag_i[5]'. (DEFW-006)
-Information: Creating dummy net '_dummynet6' for unconnected port 'mem_d_resp_tag_i[4]'. (DEFW-006)
-Information: Creating dummy net '_dummynet7' for unconnected port 'mem_d_resp_tag_i[3]'. (DEFW-006)
-Information: Creating dummy net '_dummynet8' for unconnected port 'mem_d_resp_tag_i[2]'. (DEFW-006)
-Information: Creating dummy net '_dummynet9' for unconnected port 'mem_d_resp_tag_i[1]'. (DEFW-006)
-Information: Creating dummy net '_dummynet10' for unconnected port 'mem_d_resp_tag_i[0]'. (DEFW-006)
-Information: Creating dummy net '_dummynet11' for unconnected port 'reset_vector_i[1]'. (DEFW-006)
-Information: Creating dummy net '_dummynet12' for unconnected port 'reset_vector_i[0]'. (DEFW-006)
----------------------------------------
-Number of Written DEF Constructs
----------------------------------------
-VERSION                        : 1
-DIVIDERCHAR                    : 1
-BUSBITCHARS                    : 1
-DESIGN                         : 1
-UNITS                          : 1
-PROPERTYDEFINITIONS            : 1
-DIEAREA                        : 1
-ROW                            : 172
-TRACKS                         : 20
-VIAS                           : 7
-COMPONENTS                     : 13670
-PINS                           : 269
-PINPROPERTIES                  : 267
-SPECIALNETS                    : 2
-NETS                           : 12818
-1
-#### Analyze and collect reports
-report_utilization
-****************************************
-Report : report_utilization
-Design : riscv_core
-Version: V-2023.12-SP3
-Date   : Wed Jul  8 12:41:14 2026
-****************************************
-Utilization Ratio:                      0.6028
-Utilization options:
- - Area calculation based on:           site_row of block riscv_core/final_floorplan
- - Categories of objects excluded:      hard_macros macro_keepouts soft_macros io_cells hard_blockages 
-Total Area:                             10699.1568
-Total Capacity Area:                    10699.1568
-Total Area of cells:                    6449.4108
-Area of excluded objects:
- - hard_macros         :                0.0000
- - macro_keepouts      :                0.0000
- - soft_macros         :                0.0000
- - io_cells            :                0.0000
- - hard_blockages      :                0.0000
-Total Area of excluded objects:         0.0000
-Ratio of excluded objects:              0.0000
+Error: Directory '/project/advvlsi/users/yh3/ws/project_2026/work/../results/write_floorplan_files' already exists (FILE-008)
+Information: script '/project/advvlsi/users/yh3/ws/project_2026/scripts/05_floorplan.tcl'
+                stopped at line 72 due to error. (CMD-081)
+Extended error info:
 
-Utilization of site-rows with:
- - Site 'unit':                         0.6028
-
-0.6028
-report_pg_drc final_floorplan
-Collecting PG connectivity/DRC report for final_floorplan stage...
-collect_reports final_floorplan
-Collecting reports for final_floorplan stage...
-Reports are generated for final_floorplan stage.
-get_blocks -all
-{riscv_core.dlib:riscv_core.design riscv_core.dlib:riscv_core/rtl_read.design riscv_core.dlib:riscv_core/inital_syn.design riscv_core.dlib:riscv_core/final_floorplan.design}
-save_block
-Warning: No valid clocks available in mode 'FUNC'. Setting clock frequency to 1 GHz. (POW-034)
-Information: Saving block 'riscv_core.dlib:riscv_core/final_floorplan.design'
-1
-save_lib
-Saving library 'riscv_core.dlib'
-Warning: No valid clocks available in mode 'FUNC'. Setting clock frequency to 1 GHz. (POW-034)
-1
-# NOTE: no 'exit' — block/lib already saved; run 'gui_start' to inspect, 'exit' when done.
-Information: 13444 out of 13454 POW-046 messages were not printed due to limit 10  (MSG-3913)
-Information: 11 out of 21 SQM-1067 messages were not printed due to limit 10  (MSG-3913)
+    while executing
+"write_floorplan -output ${RESULTS_PATH}/write_floorplan_files"
+    (file "/project/advvlsi/users/yh3/ws/project_2026/scripts/05_floorplan.tcl" line 72)
+ -- End Extended Error Info
