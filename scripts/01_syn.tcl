@@ -56,4 +56,5 @@ save_block -as ${DESIGN_NAME}/inital_syn
 get_blocks -all
 save_lib
 
-exit
+# NOTE: no 'exit' — the block and library are already saved above, so the
+# fc_shell/GUI stays open for inspection. Type 'exit' yourself when done.
