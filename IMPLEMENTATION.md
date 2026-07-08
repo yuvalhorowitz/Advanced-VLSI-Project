@@ -165,22 +165,34 @@ expected to clear downstream. Ready for placement.
 
 ---
 
-## Step 3 — Placement + optimization  (`scripts/06_place.tcl`)  — NEXT
+## Step 3 — Placement + optimization  (`scripts/06_place.tcl`)  — ✅ verified
 
-Planned (Lab 6). Branches `final_floorplan` → `place_opt`, then:
-`set_app_options place.coarse.continue_on_missing_scandef true` + `place_opt.*` (defaults —
-no effort knobs yet, per decision) → `compile_fusion -to initial_opto` → `place_opt` →
-`connect_pg_net` → `check_legality` / `report_congestion` / `report_utilization` →
-`collect_reports place_opt`. Rerun-safe (drop stale `place_opt` block); no `exit`.
+Based on Lab 6. Branches `final_floorplan` → `place_opt`; sets
+`place.coarse.continue_on_missing_scandef true`; runs `place_opt` (unified engine: coarse
+place → HFNS → opt → legalize) at **default effort** (no Lab-3 effort knobs, per decision);
+reconnects PG; `check_legality`/`report_congestion`/`report_utilization`/`report_pg_drc`/
+`collect_reports place_opt`. Rerun-safe; no `exit`.
 
-**Decision:** run with **default** effort first. Only if setup/hold fails to close do we add the
-Lab 3 knobs (`compile.flow.high_effort_timing` etc.).
-**To watch:** legality clean, congestion overflows, whether PG floating std cells drop to ~0
-after placement, and setup/hold slack across the 3 scenarios.
+**Run result (verified, `logs/06_place.log`):** ✅ success.
+| Metric | Value | Source |
+|---|---|---|
+| `check_legality` | succeeded | `logs/06_place.log` |
+| Utilization | 62.51% | `logs/06_place.log` (`report_utilization`) |
+| Congestion | 0 overflow on M4–MRDL (final phase) | `logs/06_place.log` |
+| Setup | 0 violating paths, worst slack +3.42 ns (Slow) | `reports/place_opt_report_qor.rpt` |
+| Hold | 0 violations (all scenarios) | `reports/place_opt_report_qor.rpt` |
+| Max-trans / max-cap | 0 / 0 | `reports/place_opt_report_qor.rpt` |
+| PG connectivity | VDD/VSS symmetric (6955/6876 wires), **0 floating std cells** both nets | `reports/place_opt_pg_drc.rpt` |
+
+**PG-DRC caveat (tracked):** `check_pg_drc` reports 1,444 shorts — but **all are PG-net-vs-NULL-net
+on M1/VIA0 at the standard cells** (zero VDD↔VSS shorts). This is the built-in checker
+over-reporting on the library cells' internal M1/VIA0 taps at the pre-route stage (nets not yet
+resolved into the frames). The authoritative gate is ICV `signoff_check_drc` after routing
+(Step 6). See `ISSUES_AND_FIXES.md` and the PG Option B fix (Issue 4).
 
 ---
 
-## Step 4 — Clock Tree Synthesis  (`scripts/07_cts.tcl`)  — written, run pending
+## Step 4 — Clock Tree Synthesis  (`scripts/07_cts.tcl`)  — ✅ verified
 
 Based on HW4 / `lab7_cts/clock_opt.tcl`. Branches `place_opt` → `clock_opt`, then:
 1. CTS app options (`cts.common.max_fanout 50`, `enable_cell_relocation timing_aware`,
@@ -189,17 +201,24 @@ Based on HW4 / `lab7_cts/clock_opt.tcl`. Branches `place_opt` → `clock_opt`, t
 3. `set_lib_cell_purpose -include cts {…RVT INV/BUF…}` — restrict CTS to RVT inverters/buffers.
 4. `create_routing_rule CLK_NDR` (2× width/spacing + shielding) + `set_clock_routing_rules`
    (M2–M5) + `set_clock_tree_options -target_skew 0.1`.
-5. `clock_opt` in 3 stages (`build_clock` → `route_clock` → `final_opto`),
-   `remove_routes -global_route`, then `create_shields … -with_ground VSS` on the clock nets.
-6. Reconnect PG; `check_legality`/`report_congestion`/`report_utilization`;
-   `collect_reports clock_opt` **+ `report_clock_skew clock_opt`** → the **clock-skew
-   deliverable** (`reports/clock_opt_clock_skew.rpt`, via `report_clock_timing -type skew`).
+5. `clock_opt` 3 stages (`build_clock` → `route_clock` → `final_opto`),
+   `remove_routes -global_route`, then `create_shields … -with_ground VSS`.
+6. Reconnect PG; analyze; `collect_reports clock_opt` **+ `report_clock_skew clock_opt`**.
 
-Rerun-safe (drops stale `clock_opt`); no `exit`.
+**Run result (verified, `logs/07_cts.log`):** ✅ success.
+| Metric | Value | Source |
+|---|---|---|
+| Clock tree | `clk_i` — 62 buffers, 3 levels, wirelen 4329, NetsWithDRC 0 | `logs/07_cts.log` (CTS-037) |
+| **Worst clock skew** | **0.09 ns** (Slow); latency 0.03–0.12 ns | `reports/clock_opt_clock_skew.rpt` (deliverable) |
+| Global skew (build) | 0.037/0.055/0.043 (Fast/Slow/Typ) | `logs/07_cts.log` |
+| Setup | 0 violating paths, worst slack +3.20 ns (Slow), +6.70 (Typ) | `reports/clock_opt_report_qor.rpt` |
+| Hold | 0 violations (all scenarios) — real tree fixed the floorplan-stage hold | `reports/clock_opt_report_qor.rpt` |
+| Max-trans / max-cap | 0 / 0 | `reports/clock_opt_report_qor.rpt` |
+| Legality | succeeded; clock shielded with VSS on M2–M5 | `logs/07_cts.log` |
 
-**To watch:** `report_clock_skew` worst skew near the 0.1 target; setup/hold slack after real
-clock (setup should stay positive at 10 ns, hold should be handled by the clock tree + opto);
-legality clean; the clock net routed on M2–M5 with VSS shields.
+Takeaway: clock tree is tight (skew 0.09 ns), timing has margin at 10 ns, hold and DRVs clean.
+Ready for signal routing (Step 5).
+
 
 
 
