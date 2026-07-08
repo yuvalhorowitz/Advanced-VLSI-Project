@@ -6,7 +6,7 @@ Report : power
         -significant_digits 2
 Design : riscv_core
 Version: V-2023.12-SP3
-Date   : Wed Jul  8 13:10:48 2026
+Date   : Wed Jul  8 14:09:46 2026
 ****************************************
 Information: Activity propagation will be performed for scenario FUNC_Fast.
 Warning: Mapping to scan cell 'SAEDLVT14_FSDPRBSBQ_V2_0P5' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
@@ -29,8 +29,8 @@ Information: Propagated activity on scenario FUNC_Typical identical to that on F
 Information: Propagated activity on scenario FUNC_Slow identical to that on FUNC_Fast (POW-006)
 Information: The stitching and editing of coupling caps is turned OFF for design 'riscv_core.dlib:riscv_core/final_floorplan.design'. (TIM-125)
 Information: Design Average RC for design riscv_core  (NEX-011)
-Information: r = 2.059692 ohm/um, via_r = 1.236235 ohm/cut, c = 0.104999 ff/um, cc = 0.000000 ff/um (X dir) (NEX-017)
-Information: r = 2.675530 ohm/um, via_r = 0.958471 ohm/cut, c = 0.102255 ff/um, cc = 0.000000 ff/um (Y dir) (NEX-017)
+Information: r = 2.055319 ohm/um, via_r = 1.232619 ohm/cut, c = 0.103403 ff/um, cc = 0.000000 ff/um (X dir) (NEX-017)
+Information: r = 2.675530 ohm/um, via_r = 0.958471 ohm/cut, c = 0.102168 ff/um, cc = 0.000000 ff/um (Y dir) (NEX-017)
 Information: The RC mode used is VR for design 'riscv_core'. (NEX-022)
 Information: Update timing completed net estimation for all the timing graph nets (TIM-111)
 Information: Net estimation statistics: timing graph nets = 12816, routed nets = 0, across physical hierarchy nets = 0, parasitics cached nets = 0, delay annotated nets = 0, parasitics annotated nets = 0, multi-voltage nets = 0. (TIM-112)
@@ -69,12 +69,12 @@ Warning: Power table extrapolation (extrapolation mode) for port A2 on cell ctmi
 Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_48052 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.385300, value = 0.000568 (POW-046)
 Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_48052 for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 1.162872 (POW-046)
 Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_45737 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.384500, value = 0.000559 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_47294 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.097200, value = 0.000470 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port A1 on cell ctmi_49159 for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 1.162872 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_49159 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.295900, value = 0.000568 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_49159 for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 1.162872 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port A1 on cell ctmi_49160 for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 1.162872 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_49160 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.295900, value = 0.000568 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_42465 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.202400, value = 0.000568 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_43847 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.202400, value = 0.000509 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_41989 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.097200, value = 0.000482 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_41993 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.097200, value = 0.000461 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port Q on cell u_issue/u_regfile/REGFILE.reg_r16_q_reg[31] for parameter Cout. Lowest table value = 0.001000, highest table value = 0.384700, value = 0.000479 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port QN on cell u_issue/u_regfile/REGFILE.reg_r16_q_reg[31] for parameter Cout. Lowest table value = 0.001000, highest table value = 0.383300, value = 0.000990 (POW-046)
 Note - message 'POW-046' limit (10) exceeded. Remainder will be suppressed.
 Warning: Fall toggles on pin u_issue/u_regfile/REGFILE.reg_r22_q_reg[2]/Q are impossible given input states; converted to rise toggles. (POW-069)
 Warning: Fall toggles on pin u_issue/u_regfile/REGFILE.reg_r26_q_reg[0]/Q are impossible given input states; converted to rise toggles. (POW-069)

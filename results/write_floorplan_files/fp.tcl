@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Created by fc write_floorplan on Wed Jul  8 13:10:47 2026
+# Created by fc write_floorplan on Wed Jul  8 14:09:45 2026
 #
 ################################################################################
 
@@ -334,6 +334,7 @@ set track [create_track -layer MRDL -count 29 -dir X -space 4.0000 -coord \
 # User attributes of ports
 ################################################################################
 
+define_user_attribute -classes port -type int PORT_PERSIST_FLAG
 
 ################################################################################
 # Shapes and vias of net and their user attributes
@@ -349,6 +350,7 @@ set track [create_track -layer MRDL -count 29 -dir X -space 4.0000 -coord \
 # User attributes of pins
 ################################################################################
 
+define_user_attribute -classes pin -type int CONN_PERSIST_FLAG
 
 ################################################################################
 # User attributes of nets
@@ -363,4 +365,7 @@ set track [create_track -layer MRDL -count 29 -dir X -space 4.0000 -coord \
 # User attributes of current block
 ################################################################################
 
+define_user_attribute -classes design -type int buf_inv_counts
+define_user_attribute -classes design -type double expanded_util
+define_user_attribute -classes design -type int ldp_flow_stage
 

@@ -3403,3 +3403,10 @@ Information: 17 out of 27 POW-005 messages were not printed due to limit 10  (MS
 Information: 4 out of 14 POW-006 messages were not printed due to limit 10  (MSG-3913)
 Information: 3440 out of 3450 POW-046 messages were not printed due to limit 10  (MSG-3913)
 Information: 11 out of 21 SQM-1067 messages were not printed due to limit 10  (MSG-3913)
+fc_shell> exit
+Maximum memory usage for this session: 2371.09 MB
+Maximum memory usage for this session including child processes: 2371.09 MB
+CPU usage for this session:    915 seconds (  0.25 hours)
+Elapsed time for this session:   2566 seconds (  0.71 hours)
+Thank you for using Fusion Compiler.
+

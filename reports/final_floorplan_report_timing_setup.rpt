@@ -7,7 +7,7 @@ Report : timing
         -report_by design
 Design : riscv_core
 Version: V-2023.12-SP3
-Date   : Wed Jul  8 13:10:52 2026
+Date   : Wed Jul  8 14:09:50 2026
 ****************************************
 
   Startpoint: mem_d_ack_i (input port clocked by clk_i)
@@ -96,7 +96,7 @@ Date   : Wed Jul  8 13:10:52 2026
   u_exec/u_alu/lt_831/ctmi_49541/X (SAEDHVT14_AO221_0P5)
                                                    0.05      6.01 f
   u_exec/u_alu/lt_831/ctmi_49539/X (SAEDHVT14_OA221_U_0P5)
-                                                   0.03      6.04 f
+                                                   0.03      6.03 f
   u_exec/u_alu/lt_831/ctmi_49537/X (SAEDHVT14_AO221_0P5)
                                                    0.05      6.08 f
   u_exec/u_alu/lt_831/ctmi_49535/X (SAEDHVT14_OA221_U_0P5)

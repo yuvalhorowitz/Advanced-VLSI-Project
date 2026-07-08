@@ -328,9 +328,9 @@ set_individual_pin_constraints \
 1
 place_pins -self -ports ${ports}
 Information: Starting 'place_pins' (FLW-8000)
-Information: Time: 2026-07-08 13:10:39 / Session:  00:00:16 / Command:  00:00:00 / CPU:  00:00:00 / Memory: 752 MB (FLW-8100)
+Information: Time: 2026-07-08 14:09:37 / Session:  00:00:16 / Command:  00:00:00 / CPU:  00:00:00 / Memory: 752 MB (FLW-8100)
 Load DB...
-CPU Time for load db: 00:00:00.02u 00:00:00.00s 00:00:00.02e: 
+CPU Time for load db: 00:00:00.01u 00:00:00.00s 00:00:00.02e: 
 
 Min routing layer: M1
 Max routing layer: MRDL
@@ -364,7 +364,7 @@ Warning: 62 pins on block riscv_core have been placed with relaxed pin spacing c
 CPU Time for Pin Creation: 00:00:00.05u 00:00:00.00s 00:00:00.05e: 
 Total Pin Placement CPU Time: 00:00:00.07u 00:00:00.00s 00:00:00.07e: 
 Information: Ending   'place_pins' (FLW-8001)
-Information: Time: 2026-07-08 13:10:39 / Session:  00:00:16 / Command:  00:00:00 / CPU:  00:00:00 / Memory: 756 MB (FLW-8100)
+Information: Time: 2026-07-08 14:09:37 / Session:  00:00:16 / Command:  00:00:00 / CPU:  00:00:00 / Memory: 756 MB (FLW-8100)
 1
 #### Insert boundary and TAP cells (provided script; SAEDRVT14 prefix)
 source -echo ../scripts/insert_boundary_and_tap_cells.tcl
@@ -534,9 +534,9 @@ Committing vias takes 0.00 seconds.
 Committed 86 wires.
 Committed 0 vias.
 Committed 0 wires for via creation.
-Overall PG creation runtime: 0 seconds.
+Overall PG creation runtime: 1 seconds.
 Successfully compiled PG.
-Overall runtime: 0 seconds.
+Overall runtime: 1 seconds.
 #### Create PG Rings
 create_pg_ring_pattern \
                  PG_Ring_VSS \
@@ -582,58 +582,11 @@ Committed 0 wires for via creation.
 Overall PG creation runtime: 0 seconds.
 Successfully compiled PG.
 Overall runtime: 0 seconds.
-#### Create M4 Vertical PG Straps
-create_pg_mesh_pattern M4_PG \
-        -layers { {vertical_layer: M4}   {width: 0.1} {spacing: interleaving} {pitch: 4} {offset: 0.5} }
-Successfully create mesh pattern M4_PG.
-set_pg_strategy M4_PG_Strategy \
-        -core \
-        -pattern   { {name: M4_PG} {nets:{VSS VDD}} } \
-        -extension { {stop: design_boundary_and_generate_pin} }
-Successfully set PG strategy M4_PG_Strategy.
-compile_pg -strategies {M4_PG_Strategy} -via_rule VIA_NIL
-Sanity check for inputs.
-Automatic PG net connection through connect_pg_net is disabled.
-Updating PG strategies.
-Updating strategy M4_PG_Strategy.
-Loading library and design information.
-Number of Standard Cells: 0
-Number of Hard Macros: 0
-Number of Pads: 0
-Creating straps and vias in power plan.
-Creating wire shapes for strategies M4_PG_Strategy .
-Creating wire shapes runtime: 0 seconds
-Blockage cutting and DRC fixing for wire shapes for strategies M4_PG_Strategy .
-Check and fix DRC for 52 wires for strategy M4_PG_Strategy.
-Number of threads: 8
-Number of partitions: 5
-Direction of partitions: vertical
-Number of wires: 52
-Checking DRC for 52 wires:5% 10% 15% 20% 25% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
-Creating 104 wires after DRC fixing.
-Wire DRC checking runtime 0.00 seconds.
-Creating via shapes for strategies M4_PG_Strategy .
-Number of threads: 8
-Working on strategy M4_PG_Strategy.
-Number of detected intersections: 0
-Total runtime of via shapes creation: 0 seconds
-Runtime of via DRC checking for strategy M4_PG_Strategy: 0.00 seconds.
-Removing dangling/floating wire/vias after DRC check.
-Start iteration 1:
-Checking potential dangling/floating power plan wires.
-Start iteration 2:
-Checking potential dangling/floating power plan wires.
-Finish removing all dangling or floating wires and vias.
-Commiting wires and vias.
-Committing wires takes 0.00 seconds.
-Committing vias takes 0.00 seconds.
-Committed 78 wires.
-Committed 0 vias.
-Committed 0 wires for via creation.
-Created 52 pins at design boundary.
-Overall PG creation runtime: 1 seconds.
-Successfully compiled PG.
-Overall runtime: 1 seconds.
+# NOTE (Option B): the provided script created M4 *vertical* straps + M4->M1 vias,
+# but tech_setup declares M4 horizontal (lab convention), so M4 straps could not
+# via down to the horizontal M1 rails and VSS was left floating. We drop the M4
+# straps and distribute vertically on M5 (M5->M1), exactly like the lab PG.
+# (Original M4-strap version kept in backups/create_pg_network.provided_M4stack.tcl.)
 #### Create M5 Vertical PG Straps
 create_pg_mesh_pattern M5_PG \
         -layers { {vertical_layer: M5}   {width: 0.1} {spacing: interleaving} {pitch: 4} {offset: 0.5} }
@@ -661,7 +614,7 @@ Number of threads: 8
 Number of partitions: 5
 Direction of partitions: vertical
 Number of wires: 52
-Checking DRC for 52 wires:5% 10% 15% 25% 30% 35% 40% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
+Checking DRC for 52 wires:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 95% 100%
 Creating 52 wires after DRC fixing.
 Wire DRC checking runtime 0.00 seconds.
 Creating via shapes for strategies M5_PG_Strategy .
@@ -711,7 +664,7 @@ Number of threads: 8
 Number of partitions: 5
 Direction of partitions: horizontal
 Number of wires: 52
-Checking DRC for 52 wires:5% 10% 15% 20% 25% 30% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
+Checking DRC for 52 wires:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 70% 75% 80% 85% 90% 95% 100%
 Creating 52 wires after DRC fixing.
 Wire DRC checking runtime 0.00 seconds.
 Creating via shapes for strategies M6_PG_Strategy .
@@ -784,52 +737,29 @@ Created 104 pins at design boundary.
 Overall PG creation runtime: 0 seconds.
 Successfully compiled PG.
 Overall runtime: 0 seconds.
-#### Create PG VIAs
-create_pg_vias -from_layers M4 -to_layers M1 -via_masters default -nets {VDD VSS}
+#### Create PG VIAs (distribute down from the M5 vertical mesh to the M1 rails)
+create_pg_vias -from_layers M5 -to_layers M1 -via_masters default -nets {VDD VSS}
 Initializing drc engine runtime: 0 seconds.
 Design loading runtime: 0 seconds.
 Net load_neting runtime: 0 seconds.
 Query intersections and create vias.
 Object query runtime: 0 seconds.
-Determining intersections for 201 shapes starts
+Determining intersections for 229 shapes starts
 Intersection detection runtime: 0 seconds.
-Instantiating vias for 2262 intersections starts
+Instantiating vias for 4498 intersections starts
 Via instantiation runtime: 0 seconds.
 Starting via DRC checking ...
 Number of threads: 8
-Number of partitions: 8
+Number of partitions: 16
 Direction of partitions: horizontal
-Number of vias: 2262
-Checking DRC for 2262 stacked vias:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
+Number of vias: 4498
+Checking DRC for 4498 stacked vias:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
 Overall via DRC checking runtime: 0 seconds.
 Checking dangling/floating vias.
-Start iteration 1: Checking 2262 stacked vias:0% 10% 20% 30% 40% 50% 60% 70% 80% 90% 100%
-Committed 6786 vias.
-Committing vias takes 0.00 seconds.
-Overall runtime: 0 seconds.
-Successfully created PG Vias.
-create_pg_vias -from_layers M5 -to_layers M4 -via_masters default -nets {VDD VSS}
-Initializing drc engine runtime: 0 seconds.
-Design loading runtime: 0 seconds.
-Net load_neting runtime: 0 seconds.
-Query intersections and create vias.
-Object query runtime: 0 seconds.
-Determining intersections for 82 shapes starts
-Intersection detection runtime: 0 seconds.
-Instantiating vias for 52 intersections starts
-Via instantiation runtime: 0 seconds.
-Starting via DRC checking ...
-Number of threads: 8
-Number of partitions: 3
-Direction of partitions: vertical
-Number of vias: 52
-Checking DRC for 52 stacked vias:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
-Overall via DRC checking runtime: 0 seconds.
-Checking dangling/floating vias.
-Start iteration 1: Checking 52 stacked vias:0% 10% 20% 30% 40% 50% 60% 70% 80% 90% 100%
-Committed 52 vias.
-Committing vias takes 0.00 seconds.
-Overall runtime: 0 seconds.
+Start iteration 1: Checking 4498 stacked vias:0% 10% 20% 30% 40% 50% 60% 70% 80% 90% 100%
+Committed 17992 vias.
+Committing vias takes 1.00 seconds.
+Overall runtime: 1 seconds.
 Successfully created PG Vias.
 create_pg_vias -from_layers M6 -to_layers M5 -via_masters default -nets {VDD VSS}
 Initializing drc engine runtime: 0 seconds.
@@ -851,13 +781,13 @@ Number of threads: 8
 Number of partitions: 5
 Direction of partitions: horizontal
 Number of vias: 1404
-Checking DRC for 1404 stacked vias:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
-Overall via DRC checking runtime: 1 seconds.
+Checking DRC for 1404 stacked vias:5% 10% 15% 20% 25% 30% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
+Overall via DRC checking runtime: 0 seconds.
 Checking dangling/floating vias.
 Start iteration 1: Checking 1456 stacked vias:0% 10% 20% 30% 40% 50% 60% 70% 80% 90% 100%
 Committed 1456 vias.
 Committing vias takes 0.00 seconds.
-Overall runtime: 1 seconds.
+Overall runtime: 0 seconds.
 Successfully created PG Vias.
 create_pg_vias -from_layers M7 -to_layers M6 -via_masters default -nets {VDD VSS}
 Initializing drc engine runtime: 0 seconds.
@@ -905,9 +835,9 @@ Number of Macro Cells: 0
 Number of IO Pad Cells: 0
 Number of Blocks: 0
 Loading P/G wires and vias...
-Number of VDD Wires: 4719
-Number of VDD Vias: 7570
-Number of VDD Terminals: 208
+Number of VDD Wires: 6955
+Number of VDD Vias: 9780
+Number of VDD Terminals: 156
 **************Verify net VDD connectivity*****************
   Number of floating wires: 26
   Number of floating vias: 0
@@ -919,13 +849,13 @@ Number of VDD Terminals: 208
 ************************************************************
 Loading cell instances...
 Loading P/G wires and vias...
-Number of VSS Wires: 168
-Number of VSS Vias: 784
+Number of VSS Wires: 6876
+Number of VSS Vias: 9728
 Number of VSS Terminals: 156
 **************Verify net VSS connectivity*****************
-  Number of floating wires: 112
+  Number of floating wires: 26
   Number of floating vias: 0
-  Number of floating std cells: 11161
+  Number of floating std cells: 9453
   Number of floating hard macros: 0
   Number of floating I/O pads: 0
   Number of floating terminals: 52
@@ -933,10 +863,10 @@ Number of VSS Terminals: 156
 ************************************************************
 Overall runtime: 0 seconds.
 check_pg_drc
-Command check_pg_drc started  at Wed Jul  8 13:10:46 2026
-Command check_pg_drc finished at Wed Jul  8 13:10:46 2026
-CPU usage for check_pg_drc: 0.29 seconds ( 0.00 hours)
-Elapsed time for check_pg_drc: 0.05 seconds ( 0.00 hours)
+Command check_pg_drc started  at Wed Jul  8 14:09:44 2026
+Command check_pg_drc finished at Wed Jul  8 14:09:44 2026
+CPU usage for check_pg_drc: 0.36 seconds ( 0.00 hours)
+Elapsed time for check_pg_drc: 0.06 seconds ( 0.00 hours)
 No errors found.
 #### Save the floorplan for the record (script form + DEF)
 # write_floorplan errors if the output dir already exists — clear it for rerun safety
@@ -962,7 +892,7 @@ write_def ${RESULTS_PATH}/${DESIGN_NAME}_floorplan.def
 ****************************************
 Report : Data Mismatches
 Version: V-2023.12-SP3
-Date   : Wed Jul  8 13:10:47 2026
+Date   : Wed Jul  8 14:09:45 2026
 ****************************************
 No mismatches exist on the design.
 Information: Fill shapes with 'active_fill' purpose will be skipped from output DEF. (DEFW-032)
@@ -991,7 +921,7 @@ PROPERTYDEFINITIONS            : 1
 DIEAREA                        : 1
 ROW                            : 172
 TRACKS                         : 20
-VIAS                           : 7
+VIAS                           : 6
 COMPONENTS                     : 13670
 PINS                           : 269
 PINPROPERTIES                  : 267
@@ -1004,7 +934,7 @@ report_utilization
 Report : report_utilization
 Design : riscv_core
 Version: V-2023.12-SP3
-Date   : Wed Jul  8 13:10:47 2026
+Date   : Wed Jul  8 14:09:45 2026
 ****************************************
 Utilization Ratio:                      0.6028
 Utilization options:
@@ -1032,7 +962,7 @@ collect_reports final_floorplan
 Collecting reports for final_floorplan stage...
 Reports are generated for final_floorplan stage.
 get_blocks -all
-{riscv_core.dlib:riscv_core.design riscv_core.dlib:riscv_core/rtl_read.design riscv_core.dlib:riscv_core/inital_syn.design riscv_core.dlib:riscv_core/final_floorplan.design}
+{riscv_core.dlib:riscv_core.design riscv_core.dlib:riscv_core/rtl_read.design riscv_core.dlib:riscv_core/inital_syn.design riscv_core.dlib:riscv_core/final_floorplan.design riscv_core.dlib:riscv_core/place_opt.design}
 save_block
 Information: Saving block 'riscv_core.dlib:riscv_core/final_floorplan.design'
 1
@@ -1042,10 +972,3 @@ Saving library 'riscv_core.dlib'
 # NOTE: no 'exit' — block/lib already saved; run 'gui_start' to inspect, 'exit' when done.
 Information: 6554 out of 6564 POW-046 messages were not printed due to limit 10  (MSG-3913)
 Information: 11 out of 21 SQM-1067 messages were not printed due to limit 10  (MSG-3913)
-fc_shell> exit
-Maximum memory usage for this session: 1331.88 MB
-Maximum memory usage for this session including child processes: 1331.88 MB
-CPU usage for this session:     57 seconds (  0.02 hours)
-Elapsed time for this session:    854 seconds (  0.24 hours)
-Thank you for using Fusion Compiler.
-
