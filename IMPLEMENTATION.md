@@ -90,7 +90,7 @@ It is a GUI-over-VNC instability and does **not** affect results. **Run every st
 
 ---
 
-## Step 2 — Floorplan + PG network  (`scripts/05_floorplan.tcl`)  — written, run pending
+## Step 2 — Floorplan + PG network  (`scripts/05_floorplan.tcl`)  — ✅ verified
 
 Based on Lab 5.2 (manual floorplan) + 5.3 (PG). Branches `inital_syn` → `final_floorplan`
 (the **mapped** block — `initialize_floorplan -core_utilization` needs real cell area; the lab
@@ -104,9 +104,37 @@ used `rtl_read` only because it read a pre-built `floorplan.def`). Then:
 5. `write_floorplan` + `write_def` → `results/`; `report_utilization`, `report_pg_drc final_floorplan`,
    `collect_reports final_floorplan`; save block+lib (no `exit`).
 
-**Run notes / to watch:** tune `-core_utilization`/`-core_offset` for the RISC-V size if the
-die is too tight or sparse; confirm `clk_i` pin side/layer; verify `check_pg_connectivity` and
-`check_pg_drc` (in `reports/final_floorplan_pg_drc.rpt`) are clean. Does **not** need `clean.sh`
-— it opens the existing `.dlib` and branches from `inital_syn`.
+**Prerequisite fix:** the provided `riscv.sdc` had to be corrected first — it used
+`remove_sdc` / `remove_from_collection` / `get_port` which `read_sdc` rejects (see
+`ISSUES_AND_FIXES.md`). Also made `write_floorplan` rerun-safe (`file delete -force` its dir)
+and the block copy rerun-safe (drop stale `final_floorplan`).
+
+**Run result (verified on VNC, `logs/05_floorplan.log`):** ✅ success.
+- SDC loaded into all 3 scenarios with **no `CMD-005`/`SDC-5`** (clock clk_i @10 ns + uncertainty
+  + case_analysis on rst_i + input/output delays + clock transition).
+- Floorplan **utilization 60.28%**; pins placed; boundary/tap cells inserted.
+- **PG `check_pg_drc` = "No errors found."** (VDD 4719 wires/7570 vias; VSS 168 wires/784 vias.)
+- Timing now real: setup **MET** (e.g. +3.34 ns), **0 setup-violating paths** Slow/Typical; minor
+  hold (FUNC_Slow 124 paths, TNS −0.44 ns) + 2 max-trans/cap — **expected pre-CTS/route**.
+- Reached `write_floorplan`/`write_def` + `collect_reports final_floorplan` + save.
+
+**Expected caveat:** `check_pg_connectivity` shows many floating std cells (9453 VDD / 11161 VSS)
+— normal at floorplan stage (cells not on rows yet); resolves after placement (Step 3).
+
+---
+
+## Step 3 — Placement + optimization  (`scripts/06_place.tcl`)  — NEXT
+
+Planned (Lab 6). Branches `final_floorplan` → `place_opt`, then:
+`set_app_options place.coarse.continue_on_missing_scandef true` + `place_opt.*` (defaults —
+no effort knobs yet, per decision) → `compile_fusion -to initial_opto` → `place_opt` →
+`connect_pg_net` → `check_legality` / `report_congestion` / `report_utilization` →
+`collect_reports place_opt`. Rerun-safe (drop stale `place_opt` block); no `exit`.
+
+**Decision:** run with **default** effort first. Only if setup/hold fails to close do we add the
+Lab 3 knobs (`compile.flow.high_effort_timing` etc.).
+**To watch:** legality clean, congestion overflows, whether PG floating std cells drop to ~0
+after placement, and setup/hold slack across the 3 scenarios.
+
 
 
