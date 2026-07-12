@@ -34,6 +34,12 @@ the files.
 - **Status:** fixed (rename). Note: Issue 4 (below) later **removed the M4 strap block
   entirely** in favor of the lab's M5→M1 distribution, so this block no longer runs in our
   flow — but the name mismatch remains a real defect in the provided input file.
+- **Where to see it:** the true untouched provided file is
+  `backups/create_pg_network.provided_ORIGINAL.tcl` (line 55 = `set_pg_strategy M5_PG_Strategy`,
+  line 60 = `compile_pg -strategies {M4_PG_Strategy}`). The other backup,
+  `backups/create_pg_network.provided_M4stack.tcl`, already has **this** rename applied (it was
+  captured while fixing Issue 4), so it does *not* show the mismatch — only the M4-vs-tech
+  direction issue.
 
 ---
 

@@ -219,6 +219,28 @@ Based on HW4 / `lab7_cts/clock_opt.tcl`. Branches `place_opt` → `clock_opt`, t
 Takeaway: clock tree is tight (skew 0.09 ns), timing has margin at 10 ns, hold and DRVs clean.
 Ready for signal routing (Step 5).
 
+---
+
+## Step 5 — Signal routing  (`scripts/08_route.tcl`)  — written, run pending
+
+Based on HW4 / `lab8_routing/route_opt.tcl`. Branches `clock_opt` → `route_opt`, then:
+1. Timing-driven routing options (`route.{global,track,detail}.timing_driven true`,
+   `route.global.force_rerun_after_global_route_opt true`).
+2. `source ../scripts/route.tcl` — project routing rules: metal directions, on-grid layers,
+   `set_ignored_layers -min_routing_layer M2` (M1 reserved for cell pins/PG rails).
+3. Pre-route info (`get_nets` count, `report_ignored_layers`, `report_scenarios`) + `check_routability`.
+4. `route_auto` (global → track → detail) → `route_opt` → `add_redundant_vias` → `route_eco`.
+5. `check_routes` / `check_lvs`; reconnect PG; `report_pg_drc route_opt` + `collect_reports route_opt`.
+
+Rerun-safe (drops stale `route_opt`); no `exit`. Skips the lab's demo `create_routing_blockage`
+(our placement created no matching blockage).
+
+**To watch:** `check_routes` DRC count (target 0 after route_opt/eco); `check_lvs` shorts/opens
+(target 0); congestion overflow; **`report_pg_drc route_opt`** — this is where the pre-route
+NULL-net PG shorts should resolve now that nets are detail-routed into the cells; setup/hold
+slack across the 3 scenarios.
+
+
 
 
 
