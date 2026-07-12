@@ -240,6 +240,35 @@ Rerun-safe (drops stale `route_opt`); no `exit`. Skips the lab's demo `create_ro
 NULL-net PG shorts should resolve now that nets are detail-routed into the cells; setup/hold
 slack across the 3 scenarios.
 
+---
+
+## Step 6 — Sign-off / chip finish  (`scripts/09_signoff.tcl`)  — written, run pending
+
+Based on HW4 / `lab9_signoff/{signoff,write_data}.tcl`. Branches `route_opt` → `signoff`, then:
+1. `source ../scripts/filler.tcl` (provided filler) → `check_legality`;
+   `remove_placement_blockages -all` → re-fill → `check_legality`; reconnect PG; `save_block`.
+2. **ICV in-design signoff DRC**: `set_host_options -target ICV -max_cores 2`, set
+   `signoff.check_drc.runset`/`run_dir`/`layer_map_file`, then
+   `signoff_check_drc` → `signoff_fix_drc` (reruns router to fix) → `signoff_check_drc` again.
+3. **Metal fill**: `signoff_create_metal_fill -select_layers {M2 M3 M4 M5 M6}` + pre/post density reports.
+4. Final analyze + **deliverables**: `report_pg_drc chip_finish` (**final PG-DRC report**) and
+   `collect_reports chip_finish` (**final timing report** = `chip_finish_report_timing_setup.rpt`).
+5. **Write data**: `write_verilog` (logical + `.pg.v`), `write_sdc`, `write_parasitics` (SPEF),
+   `write_gds` (merging the 3 Vt GDS libs). `save_block -as ${DESIGN_NAME}`.
+
+Rerun-safe (drops stale `signoff` + top block); no `exit`. Uses the confirmed EDK signoff paths
+(`icv_drc/…_drc_rules.rs`, `…_mfill_rules.rs`, `…_gdsin_gdsout.map`, 3× Vt GDS).
+
+**This is the authoritative gate for the PG/DRC question** from Step 5: ICV `signoff_check_drc`
+uses real foundry rules with full net resolution. If it comes back clean (or `signoff_fix_drc`
+clears it), the route-stage `check_lvs` 4,417 shorts were PG-tracing artifacts (VDD/VSS shown
+"open"); if it reports real shorts, we fix from concrete ICV geometry (PG pins / RVT-only).
+
+**Deliverables produced:** `reports/clock_opt_clock_skew.rpt` (Step 4),
+`reports/chip_finish_report_timing_setup.rpt` (+hold), `reports/chip_finish_pg_drc.rpt`, and
+`results/riscv_core.{v,pg.v,sdc,spef,gds}`.
+
+
 
 
 
