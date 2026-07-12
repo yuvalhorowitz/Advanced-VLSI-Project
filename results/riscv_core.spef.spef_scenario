@@ -1,9 +1,0 @@
-/project/advvlsi/users/yh3/ws/project_2026/work/../results/riscv_core.spef.minTLU_125.spef for scenarios: 
-	 scenario: FUNC_Fast, corner type: late/early
-
-/project/advvlsi/users/yh3/ws/project_2026/work/../results/riscv_core.spef.nomTLU_25.spef for scenarios: 
-	 scenario: FUNC_Typical, corner type: late/early
-
-/project/advvlsi/users/yh3/ws/project_2026/work/../results/riscv_core.spef.maxTLU_-40.spef for scenarios: 
-	 scenario: FUNC_Slow, corner type: late/early
-

@@ -5,7 +5,7 @@ Report : clock timing
         -setup
 Design : riscv_core
 Version: V-2023.12-SP3
-Date   : Wed Jul  8 15:02:14 2026
+Date   : Sun Jul 12 20:40:28 2026
 ****************************************
 
   Mode: FUNC
@@ -13,8 +13,8 @@ Date   : Wed Jul  8 15:02:14 2026
 
   Clock Pin                                          Latency      Skew             Corner
 ---------------------------------------------------------------------------------------------------
-  u_issue/u_regfile/REGFILE.reg_r4_q_reg[18]/CK         0.12              rp-+       Slow
-  u_exec/result_q_reg[10]/CK                            0.03      0.09    rp-+       Slow
+  u_fetch/skid_buffer_q_reg[21]/CK                      0.13              rp-+       Slow
+  u_lsu/mem_addr_q_reg[9]/CK                            0.03      0.10    rp-+       Slow
 
 ---------------------------------------------------------------------------------------------------
 1

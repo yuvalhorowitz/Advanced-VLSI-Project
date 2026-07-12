@@ -1,29 +1,5 @@
- 
-                              Fusion Compiler (TM)
-
-                Version V-2023.12-SP3 for linux64 - May 07, 2024
-  This release has significant feature enhancements. Please review the Release
-                       Notes associated with this release.
-
-                    Copyright (c) 1988 - 2024 Synopsys, Inc.
-   This software and the associated documentation are proprietary to Synopsys,
- Inc. This software may only be used in accordance with the terms and conditions
- of a written license agreement with Synopsys, Inc. All other use, reproduction,
-   or distribution of this software is strictly prohibited.  Licensed Products
-     communicate with Synopsys servers for the purpose of providing software
-    updates, detecting software piracy and verifying that customers are using
-    Licensed Products in conformity with the applicable License Key for such
-  Licensed Products. Synopsys will use information gathered in connection with
-    this process to deliver software updates and pursue software pirates and
-                                   infringers.
-
- Inclusivity & Diversity - Visit SolvNetPlus to read the "Synopsys Statement on
-            Inclusivity and Diversity" (Refer to article 000036315 at
-                        https://solvnetplus.synopsys.com)
-
-Information: Term was not able to be set up using xterm-256color . Using "xterm" by default instead. (CLE-10)
 #####################################################################
-#####           Step 05 — Floorplan + PG Network              #####
+#####		Step 05 — Floorplan + PG Network		#####
 #####################################################################
 #
 # Adapted from Labs reference lab5 (5.2 manual floorplan + 5.3 read/PG).
@@ -53,66 +29,66 @@ source -echo ../Setup/fc_common_setup.tcl
 #
 # Large SAED14 EDK data is referenced by absolute server path (EDK_ROOT)
 # and is NOT committed to git. Only the small RISC-V RTL/SDC live in common/.
-set DESIGN_NAME         "riscv_core"                    ; # top module (confirmed: riscv_core_all.v line 42)
-set DESIGN_LIBRARY      "${DESIGN_NAME}.dlib"           ; # design library name
-set WORK_DIR            "[pwd]"                         ; # current working directory (expected: <repo>/work)
-set CLOCK_PORT          "clk_i"                         ; # clock port (riscv.sdc: create_clock -period 10 [get_ports clk_i])
-set RESET_PORT          "rst_i"                         ; # reset port (riscv.sdc: set_case_analysis 0 [get_port rst_i])
-set LIBNAME             "saed14rvt"                     ; # primary std-cell library name
-set CELL_PREFIX         "SAEDRVT14"                     ; # RVT cell prefix (used by PG/boundary/tap/CTS scripts)
-set TECH_NODE           "saed14nm"                      ; # technology node name
-set METAL_STACK         "1p9m"                          ; # metal stack
+set DESIGN_NAME		"riscv_core"			; # top module (confirmed: riscv_core_all.v line 42)
+set DESIGN_LIBRARY	"${DESIGN_NAME}.dlib"		; # design library name
+set WORK_DIR		"[pwd]"				; # current working directory (expected: <repo>/work)
+set CLOCK_PORT		"clk_i"				; # clock port (riscv.sdc: create_clock -period 10 [get_ports clk_i])
+set RESET_PORT		"rst_i"				; # reset port (riscv.sdc: set_case_analysis 0 [get_port rst_i])
+set LIBNAME		"saed14rvt"			; # primary std-cell library name
+set CELL_PREFIX		"SAEDRVT14"			; # RVT cell prefix (used by PG/boundary/tap/CTS scripts)
+set TECH_NODE		"saed14nm"			; # technology node name
+set METAL_STACK		"1p9m"				; # metal stack
 #####################################################################
 #####      SAED14 EDK reference data (absolute server paths)    #####
 #####################################################################
-set EDK_ROOT            "/tech/synopsys/lib/SAED14_EDK"
-set TECH_DATA           "${EDK_ROOT}/SAED14nm_EDK_TECH_DATA"
+set EDK_ROOT		"/tech/synopsys/lib/SAED14_EDK"
+set TECH_DATA		"${EDK_ROOT}/SAED14nm_EDK_TECH_DATA"
 # Technology file (confirmed by project PDF)
-set TECH_FILE           "${TECH_DATA}/tf/${TECH_NODE}_${METAL_STACK}.tf"
-set TECH_NDM            "path/to/tech_ndm/if/exist"     ; # only used when TECH_BASED == ndm
+set TECH_FILE		"${TECH_DATA}/tf/${TECH_NODE}_${METAL_STACK}.tf"
+set TECH_NDM		"path/to/tech_ndm/if/exist"	; # only used when TECH_BASED == ndm
 # Reference libraries: link all three Vt (LVT + RVT + HVT) frame_timing NDMs.
-set REF_NDM             "base_frame_timing"             ; # project uses *_base_frame_timing.ndm
-set LVT_NDM             "${EDK_ROOT}/SAED14nm_EDK_STD_LVT/ndm/saed14lvt_${REF_NDM}.ndm"
-set RVT_NDM             "${EDK_ROOT}/SAED14nm_EDK_STD_RVT/ndm/saed14rvt_${REF_NDM}.ndm"
-set HVT_NDM             "${EDK_ROOT}/SAED14nm_EDK_STD_HVT/ndm/saed14hvt_${REF_NDM}.ndm"
-set REFERENCE_LIBRARY   [list ${LVT_NDM} ${RVT_NDM} ${HVT_NDM}]
+set REF_NDM		"base_frame_timing"		; # project uses *_base_frame_timing.ndm
+set LVT_NDM		"${EDK_ROOT}/SAED14nm_EDK_STD_LVT/ndm/saed14lvt_${REF_NDM}.ndm"
+set RVT_NDM		"${EDK_ROOT}/SAED14nm_EDK_STD_RVT/ndm/saed14rvt_${REF_NDM}.ndm"
+set HVT_NDM		"${EDK_ROOT}/SAED14nm_EDK_STD_HVT/ndm/saed14hvt_${REF_NDM}.ndm"
+set REFERENCE_LIBRARY	[list ${LVT_NDM} ${RVT_NDM} ${HVT_NDM}]
 # Parasitics (tlup, confirmed by project PDF)
-set TLUP_PATH           "${TECH_DATA}/tlup"
-set TLUP_MIN_FILE       "${TLUP_PATH}/${TECH_NODE}_${METAL_STACK}_Cmin.tlup"
-set TLUP_NOM_FILE       "${TLUP_PATH}/${TECH_NODE}_${METAL_STACK}_Cnom.tlup"
-set TLUP_MAX_FILE       "${TLUP_PATH}/${TECH_NODE}_${METAL_STACK}_Cmax.tlup"
+set TLUP_PATH		"${TECH_DATA}/tlup"
+set TLUP_MIN_FILE	"${TLUP_PATH}/${TECH_NODE}_${METAL_STACK}_Cmin.tlup"
+set TLUP_NOM_FILE	"${TLUP_PATH}/${TECH_NODE}_${METAL_STACK}_Cnom.tlup"
+set TLUP_MAX_FILE	"${TLUP_PATH}/${TECH_NODE}_${METAL_STACK}_Cmax.tlup"
 # nxtgrd alternative (only used when PARASITIC == nxtgrd)
-set NXTGRD_PATH         "${TECH_DATA}/nxtgrd"
-set NXTGRD_MIN_FILE     "${NXTGRD_PATH}/${TECH_NODE}_${METAL_STACK}_Cmin.nxtgrd"
-set NXTGRD_NOM_FILE     "${NXTGRD_PATH}/${TECH_NODE}_${METAL_STACK}_Cnom.nxtgrd"
-set NXTGRD_MAX_FILE     "${NXTGRD_PATH}/${TECH_NODE}_${METAL_STACK}_Cmax.nxtgrd"
+set NXTGRD_PATH		"${TECH_DATA}/nxtgrd"
+set NXTGRD_MIN_FILE	"${NXTGRD_PATH}/${TECH_NODE}_${METAL_STACK}_Cmin.nxtgrd"
+set NXTGRD_NOM_FILE	"${NXTGRD_PATH}/${TECH_NODE}_${METAL_STACK}_Cnom.nxtgrd"
+set NXTGRD_MAX_FILE	"${NXTGRD_PATH}/${TECH_NODE}_${METAL_STACK}_Cmax.nxtgrd"
 # Layer map for read_parasitic_tech (needed from the floorplan stage on). Confirmed on VNC.
-set MAP_PATH            "${TECH_DATA}/map"
-set LAYER_MAP_FILE      "${MAP_PATH}/${TECH_NODE}_tf_itf_tluplus.map"
+set MAP_PATH		"${TECH_DATA}/map"
+set LAYER_MAP_FILE	"${MAP_PATH}/${TECH_NODE}_tf_itf_tluplus.map"
 # Sign-off / GDS data (used at step 09). Confirmed on VNC.
-set GDS_MAP_FILE        "${MAP_PATH}/${TECH_NODE}_${METAL_STACK}_gdsin_gdsout.map"
-set DRC_RUNSET_FILE     "${TECH_DATA}/icv_drc/${TECH_NODE}_${METAL_STACK}_drc_rules.rs"
-set MFILL_RUNSET_FILE   "${TECH_DATA}/icv_drc/${TECH_NODE}_${METAL_STACK}_mfill_rules.rs"
+set GDS_MAP_FILE	"${MAP_PATH}/${TECH_NODE}_${METAL_STACK}_gdsin_gdsout.map"
+set DRC_RUNSET_FILE	"${TECH_DATA}/icv_drc/${TECH_NODE}_${METAL_STACK}_drc_rules.rs"
+set MFILL_RUNSET_FILE	"${TECH_DATA}/icv_drc/${TECH_NODE}_${METAL_STACK}_mfill_rules.rs"
 # GDS merge files — one per linked Vt library (write_gds -merge_files).
-set GDS_FILE            [list \
-        "${EDK_ROOT}/SAED14nm_EDK_STD_LVT/gds/saed14lvt.gds" \
-        "${EDK_ROOT}/SAED14nm_EDK_STD_RVT/gds/saed14rvt.gds" \
-        "${EDK_ROOT}/SAED14nm_EDK_STD_HVT/gds/saed14hvt.gds" ]
+set GDS_FILE		[list \
+	"${EDK_ROOT}/SAED14nm_EDK_STD_LVT/gds/saed14lvt.gds" \
+	"${EDK_ROOT}/SAED14nm_EDK_STD_RVT/gds/saed14rvt.gds" \
+	"${EDK_ROOT}/SAED14nm_EDK_STD_HVT/gds/saed14hvt.gds" ]
 # Liberty .db (only used for a frame_only fallback; set from fc_flow_setup.tcl)
-set LIBERTY_PATH        "${EDK_ROOT}/liberty"
+set LIBERTY_PATH	"${EDK_ROOT}/liberty"
 #####################################################################
 #####      Project inputs (committed under ../common)           #####
 #####################################################################
-set RTL_PATH            "${WORK_DIR}/../common/rtl"
-set VERILOG_PATH        "${RTL_PATH}/verilog"                   ; # riscv_core_all.v, riscv_defs.v
-set VHDL_PATH           "${RTL_PATH}/vhdl"
-set SDC_PATH            "${WORK_DIR}/../common/sdc"
-set SDC_FILE            "${SDC_PATH}/riscv.sdc"
+set RTL_PATH		"${WORK_DIR}/../common/rtl"
+set VERILOG_PATH	"${RTL_PATH}/verilog"			; # riscv_core_all.v, riscv_defs.v
+set VHDL_PATH		"${RTL_PATH}/vhdl"
+set SDC_PATH		"${WORK_DIR}/../common/sdc"
+set SDC_FILE		"${SDC_PATH}/riscv.sdc"
 #####################################################################
 #####      Project outputs (committed under ../results, ../reports) #####
 #####################################################################
-set RESULTS_PATH        "${WORK_DIR}/../results"                        ; # design library + final netlists/gds/def
-set REPORTS_PATH        "${WORK_DIR}/../reports"                        ; # all .rpt deliverables
+set RESULTS_PATH	"${WORK_DIR}/../results"			; # design library + final netlists/gds/def
+set REPORTS_PATH	"${WORK_DIR}/../reports"			; # all .rpt deliverables
 #### Source the reporting utilities
 source ${WORK_DIR}/../Setup/utilities.tcl
 source -echo ../Setup/fc_flow_setup.tcl
@@ -121,42 +97,34 @@ source -echo ../Setup/fc_flow_setup.tcl
 #####################################################################
 #
 # Adapted from Labs reference/labs/setup/fc_flow_setup.tcl.
-set TECH_BASED  "tf"                            ; # "tf" for TECH_FILE-based flow, "ndm" for TECH_NDM-based flow
-set PARASITIC   "tlup"                          ; # "tlup" for TLUP files, "nxtgrd" for NXTGRD files
-set HDL         "verilog"                       ; # "verilog" or "vhdl"
+set TECH_BASED	"tf"				; # "tf" for TECH_FILE-based flow, "ndm" for TECH_NDM-based flow
+set PARASITIC	"tlup"				; # "tlup" for TLUP files, "nxtgrd" for NXTGRD files
+set HDL		"verilog"			; # "verilog" or "vhdl"
 # PVT operating conditions (SAED14 RVT liberty corners)
-set PVT_FF      "ff0p88v125c"                   ; # Fast corner
-set PVT_TT      "tt0p8v25c"                     ; # Typical corner
-set PVT_SS      "ss0p72vm40c"                   ; # Slow corner
+set PVT_FF	"ff0p88v125c"			; # Fast corner
+set PVT_TT	"tt0p8v25c"			; # Typical corner
+set PVT_SS	"ss0p72vm40c"			; # Slow corner
 # Liberty .db per corner (only used for a frame_only fallback; frame_timing gets timing from NDM)
-set DB_FF       "${LIBERTY_PATH}/${LIBNAME}_${PVT_FF}.db"
-set DB_TT       "${LIBERTY_PATH}/${LIBNAME}_${PVT_TT}.db"
-set DB_SS       "${LIBERTY_PATH}/${LIBNAME}_${PVT_SS}.db"
+set DB_FF	"${LIBERTY_PATH}/${LIBNAME}_${PVT_FF}.db"
+set DB_TT	"${LIBERTY_PATH}/${LIBNAME}_${PVT_TT}.db"
+set DB_SS	"${LIBERTY_PATH}/${LIBNAME}_${PVT_SS}.db"
 # Compute resources (RISC-V core is larger than the lab i2c design)
 set_host_options -max_cores 8
-1
 #### Open the design library and branch a fresh block
 open_lib ${RESULTS_PATH}/${DESIGN_LIBRARY}
-Information: Loading library file '/project/advvlsi/users/yh3/ws/project_2026/results/riscv_core.dlib' (FILE-007)
-Information: Loading library file '/tech/synopsys/lib/SAED14_EDK/SAED14nm_EDK_STD_LVT/ndm/saed14lvt_base_frame_timing.ndm' (FILE-007)
-Information: Loading library file '/tech/synopsys/lib/SAED14_EDK/SAED14nm_EDK_STD_RVT/ndm/saed14rvt_base_frame_timing.ndm' (FILE-007)
-Information: Loading library file '/tech/synopsys/lib/SAED14_EDK/SAED14nm_EDK_STD_HVT/ndm/saed14hvt_base_frame_timing.ndm' (FILE-007)
-{riscv_core.dlib}
+Information: Incrementing open_count of library 'riscv_core.dlib' to 2. (LIB-017)
 # rerun-safe: drop a stale target block from a previous run if present
 if {[sizeof_collection [get_blocks -quiet ${DESIGN_NAME}/final_floorplan]] > 0} {
-        remove_blocks -force ${DESIGN_NAME}/final_floorplan
+	remove_blocks -force ${DESIGN_NAME}/final_floorplan
 }
 copy_block -from ${DESIGN_NAME}/inital_syn -to ${DESIGN_NAME}/final_floorplan
 Information: Overwriting block 'riscv_core/final_floorplan.design' in library 'riscv_core.dlib'. (DES-025)
-Information: User units loaded from library 'saed14lvt_base_frame_timing' (LNK-040)
-{riscv_core.dlib:riscv_core/final_floorplan.design}
 open_block ${DESIGN_NAME}/final_floorplan
 Information: Incrementing open_count of block 'riscv_core.dlib:riscv_core/final_floorplan.design' to 2. (DES-021)
-{riscv_core.dlib:riscv_core/final_floorplan.design}
 #### Tech setup (site defs, parasitics, routing directions)
 source -echo ../Setup/tech_setup.tcl
 #####################################################################
-#####                   Tech Setup Script                       #####
+#####			Tech Setup Script			#####
 #####################################################################
 #
 # Verbatim from Labs reference/labs/setup/tech_setup.tcl.
@@ -166,19 +134,20 @@ source -echo ../Setup/tech_setup.tcl
 set_attribute [get_site_defs unit] symmetry Y
 set_attribute [get_site_defs unit] is_default true
 if {[string equal tlup ${PARASITIC}]} {
-        read_parasitic_tech -layermap ${LAYER_MAP_FILE} -tlup ${TLUP_MAX_FILE} -name maxTLU
-        read_parasitic_tech -layermap ${LAYER_MAP_FILE} -tlup ${TLUP_NOM_FILE} -name nomTLU
-        read_parasitic_tech -layermap ${LAYER_MAP_FILE} -tlup ${TLUP_MIN_FILE} -name minTLU
+	read_parasitic_tech -layermap ${LAYER_MAP_FILE} -tlup ${TLUP_MAX_FILE} -name maxTLU
+	read_parasitic_tech -layermap ${LAYER_MAP_FILE} -tlup ${TLUP_NOM_FILE} -name nomTLU
+	read_parasitic_tech -layermap ${LAYER_MAP_FILE} -tlup ${TLUP_MIN_FILE} -name minTLU
 } elseif {[string equal nxtgrd ${PARASITIC}]} {
-        read_parasitic_tech -layermap ${LAYER_MAP_FILE} -tlup ${NXTGRD_MAX_FILE} -name maxTLU
-        read_parasitic_tech -layermap ${LAYER_MAP_FILE} -tlup ${NXTGRD_NOM_FILE} -name nomTLU
-        read_parasitic_tech -layermap ${LAYER_MAP_FILE} -tlup ${NXTGRD_MIN_FILE} -name minTLU
+	read_parasitic_tech -layermap ${LAYER_MAP_FILE} -tlup ${NXTGRD_MAX_FILE} -name maxTLU
+	read_parasitic_tech -layermap ${LAYER_MAP_FILE} -tlup ${NXTGRD_NOM_FILE} -name nomTLU
+	read_parasitic_tech -layermap ${LAYER_MAP_FILE} -tlup ${NXTGRD_MIN_FILE} -name minTLU
 }
 Information: The command 'read_parasitic_tech' cleared the undo history. (UNDO-016)
 WARNING: Layer mapping file warning. Tech layer 'M1_3' mapped in layer mapping file cannot be found in technology section.
 WARNING: Layer mapping file warning. Tech layer 'M2_3' mapped in layer mapping file cannot be found in technology section.
 WARNING: Layer mapping file warning. Tech layer 'M3_3' mapped in layer mapping file cannot be found in technology section.
 NEX(WARNING): parasitic_tech file: /tech/synopsys/lib/SAED14_EDK/SAED14nm_EDK_TECH_DATA/tlup/saed14nm_1p9m_Cmax.tlup already read in, mandatory 1-to-1 map between tluplus file and paraTech
+Information: The net parasitics of block riscv_core are cleared. (TIM-123)
 WARNING: Layer mapping file warning. Tech layer 'M1_3' mapped in layer mapping file cannot be found in technology section.
 WARNING: Layer mapping file warning. Tech layer 'M2_3' mapped in layer mapping file cannot be found in technology section.
 WARNING: Layer mapping file warning. Tech layer 'M3_3' mapped in layer mapping file cannot be found in technology section.
@@ -223,13 +192,12 @@ set_case_analysis 0 [get_ports rst_i]
 set_input_delay -max 0.2 -clock clk_i [all_inputs]
 Information: Timer using 8 threads
 #Set constraints on output ports:
-set_output_delay 0.2 -max -clock clk_i [all_outputs]     
+set_output_delay 0.2 -max -clock clk_i [all_outputs] 	 
 #set_load -max [expr [load_of $lib_name/AND2X1_HVT/A1] * 15] [all_outputs]
 set_clock_transition -max 0.2 [get_clocks clk_i]
-1
 source -echo ../Setup/mcmm_setup.tcl
 #####################################################################
-#####                   MCMM Setup Script                       #####
+#####			MCMM Setup Script			#####
 #####################################################################
 #
 # Verbatim from Labs reference/labs/setup/mcmm_setup.tcl.
@@ -265,8 +233,8 @@ All analysis types are activated.
 set scenarios [get_attribute [get_scenarios ] name]
 suppress_message UIC-034
 foreach scenario ${scenarios} {
-        current_scenario ${scenario}
-        read_sdc ${SDC_FILE}
+	current_scenario ${scenario}
+	read_sdc ${SDC_FILE}
 }
 Information: Loading SDC version 2.1 file '/project/advvlsi/users/yh3/ws/project_2026/common/sdc/riscv.sdc' (FILE-007)
 Information: Timer using 8 threads
@@ -290,15 +258,14 @@ Information: Cellem using advance interpolation.
 Scenario FUNC_Typical (mode FUNC corner Typical) is active for setup/hold/leakage_power/dynamic_power/max_transition/max_capacitance/min_capacitance/cell_em/signal_em/glitch_power/si_noise analysis.
 set_scenario_status FUNC_Slow    -setup true  -hold false -leakage_power true  -dynamic_power true  -max_transition true   -max_capacitance false  -active true
 Scenario FUNC_Slow (mode FUNC corner Slow) is active for setup/leakage_power/dynamic_power/max_transition/min_capacitance/si_noise analysis.
-1
 #### Initialize the floorplan (tune these for the RISC-V core size)
 initialize_floorplan \
-        -control_type core \
-        -core_utilization 0.60 \
-        -core_offset 5 \
-        -shape R \
-        -side_ratio {1 1} \
-        -flip_first_row true
+	-control_type core \
+	-core_utilization 0.60 \
+	-core_offset 5 \
+	-shape R \
+	-side_ratio {1 1} \
+	-flip_first_row true
 Removing existing floorplan objects
 Creating core...
 Core utilization ratio = 60.28%
@@ -311,26 +278,23 @@ Initializing floorplan completed.
 set ports [remove_from_collection [get_ports] [get_ports {VDD VSS}]]
 Warning: No port objects matched 'VDD' (SEL-004)
 Warning: No port objects matched 'VSS' (SEL-004)
-{clk_i rst_i {mem_d_data_rd_i[31]} {mem_d_data_rd_i[30]} {mem_d_data_rd_i[29]} {mem_d_data_rd_i[28]} {mem_d_data_rd_i[27]} {mem_d_data_rd_i[26]} {mem_d_data_rd_i[25]} {mem_d_data_rd_i[24]} {mem_d_data_rd_i[23]} {mem_d_data_rd_i[22]} {mem_d_data_rd_i[21]} {mem_d_data_rd_i[20]} {mem_d_data_rd_i[19]} {mem_d_data_rd_i[18]} {mem_d_data_rd_i[17]} {mem_d_data_rd_i[16]} {mem_d_data_rd_i[15]} {mem_d_data_rd_i[14]} {mem_d_data_rd_i[13]} {mem_d_data_rd_i[12]} {mem_d_data_rd_i[11]} {mem_d_data_rd_i[10]} {mem_d_data_rd_i[9]} {mem_d_data_rd_i[8]} {mem_d_data_rd_i[7]} {mem_d_data_rd_i[6]} {mem_d_data_rd_i[5]} {mem_d_data_rd_i[4]} {mem_d_data_rd_i[3]} {mem_d_data_rd_i[2]} {mem_d_data_rd_i[1]} {mem_d_data_rd_i[0]} mem_d_accept_i mem_d_ack_i mem_d_error_i {mem_d_resp_tag_i[10]} {mem_d_resp_tag_i[9]} {mem_d_resp_tag_i[8]} {mem_d_resp_tag_i[7]} {mem_d_resp_tag_i[6]} {mem_d_resp_tag_i[5]} {mem_d_resp_tag_i[4]} {mem_d_resp_tag_i[3]} {mem_d_resp_tag_i[2]} {mem_d_resp_tag_i[1]} {mem_d_resp_tag_i[0]} mem_i_accept_i mem_i_valid_i mem_i_error_i {mem_i_inst_i[31]} {mem_i_inst_i[30]} {mem_i_inst_i[29]} {mem_i_inst_i[28]} {mem_i_inst_i[27]} {mem_i_inst_i[26]} {mem_i_inst_i[25]} {mem_i_inst_i[24]} {mem_i_inst_i[23]} {mem_i_inst_i[22]} {mem_i_inst_i[21]} {mem_i_inst_i[20]} {mem_i_inst_i[19]} {mem_i_inst_i[18]} {mem_i_inst_i[17]} {mem_i_inst_i[16]} {mem_i_inst_i[15]} {mem_i_inst_i[14]} {mem_i_inst_i[13]} {mem_i_inst_i[12]} {mem_i_inst_i[11]} {mem_i_inst_i[10]} {mem_i_inst_i[9]} {mem_i_inst_i[8]} {mem_i_inst_i[7]} {mem_i_inst_i[6]} {mem_i_inst_i[5]} {mem_i_inst_i[4]} {mem_i_inst_i[3]} {mem_i_inst_i[2]} {mem_i_inst_i[1]} {mem_i_inst_i[0]} intr_i {reset_vector_i[31]} {reset_vector_i[30]} {reset_vector_i[29]} {reset_vector_i[28]} {reset_vector_i[27]} {reset_vector_i[26]} {reset_vector_i[25]} {reset_vector_i[24]} {reset_vector_i[23]} {reset_vector_i[22]} {reset_vector_i[21]} {reset_vector_i[20]} {reset_vector_i[19]} {reset_vector_i[18]} {reset_vector_i[17]} {reset_vector_i[16]} ...}
 set_block_pin_constraints -self \
-        -allowed_layers {M3 M4} \
-        -sides {1 4} \
-        -pin_spacing_distance 1 \
-        -width 0.11 \
-        -length 0.11
+	-allowed_layers {M3 M4} \
+	-sides {1 4} \
+	-pin_spacing_distance 1 \
+	-width 0.11 \
+	-length 0.11
 Information: The command 'set_block_pin_constraints' cleared the undo history. (UNDO-016)
 Information: Block pin constraints pin_spacing_distance, allowed_layers, sides are set for top block riscv_core/final_floorplan. (DPPA-403)
-1
 set_individual_pin_constraints \
-        -ports [get_ports ${CLOCK_PORT}] \
-        -sides 2 \
-        -allowed_layers M5
-1
+	-ports [get_ports ${CLOCK_PORT}] \
+	-sides 2 \
+	-allowed_layers M5
 place_pins -self -ports ${ports}
 Information: Starting 'place_pins' (FLW-8000)
-Information: Time: 2026-07-08 14:09:37 / Session:  00:00:16 / Command:  00:00:00 / CPU:  00:00:00 / Memory: 752 MB (FLW-8100)
+Information: Time: 2026-07-12 20:26:43 / Session:  00:31:30 / Command:  00:00:00 / CPU:  00:00:00 / Memory: 1796 MB (FLW-8100)
 Load DB...
-CPU Time for load db: 00:00:00.01u 00:00:00.00s 00:00:00.02e: 
+CPU Time for load db: 00:00:00.02u 00:00:00.00s 00:00:00.02e: 
 
 Min routing layer: M1
 Max routing layer: MRDL
@@ -364,40 +328,39 @@ Warning: 62 pins on block riscv_core have been placed with relaxed pin spacing c
 CPU Time for Pin Creation: 00:00:00.05u 00:00:00.00s 00:00:00.05e: 
 Total Pin Placement CPU Time: 00:00:00.07u 00:00:00.00s 00:00:00.07e: 
 Information: Ending   'place_pins' (FLW-8001)
-Information: Time: 2026-07-08 14:09:37 / Session:  00:00:16 / Command:  00:00:00 / CPU:  00:00:00 / Memory: 756 MB (FLW-8100)
-1
+Information: Time: 2026-07-12 20:26:43 / Session:  00:31:30 / Command:  00:00:00 / CPU:  00:00:00 / Memory: 1796 MB (FLW-8100)
 #### Insert boundary and TAP cells (provided script; SAEDRVT14 prefix)
 source -echo ../scripts/insert_boundary_and_tap_cells.tcl
 #####################################################################
-#####                   Boundary/TAP cell insertion             #####
+#####			Boundary/TAP cell insertion		#####
 #####################################################################
 #### Inserting boundary cells
-set CELL_PREFIX         "SAEDRVT14"
+set CELL_PREFIX		"SAEDRVT14"
 set_boundary_cell_rules  \
         -top_boundary_cells                */${CELL_PREFIX}_CAPT2 \
         -bottom_boundary_cells             */${CELL_PREFIX}_CAPB2 \
-        -left_boundary_cell                */${CELL_PREFIX}_CAPT2 \
-        -right_boundary_cell               */${CELL_PREFIX}_CAPB2 \
+	-left_boundary_cell                */${CELL_PREFIX}_CAPT2 \
+	-right_boundary_cell               */${CELL_PREFIX}_CAPB2 \
         -top_left_outside_corner_cell      */${CELL_PREFIX}_CAPTIN13 \
         -top_right_outside_corner_cell     */${CELL_PREFIX}_CAPTIN13 \
         -bottom_left_outside_corner_cell   */${CELL_PREFIX}_CAPBIN13 \
         -bottom_right_outside_corner_cell  */${CELL_PREFIX}_CAPBIN13 
-#       -mirror_left_outside_corner_cell \
-#       -mirror_right_outside_corner_cell 
+#	-mirror_left_outside_corner_cell \
+#	-mirror_right_outside_corner_cell 
 compile_boundary_cells
 Warning: Detected use of obsolete/unsupported feature.  The following
-                will not be available in a future release of the application:
-                compile_boundary_cells. Use compile_targeted_boundary_cells instead (CMD-100)
+        	will not be available in a future release of the application:
+        	compile_boundary_cells. Use compile_targeted_boundary_cells instead (CMD-100)
 Using AL to insert boundary cells
 Warning: Routing direction of metal layer PO is neither "horizontal" nor "vertical".  PDC checks will not be performed on this layer. (PDC-003)
 PDC app_options settings =========
-        place.legalize.enable_prerouted_net_check: 1
-        place.legalize.num_tracks_for_access_check: 1
-        place.legalize.use_eol_spacing_for_access_check: 0
-        place.legalize.allow_touch_track_for_access_check: 1
-        place.legalize.reduce_conservatism_in_eol_check: 0
-        place.legalize.preroute_shape_merge_distance: 0.0
-        place.legalize.enable_non_preferred_direction_span_check: 0
+	place.legalize.enable_prerouted_net_check: 1
+	place.legalize.num_tracks_for_access_check: 1
+	place.legalize.use_eol_spacing_for_access_check: 0
+	place.legalize.allow_touch_track_for_access_check: 1
+	place.legalize.reduce_conservatism_in_eol_check: 0
+	place.legalize.preroute_shape_merge_distance: 0.0
+	place.legalize.enable_non_preferred_direction_span_check: 0
 
 Layer M1: cached 0 shapes out of 0 total shapes.
 Layer M2: cached 0 shapes out of 0 total shapes.
@@ -405,15 +368,15 @@ Layer M3: cached 0 shapes out of 0 total shapes.
 Cached 0 vias out of 0 total vias.
 Warning: No 1x or 2x + 3x wide cells provided for top or bottom option. (CHF-125)
 Information: Starting boundary cell insertion into riscv_core/final_floorplan using site master "unit". (CHF-200)
-        10% complete ...
-        20% complete ...
-        30% complete ...
-        40% complete ...
-        50% complete ...
-        60% complete ...
-        70% complete ...
-        80% complete ...
-        90% complete ...
+	10% complete ...
+	20% complete ...
+	30% complete ...
+	40% complete ...
+	50% complete ...
+	60% complete ...
+	70% complete ...
+	80% complete ...
+	90% complete ...
 Information: Total 170 left cells inserted successfully into riscv_core/final_floorplan. (CHF-100)
 Information: Total 0 bottom cells inserted successfully into riscv_core/final_floorplan. (CHF-100)
 Information: Total 170 right cells inserted successfully into riscv_core/final_floorplan. (CHF-100)
@@ -433,33 +396,33 @@ Using AL to insert tap cells
 Information: tap_to_tap_distance is not a hard rule at tap insertion stage. Please set place.legalize.ignore_tap_to_tap_distance_rule to true to bypass the check.
 Warning: Routing direction of metal layer PO is neither "horizontal" nor "vertical".  PDC checks will not be performed on this layer. (PDC-003)
 PDC app_options settings =========
-        place.legalize.enable_prerouted_net_check: 1
-        place.legalize.num_tracks_for_access_check: 1
-        place.legalize.use_eol_spacing_for_access_check: 0
-        place.legalize.allow_touch_track_for_access_check: 1
-        place.legalize.reduce_conservatism_in_eol_check: 0
-        place.legalize.preroute_shape_merge_distance: 0.0
-        place.legalize.enable_non_preferred_direction_span_check: 0
+	place.legalize.enable_prerouted_net_check: 1
+	place.legalize.num_tracks_for_access_check: 1
+	place.legalize.use_eol_spacing_for_access_check: 0
+	place.legalize.allow_touch_track_for_access_check: 1
+	place.legalize.reduce_conservatism_in_eol_check: 0
+	place.legalize.preroute_shape_merge_distance: 0.0
+	place.legalize.enable_non_preferred_direction_span_check: 0
 
 Layer M1: cached 0 shapes out of 0 total shapes.
 Layer M2: cached 0 shapes out of 0 total shapes.
 Layer M3: cached 0 shapes out of 0 total shapes.
 Cached 0 vias out of 0 total vias.
 Information: Starting tap cell insertion into riscv_core/final_floorplan using site master "unit". (CHF-200)
-        10% complete ...
-        20% complete ...
-        30% complete ...
-        40% complete ...
-        50% complete ...
-        60% complete ...
-        70% complete ...
-        80% complete ...
-        90% complete ...
+	10% complete ...
+	20% complete ...
+	30% complete ...
+	40% complete ...
+	50% complete ...
+	60% complete ...
+	70% complete ...
+	80% complete ...
+	90% complete ...
 Information: Total 680 tap cells inserted successfully into riscv_core/final_floorplan. (CHF-100)
 #### Create the Power/Ground network (provided script; rails/rings/mesh/vias + checks)
 source -echo ../scripts/create_pg_network.tcl
 #####################################################################
-#####                   Create PG Network Script                #####
+#####			Create PG Network Script		#####
 #####################################################################
 create_net -power VDD
 create_net -ground VSS
@@ -534,9 +497,9 @@ Committing vias takes 0.00 seconds.
 Committed 86 wires.
 Committed 0 vias.
 Committed 0 wires for via creation.
-Overall PG creation runtime: 1 seconds.
+Overall PG creation runtime: 0 seconds.
 Successfully compiled PG.
-Overall runtime: 1 seconds.
+Overall runtime: 0 seconds.
 #### Create PG Rings
 create_pg_ring_pattern \
                  PG_Ring_VSS \
@@ -614,7 +577,7 @@ Number of threads: 8
 Number of partitions: 5
 Direction of partitions: vertical
 Number of wires: 52
-Checking DRC for 52 wires:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 95% 100%
+Checking DRC for 52 wires:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
 Creating 52 wires after DRC fixing.
 Wire DRC checking runtime 0.00 seconds.
 Creating via shapes for strategies M5_PG_Strategy .
@@ -638,8 +601,10 @@ Overall PG creation runtime: 0 seconds.
 Successfully compiled PG.
 Overall runtime: 0 seconds.
 #### Create M6 Horizontal PG Straps
+# Narrower + sparser than the provided 0.2/pitch-4 to clear M6.S.3.x spacing DRCs
+# reported by ICV signoff_check_drc (interleaved 0.2-wide straps were too close).
 create_pg_mesh_pattern M6_PG \
-        -layers { {horizontal_layer: M6}   {width: 0.2} {spacing: interleaving} {pitch: 4} {offset: 0.5} }
+        -layers { {horizontal_layer: M6}   {width: 0.1} {spacing: interleaving} {pitch: 8} {offset: 0.5} }
 Successfully create mesh pattern M6_PG.
 set_pg_strategy M6_PG_Strategy \
         -core \
@@ -659,13 +624,13 @@ Creating straps and vias in power plan.
 Creating wire shapes for strategies M6_PG_Strategy .
 Creating wire shapes runtime: 0 seconds
 Blockage cutting and DRC fixing for wire shapes for strategies M6_PG_Strategy .
-Check and fix DRC for 52 wires for strategy M6_PG_Strategy.
+Check and fix DRC for 26 wires for strategy M6_PG_Strategy.
 Number of threads: 8
-Number of partitions: 5
+Number of partitions: 3
 Direction of partitions: horizontal
-Number of wires: 52
-Checking DRC for 52 wires:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 70% 75% 80% 85% 90% 95% 100%
-Creating 52 wires after DRC fixing.
+Number of wires: 26
+Checking DRC for 26 wires:5% 15% 20% 30% 35% 45% 50% 60% 65% 75% 80% 90% 100%
+Creating 26 wires after DRC fixing.
 Wire DRC checking runtime 0.00 seconds.
 Creating via shapes for strategies M6_PG_Strategy .
 Number of threads: 8
@@ -680,16 +645,17 @@ Finish removing all dangling or floating wires and vias.
 Commiting wires and vias.
 Committing wires takes 0.00 seconds.
 Committing vias takes 0.00 seconds.
-Committed 156 wires.
+Committed 78 wires.
 Committed 0 vias.
 Committed 0 wires for via creation.
-Created 104 pins at design boundary.
+Created 52 pins at design boundary.
 Overall PG creation runtime: 0 seconds.
 Successfully compiled PG.
 Overall runtime: 0 seconds.
 #### Create M7 Vertical PG Straps
+# Match M6: narrower + sparser to avoid M7 spacing DRCs.
 create_pg_mesh_pattern M7_PG \
-        -layers { {vertical_layer: M7}   {width: 0.2} {spacing: interleaving} {pitch: 4} {offset: 0.5} }
+        -layers { {vertical_layer: M7}   {width: 0.1} {spacing: interleaving} {pitch: 8} {offset: 0.5} }
 Successfully create mesh pattern M7_PG.
 set_pg_strategy M7_PG_Strategy \
         -core \
@@ -709,14 +675,14 @@ Creating straps and vias in power plan.
 Creating wire shapes for strategies M7_PG_Strategy .
 Creating wire shapes runtime: 0 seconds
 Blockage cutting and DRC fixing for wire shapes for strategies M7_PG_Strategy .
-Check and fix DRC for 52 wires for strategy M7_PG_Strategy.
+Check and fix DRC for 26 wires for strategy M7_PG_Strategy.
 Number of threads: 8
-Number of partitions: 5
+Number of partitions: 3
 Direction of partitions: vertical
-Number of wires: 52
-Checking DRC for 52 wires:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
-Creating 52 wires after DRC fixing.
-Wire DRC checking runtime 0.00 seconds.
+Number of wires: 26
+Checking DRC for 26 wires:5% 15% 20% 30% 35% 45% 50% 60% 65% 75% 80% 90% 100%
+Creating 26 wires after DRC fixing.
+Wire DRC checking runtime 1.00 seconds.
 Creating via shapes for strategies M7_PG_Strategy .
 Number of threads: 8
 Working on strategy M7_PG_Strategy.
@@ -730,13 +696,13 @@ Finish removing all dangling or floating wires and vias.
 Commiting wires and vias.
 Committing wires takes 0.00 seconds.
 Committing vias takes 0.00 seconds.
-Committed 156 wires.
+Committed 78 wires.
 Committed 0 vias.
 Committed 0 wires for via creation.
-Created 104 pins at design boundary.
-Overall PG creation runtime: 0 seconds.
+Created 52 pins at design boundary.
+Overall PG creation runtime: 1 seconds.
 Successfully compiled PG.
-Overall runtime: 0 seconds.
+Overall runtime: 1 seconds.
 #### Create PG VIAs (distribute down from the M5 vertical mesh to the M1 rails)
 create_pg_vias -from_layers M5 -to_layers M1 -via_masters default -nets {VDD VSS}
 Initializing drc engine runtime: 0 seconds.
@@ -758,8 +724,8 @@ Overall via DRC checking runtime: 0 seconds.
 Checking dangling/floating vias.
 Start iteration 1: Checking 4498 stacked vias:0% 10% 20% 30% 40% 50% 60% 70% 80% 90% 100%
 Committed 17992 vias.
-Committing vias takes 1.00 seconds.
-Overall runtime: 1 seconds.
+Committing vias takes 0.00 seconds.
+Overall runtime: 0 seconds.
 Successfully created PG Vias.
 create_pg_vias -from_layers M6 -to_layers M5 -via_masters default -nets {VDD VSS}
 Initializing drc engine runtime: 0 seconds.
@@ -767,9 +733,9 @@ Design loading runtime: 0 seconds.
 Net load_neting runtime: 0 seconds.
 Query intersections and create vias.
 Object query runtime: 0 seconds.
-Determining intersections for 108 shapes starts
+Determining intersections for 82 shapes starts
 Intersection detection runtime: 0 seconds.
-Instantiating vias for 1456 intersections starts
+Instantiating vias for 754 intersections starts
 Via instantiation runtime: 0 seconds.
 Starting via DRC checking ...
 Number of threads: 8
@@ -778,14 +744,14 @@ Direction of partitions: vertical
 Number of vias: 52
 Checking DRC for 52 stacked vias:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
 Number of threads: 8
-Number of partitions: 5
+Number of partitions: 3
 Direction of partitions: horizontal
-Number of vias: 1404
-Checking DRC for 1404 stacked vias:5% 10% 15% 20% 25% 30% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
+Number of vias: 702
+Checking DRC for 702 stacked vias:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
 Overall via DRC checking runtime: 0 seconds.
 Checking dangling/floating vias.
-Start iteration 1: Checking 1456 stacked vias:0% 10% 20% 30% 40% 50% 60% 70% 80% 90% 100%
-Committed 1456 vias.
+Start iteration 1: Checking 754 stacked vias:0% 10% 20% 30% 40% 50% 60% 70% 80% 90% 100%
+Committed 754 vias.
 Committing vias takes 0.00 seconds.
 Overall runtime: 0 seconds.
 Successfully created PG Vias.
@@ -795,29 +761,27 @@ Design loading runtime: 0 seconds.
 Net load_neting runtime: 0 seconds.
 Query intersections and create vias.
 Object query runtime: 0 seconds.
-Determining intersections for 108 shapes starts
+Determining intersections for 56 shapes starts
 Intersection detection runtime: 0 seconds.
-Instantiating vias for 1456 intersections starts
+Instantiating vias for 390 intersections starts
 Via instantiation runtime: 0 seconds.
 Starting via DRC checking ...
 Number of threads: 8
-Number of partitions: 3
+Number of partitions: 2
 Direction of partitions: vertical
-Number of vias: 52
-Checking DRC for 52 stacked vias:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
-52 large vertical vias are not fixed
+Number of vias: 26
+Checking DRC for 26 stacked vias:5% 15% 20% 30% 35% 45% 50% 60% 65% 75% 80% 90% 100%
 Number of threads: 8
-Number of partitions: 5
+Number of partitions: 3
 Direction of partitions: horizontal
-Number of vias: 1404
-Checking DRC for 1404 stacked vias:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
-1352 regular vias are not fixed
+Number of vias: 364
+Checking DRC for 364 stacked vias:5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100%
 Overall via DRC checking runtime: 0 seconds.
 Checking dangling/floating vias.
-Start iteration 1: Checking 52 stacked vias:0% 10% 20% 30% 40% 50% 60% 70% 80% 90% 100%
-Committed 52 vias.
+Start iteration 1: Checking 390 stacked vias:0% 10% 20% 30% 40% 50% 60% 70% 80% 90% 100%
+Committed 390 vias.
 Committing vias takes 0.00 seconds.
-Overall runtime: 0 seconds.
+Overall runtime: 1 seconds.
 Successfully created PG Vias.
 #### Connect PG nets
 connect_pg_net -net VDD [get_pins -hierarchical  */VDD]
@@ -835,37 +799,37 @@ Number of Macro Cells: 0
 Number of IO Pad Cells: 0
 Number of Blocks: 0
 Loading P/G wires and vias...
-Number of VDD Wires: 6955
-Number of VDD Vias: 9780
-Number of VDD Terminals: 156
+Number of VDD Wires: 6929
+Number of VDD Vias: 9585
+Number of VDD Terminals: 104
 **************Verify net VDD connectivity*****************
-  Number of floating wires: 26
+  Number of floating wires: 0
   Number of floating vias: 0
   Number of floating std cells: 9453
   Number of floating hard macros: 0
   Number of floating I/O pads: 0
-  Number of floating terminals: 52
+  Number of floating terminals: 0
   Number of floating hierarchical blocks: 0
 ************************************************************
 Loading cell instances...
 Loading P/G wires and vias...
-Number of VSS Wires: 6876
-Number of VSS Vias: 9728
-Number of VSS Terminals: 156
+Number of VSS Wires: 6850
+Number of VSS Vias: 9559
+Number of VSS Terminals: 104
 **************Verify net VSS connectivity*****************
-  Number of floating wires: 26
+  Number of floating wires: 0
   Number of floating vias: 0
   Number of floating std cells: 9453
   Number of floating hard macros: 0
   Number of floating I/O pads: 0
-  Number of floating terminals: 52
+  Number of floating terminals: 0
   Number of floating hierarchical blocks: 0
 ************************************************************
 Overall runtime: 0 seconds.
 check_pg_drc
-Command check_pg_drc started  at Wed Jul  8 14:09:44 2026
-Command check_pg_drc finished at Wed Jul  8 14:09:44 2026
-CPU usage for check_pg_drc: 0.36 seconds ( 0.00 hours)
+Command check_pg_drc started  at Sun Jul 12 20:26:46 2026
+Command check_pg_drc finished at Sun Jul 12 20:26:46 2026
+CPU usage for check_pg_drc: 0.41 seconds ( 0.00 hours)
 Elapsed time for check_pg_drc: 0.06 seconds ( 0.00 hours)
 No errors found.
 #### Save the floorplan for the record (script form + DEF)
@@ -887,12 +851,11 @@ Information: Creating dummy net '_dummynet9' for unconnected port 'mem_d_resp_ta
 Information: Creating dummy net '_dummynet10' for unconnected port 'mem_d_resp_tag_i[0]'. (DEFW-006)
 Information: Creating dummy net '_dummynet11' for unconnected port 'reset_vector_i[1]'. (DEFW-006)
 Information: Creating dummy net '_dummynet12' for unconnected port 'reset_vector_i[0]'. (DEFW-006)
-1
 write_def ${RESULTS_PATH}/${DESIGN_NAME}_floorplan.def
 ****************************************
 Report : Data Mismatches
 Version: V-2023.12-SP3
-Date   : Wed Jul  8 14:09:45 2026
+Date   : Sun Jul 12 20:26:46 2026
 ****************************************
 No mismatches exist on the design.
 Information: Fill shapes with 'active_fill' purpose will be skipped from output DEF. (DEFW-032)
@@ -927,55 +890,44 @@ PINS                           : 269
 PINPROPERTIES                  : 267
 SPECIALNETS                    : 2
 NETS                           : 12818
-1
 #### Analyze and collect reports
 report_utilization
 ****************************************
 Report : report_utilization
 Design : riscv_core
 Version: V-2023.12-SP3
-Date   : Wed Jul  8 14:09:45 2026
+Date   : Sun Jul 12 20:26:47 2026
 ****************************************
-Utilization Ratio:                      0.6028
+Utilization Ratio:			0.6028
 Utilization options:
- - Area calculation based on:           site_row of block riscv_core/final_floorplan
- - Categories of objects excluded:      hard_macros macro_keepouts soft_macros io_cells hard_blockages 
-Total Area:                             10699.1568
-Total Capacity Area:                    10699.1568
-Total Area of cells:                    6449.4108
+ - Area calculation based on:		site_row of block riscv_core/final_floorplan
+ - Categories of objects excluded:	hard_macros macro_keepouts soft_macros io_cells hard_blockages 
+Total Area:				10699.1568
+Total Capacity Area:			10699.1568
+Total Area of cells:			6449.4108
 Area of excluded objects:
- - hard_macros         :                0.0000
- - macro_keepouts      :                0.0000
- - soft_macros         :                0.0000
- - io_cells            :                0.0000
- - hard_blockages      :                0.0000
-Total Area of excluded objects:         0.0000
-Ratio of excluded objects:              0.0000
+ - hard_macros         :		0.0000
+ - macro_keepouts      :		0.0000
+ - soft_macros         :		0.0000
+ - io_cells            :		0.0000
+ - hard_blockages      :		0.0000
+Total Area of excluded objects:		0.0000
+Ratio of excluded objects:		0.0000
 
 Utilization of site-rows with:
- - Site 'unit':                         0.6028
+ - Site 'unit':				0.6028
 
-0.6028
 report_pg_drc final_floorplan
 Collecting PG connectivity/DRC report for final_floorplan stage...
 collect_reports final_floorplan
 Collecting reports for final_floorplan stage...
 Reports are generated for final_floorplan stage.
 get_blocks -all
-{riscv_core.dlib:riscv_core.design riscv_core.dlib:riscv_core/rtl_read.design riscv_core.dlib:riscv_core/inital_syn.design riscv_core.dlib:riscv_core/final_floorplan.design riscv_core.dlib:riscv_core/place_opt.design}
 save_block
 Information: Saving block 'riscv_core.dlib:riscv_core/final_floorplan.design'
-1
 save_lib
 Saving library 'riscv_core.dlib'
-1
+RDE-checksum: 383186d3
 # NOTE: no 'exit' — block/lib already saved; run 'gui_start' to inspect, 'exit' when done.
 Information: 6554 out of 6564 POW-046 messages were not printed due to limit 10  (MSG-3913)
 Information: 11 out of 21 SQM-1067 messages were not printed due to limit 10  (MSG-3913)
-fc_shell> exit
-Maximum memory usage for this session: 1334.67 MB
-Maximum memory usage for this session including child processes: 1334.67 MB
-CPU usage for this session:     68 seconds (  0.02 hours)
-Elapsed time for this session:    287 seconds (  0.08 hours)
-Thank you for using Fusion Compiler.
-

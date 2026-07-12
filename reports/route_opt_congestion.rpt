@@ -1,17 +1,15 @@
-# Extracted from logs/08_route.log (route_opt stage) — report_congestion
-report_congestion
 ****************************************
 Report : congestion
 Design : riscv_core
 Version: V-2023.12-SP3
-Date   : Sun Jul 12 18:21:22 2026
+Date   : Sun Jul 12 20:44:47 2026
 ****************************************
 
 Layer     |    overflow     |              # GRCs has
 Name      |  total  |  max  | overflow (%)      | max overflow
 ---------------------------------------------------------------
-Both Dirs |     821 |     7 |     595  ( 0.84%) |       2
-H routing |     606 |     7 |     401  ( 1.13%) |       2
-V routing |     215 |     3 |     194  ( 0.55%) |       2
+Both Dirs |      53 |     2 |      48  ( 0.07%) |       5
+H routing |      52 |     2 |      47  ( 0.13%) |       5
+V routing |       1 |     1 |       1  ( 0.00%) |       1
 
 1

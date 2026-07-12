@@ -2,7 +2,7 @@
 Report : qor
 Design : riscv_core
 Version: V-2023.12-SP3
-Date   : Sun Jul 12 18:21:26 2026
+Date   : Sun Jul 12 20:44:50 2026
 ****************************************
 
 
@@ -17,9 +17,9 @@ No. of Hold Violations:               0
 Scenario           'FUNC_Slow'
 Timing Path Group  '**in2reg_default**'
 ----------------------------------------
-Levels of Logic:                     82
-Critical Path Length:              5.66
-Critical Path Slack:               4.14
+Levels of Logic:                     83
+Critical Path Length:              5.57
+Critical Path Slack:               4.23
 Critical Path Clk Period:         10.00
 Total Negative Slack:              0.00
 No. of Violating Paths:               0
@@ -28,9 +28,9 @@ No. of Violating Paths:               0
 Scenario           'FUNC_Slow'
 Timing Path Group  '**reg2out_default**'
 ----------------------------------------
-Levels of Logic:                     30
-Critical Path Length:              3.49
-Critical Path Slack:               6.16
+Levels of Logic:                     28
+Critical Path Length:              3.22
+Critical Path Slack:               6.43
 Critical Path Clk Period:         10.00
 Total Negative Slack:              0.00
 No. of Violating Paths:               0
@@ -39,9 +39,9 @@ No. of Violating Paths:               0
 Scenario           'FUNC_Slow'
 Timing Path Group  '**in2out_default**'
 ----------------------------------------
-Levels of Logic:                     28
-Critical Path Length:              3.19
-Critical Path Slack:               6.46
+Levels of Logic:                     27
+Critical Path Length:              3.08
+Critical Path Slack:               6.57
 Critical Path Clk Period:         10.00
 Total Negative Slack:              0.00
 No. of Violating Paths:               0
@@ -51,8 +51,8 @@ Scenario           'FUNC_Slow'
 Timing Path Group  'clk_i'
 ----------------------------------------
 Levels of Logic:                     84
-Critical Path Length:              5.95
-Critical Path Slack:               3.84
+Critical Path Length:              5.72
+Critical Path Slack:               4.09
 Critical Path Clk Period:         10.00
 Total Negative Slack:              0.00
 No. of Violating Paths:               0
@@ -62,8 +62,8 @@ Scenario           'FUNC_Typical'
 Timing Path Group  '**in2reg_default**'
 ----------------------------------------
 Levels of Logic:                     86
-Critical Path Length:              2.81
-Critical Path Slack:               7.00
+Critical Path Length:              2.77
+Critical Path Slack:               7.06
 Critical Path Clk Period:         10.00
 Total Negative Slack:              0.00
 No. of Violating Paths:               0
@@ -72,9 +72,9 @@ No. of Violating Paths:               0
 Scenario           'FUNC_Typical'
 Timing Path Group  '**reg2out_default**'
 ----------------------------------------
-Levels of Logic:                     30
-Critical Path Length:              1.77
-Critical Path Slack:               7.89
+Levels of Logic:                     31
+Critical Path Length:              1.59
+Critical Path Slack:               8.06
 Critical Path Clk Period:         10.00
 Total Negative Slack:              0.00
 No. of Violating Paths:               0
@@ -83,9 +83,9 @@ No. of Violating Paths:               0
 Scenario           'FUNC_Typical'
 Timing Path Group  '**in2out_default**'
 ----------------------------------------
-Levels of Logic:                     28
-Critical Path Length:              1.67
-Critical Path Slack:               7.98
+Levels of Logic:                     30
+Critical Path Length:              1.60
+Critical Path Slack:               8.05
 Critical Path Clk Period:         10.00
 Total Negative Slack:              0.00
 No. of Violating Paths:               0
@@ -94,9 +94,9 @@ No. of Violating Paths:               0
 Scenario           'FUNC_Typical'
 Timing Path Group  'clk_i'
 ----------------------------------------
-Levels of Logic:                     88
-Critical Path Length:              2.91
-Critical Path Slack:               6.90
+Levels of Logic:                     87
+Critical Path Length:              2.76
+Critical Path Slack:               7.07
 Critical Path Clk Period:         10.00
 Total Negative Slack:              0.00
 No. of Violating Paths:               0
@@ -109,12 +109,12 @@ No. of Hold Violations:               0
 Cell Count
 ----------------------------------------
 Hierarchical Cell Count:             15
-Hierarchical Port Count:           1602
-Leaf Cell Count:                  12332
-Buf/Inv Cell Count:                1315
-Buf Cell Count:                     153
+Hierarchical Port Count:           1597
+Leaf Cell Count:                  12334
+Buf/Inv Cell Count:                1318
+Buf Cell Count:                     156
 Inv Cell Count:                    1162
-Combinational Cell Count:         10013
+Combinational Cell Count:         10015
    Single-bit Isolation Cell Count:                        0
    Multi-bit Isolation Cell Count:                         0
    Isolation Cell Banking Ratio:                           0.00%
@@ -137,25 +137,25 @@ Macro Count:                          0
 
 Area
 ----------------------------------------
-Combinational Area:             3871.24
+Combinational Area:             3865.82
 Noncombinational Area:          2879.65
-Buf/Inv Area:                    265.20
-Total Buffer Area:                58.43
-Total Inverter Area:             206.77
+Buf/Inv Area:                    266.13
+Total Buffer Area:                59.58
+Total Inverter Area:             206.55
 Macro/Black Box Area:              0.00
 Net Area:                             0
-Net XLength:                   78509.77
-Net YLength:                   73926.98
+Net XLength:                   77879.42
+Net YLength:                   72916.36
 ----------------------------------------
-Cell Area (netlist):                           6750.89
-Cell Area (netlist and physical only):         7297.72
-Net Length:                   152436.74
+Cell Area (netlist):                           6745.47
+Cell Area (netlist and physical only):         7292.30
+Net Length:                   150795.78
 
 
 Design Rules
 ----------------------------------------
-Total Number of Nets:             13167
-Nets with Violations:              4624
+Total Number of Nets:             13169
+Nets with Violations:              4586
 Max Trans Violations:                 0
 Max Cap Violations:                   0
 ----------------------------------------

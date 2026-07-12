@@ -33,3 +33,7 @@ crte_*.txt
 # results/  -> final netlists, sdc, spef, gds, def
 # reports/  -> clock-skew, final timing, PG-DRC and all collect_reports output
 # The *.dlib rule above still excludes the design library that lives inside results/.
+
+# large regenerable outputs (kept on VNC, not in git)
+results/*.gds
+results/*.spef*

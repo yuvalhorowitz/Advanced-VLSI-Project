@@ -1,36 +1,26 @@
 Information: Timer using 8 threads
 Information: RDE mode is turned on. (TIM-124)
-Information: Corner Fast: no PVT mismatches. (PVT-032)
 Information: Corner Typical: no PVT mismatches. (PVT-032)
+Information: Corner Fast: no PVT mismatches. (PVT-032)
 Information: Corner Slow: no PVT mismatches. (PVT-032)
 ****************************************
 Report : power
         -significant_digits 2
 Design : riscv_core
 Version: V-2023.12-SP3
-Date   : Sun Jul 12 20:00:25 2026
+Date   : Sun Jul 12 20:49:17 2026
 ****************************************
 Information: Activity propagation will be performed for scenario FUNC_Slow.
-Warning: Mapping to scan cell 'SAEDLVT14_FSDPRBSBQ_V2_0P5' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
-Warning: Mapping to scan cell 'SAEDLVT14_FSDPRBSBQ_V2_1' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
-Warning: Mapping to scan cell 'SAEDLVT14_FSDPRBSBQ_V2_2' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
-Warning: Mapping to scan cell 'SAEDLVT14_FSDPRBSBQ_V2_4' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
-Warning: Mapping to scan cell 'SAEDLVT14_FSDPRBSBQ_V2LP_0P5' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
-Warning: Mapping to scan cell 'SAEDLVT14_FSDPRBSBQ_V2LP_1' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
-Warning: Mapping to scan cell 'SAEDLVT14_FSDPRBSBQ_V2LP_2' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
-Warning: Mapping to scan cell 'SAEDRVT14_FSDPRBSBQ_V2_0P5' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
-Warning: Mapping to scan cell 'SAEDRVT14_FSDPRBSBQ_V2_1' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
-Warning: Mapping to scan cell 'SAEDRVT14_FSDPRBSBQ_V2_2' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
 Information: Doing activity propagation for mode 'FUNC' and corner 'Slow' with effort level 'medium'. (POW-024)
 Information: Timer-derived activity data is cached on scenario FUNC_Slow (POW-052)
 Infomation: Fast mode activity propagation power.rtl_activity_annotation setup is ignored. Always use accurate mode.
 Information: Running switching activity propagation with 8 threads!
 
  **** Information : No. of simulation cycles = 7 ****
+Information: Propagated activity on scenario FUNC_Typical identical to that on FUNC_Slow (POW-006)
 Information: Propagated activity on scenario FUNC_Fast identical to that on FUNC_Slow (POW-006)
-Information: Propagated activity on scenario FUNC_Typical identical to that on FUNC_Fast (POW-006)
 Information: The stitching and editing of coupling caps is turned OFF for design 'riscv_core.dlib:riscv_core/signoff.design'. (TIM-125)
-Information: Design riscv_core has 13165 nets, 0 global routed, 13162 detail routed. (NEX-024)
+Information: Design riscv_core has 13167 nets, 0 global routed, 13165 detail routed. (NEX-024)
 Information: The RC mode used is DR for design 'riscv_core'. (NEX-022)
 ---extraction options---
 Corner: Fast
@@ -71,10 +61,10 @@ Global options:
 Extracting design: riscv_core 
 NEX: virtual shield is applied in extraction.
 Information: coupling capacitance is lumped to ground. (NEX-030)
-Information: 13163 nets are successfully extracted. (NEX-028)
+Information: 13165 nets are successfully extracted. (NEX-028)
 Warning: Advanced receiver model has not been enabled for detailed routed design. (TIM-204)
 Information: Update timing completed net estimation for all the timing graph nets (TIM-111)
-Information: Net estimation statistics: timing graph nets = 13163, routed nets = 13163, across physical hierarchy nets = 0, parasitics cached nets = 13163, delay annotated nets = 0, parasitics annotated nets = 0, multi-voltage nets = 0. (TIM-112)
+Information: Net estimation statistics: timing graph nets = 13165, routed nets = 13165, across physical hierarchy nets = 0, parasitics cached nets = 13165, delay annotated nets = 0, parasitics annotated nets = 0, multi-voltage nets = 0. (TIM-112)
 ************************************************************
 Timer Settings:
 Delay Calculation Style:                   auto
@@ -106,21 +96,20 @@ scaling for leakage power
 Supply nets:
 VDD (power) probability 1.00 (default)
 VSS (ground) probability 1.00 (default)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_48052 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.385300, value = 0.000552 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_44460 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.097200, value = 0.000692 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_44461 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.097200, value = 0.000830 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_45907 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.216500, value = 0.000671 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_45908 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.202400, value = 0.000771 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_44463 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.097200, value = 0.000876 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_45911 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.216500, value = 0.000963 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_45912 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.202400, value = 0.000732 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_48985 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.202600, value = 0.000696 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_44464 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.384500, value = 0.000997 (POW-046)
-Note - message 'POW-046' limit (10) exceeded. Remainder will be suppressed.
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_48052 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.385300, value = 0.000727 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell u_mul/ctmi_6770 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.385400, value = 0.000807 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_44583 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.097200, value = 0.000781 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_44584 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.384500, value = 0.000827 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_44585 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.097200, value = 0.000832 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_44587 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.097200, value = 0.000672 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_44589 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.097200, value = 0.000561 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_44592 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.097200, value = 0.000847 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_44595 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.097200, value = 0.000874 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_44596 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.097200, value = 0.000838 (POW-046)
 
-  Cell Internal Power    = 5.81e+08 pW ( 76.1%)
-  Net Switching Power    = 1.82e+08 pW ( 23.9%)
-Total Dynamic Power      = 7.63e+08 pW (100.0%)
+  Cell Internal Power    = 5.79e+08 pW ( 76.2%)
+  Net Switching Power    = 1.81e+08 pW ( 23.8%)
+Total Dynamic Power      = 7.60e+08 pW (100.0%)
 
 Cell Leakage Power       = N/A
 
@@ -135,12 +124,12 @@ Power Group         Internal Power        Switching Power          Leakage Power
 io_pad                    0.00e+00               0.00e+00                    N/A               0.00e+00    (  0.0%)         
 memory                    0.00e+00               0.00e+00                    N/A               0.00e+00    (  0.0%)         
 black_box                 0.00e+00               0.00e+00                    N/A               0.00e+00    (  0.0%)         
-clock_network             5.65e+08               1.55e+08                    N/A               7.20e+08    ( 94.4%)        i
-register                  2.69e+06               1.96e+06                    N/A               4.65e+06    (  0.6%)         
+clock_network             5.63e+08               1.54e+08                    N/A               7.17e+08    ( 94.3%)        i
+register                  2.69e+06               2.01e+06                    N/A               4.70e+06    (  0.6%)         
 sequential                0.00e+00               0.00e+00                    N/A               0.00e+00    (  0.0%)         
-combinational             1.30e+07               2.54e+07                    N/A               3.83e+07    (  5.0%)         
+combinational             1.30e+07               2.55e+07                    N/A               3.85e+07    (  5.1%)         
 -----------------------------------------------------------------------------------------------------------------------------
-Total                     5.81e+08 pW            1.82e+08 pW                 N/A               7.63e+08 pW
+Total                     5.79e+08 pW            1.81e+08 pW                 N/A               7.60e+08 pW
 Mode: FUNC
 Corner: Slow
 Scenario: FUNC_Slow
@@ -161,9 +150,9 @@ Supply nets:
 VDD (power) probability 1.00 (default)
 VSS (ground) probability 1.00 (default)
 
-  Cell Internal Power    = 3.36e+08 pW ( 75.9%)
-  Net Switching Power    = 1.07e+08 pW ( 24.1%)
-Total Dynamic Power      = 4.43e+08 pW (100.0%)
+  Cell Internal Power    = 3.36e+08 pW ( 76.0%)
+  Net Switching Power    = 1.06e+08 pW ( 24.0%)
+Total Dynamic Power      = 4.42e+08 pW (100.0%)
 
 Cell Leakage Power       = 4.66e+04 pW
 
@@ -177,13 +166,13 @@ Power Group         Internal Power        Switching Power          Leakage Power
 -----------------------------------------------------------------------------------------------------------------------------
 io_pad                    0.00e+00               0.00e+00               0.00e+00               0.00e+00    (  0.0%)         
 memory                    0.00e+00               0.00e+00               0.00e+00               0.00e+00    (  0.0%)         
-black_box                 0.00e+00               0.00e+00               1.51e-08               1.51e-08    (  0.0%)         
-clock_network             3.29e+08               8.97e+07               1.99e+03               4.19e+08    ( 94.5%)        i
-register                  1.49e+06               1.27e+06               2.72e+04               2.79e+06    (  0.6%)         
+black_box                 0.00e+00               0.00e+00               1.54e-08               1.54e-08    (  0.0%)         
+clock_network             3.30e+08               8.86e+07               1.99e+03               4.18e+08    ( 94.5%)        i
+register                  1.49e+06               1.31e+06               2.72e+04               2.83e+06    (  0.6%)         
 sequential                0.00e+00               0.00e+00               0.00e+00               0.00e+00    (  0.0%)         
-combinational             5.44e+06               1.60e+07               1.73e+04               2.15e+07    (  4.8%)         
+combinational             5.44e+06               1.61e+07               1.74e+04               2.16e+07    (  4.9%)         
 -----------------------------------------------------------------------------------------------------------------------------
-Total                     3.36e+08 pW            1.07e+08 pW            4.66e+04 pW            4.43e+08 pW
+Total                     3.36e+08 pW            1.06e+08 pW            4.66e+04 pW            4.42e+08 pW
 Mode: FUNC
 Corner: Typical
 Scenario: FUNC_Typical
@@ -204,11 +193,11 @@ Supply nets:
 VDD (power) probability 1.00 (default)
 VSS (ground) probability 1.00 (default)
 
-  Cell Internal Power    = 4.40e+08 pW ( 74.8%)
-  Net Switching Power    = 1.48e+08 pW ( 25.2%)
-Total Dynamic Power      = 5.88e+08 pW (100.0%)
+  Cell Internal Power    = 4.40e+08 pW ( 75.0%)
+  Net Switching Power    = 1.47e+08 pW ( 25.0%)
+Total Dynamic Power      = 5.87e+08 pW (100.0%)
 
-Cell Leakage Power       = 1.60e+06 pW
+Cell Leakage Power       = 1.59e+06 pW
 
 
   Attributes
@@ -220,11 +209,11 @@ Power Group         Internal Power        Switching Power          Leakage Power
 -----------------------------------------------------------------------------------------------------------------------------
 io_pad                    0.00e+00               0.00e+00               0.00e+00               0.00e+00    (  0.0%)         
 memory                    0.00e+00               0.00e+00               0.00e+00               0.00e+00    (  0.0%)         
-black_box                 0.00e+00               0.00e+00               8.18e-08               8.18e-08    (  0.0%)         
-clock_network             4.29e+08               1.25e+08               3.24e+05               5.55e+08    ( 94.1%)        i
-register                  2.17e+06               1.65e+06               6.43e+05               4.46e+06    (  0.8%)         
+black_box                 0.00e+00               0.00e+00               8.35e-08               8.35e-08    (  0.0%)         
+clock_network             4.30e+08               1.24e+08               3.24e+05               5.54e+08    ( 94.1%)        i
+register                  2.17e+06               1.70e+06               6.43e+05               4.51e+06    (  0.8%)         
 sequential                0.00e+00               0.00e+00               0.00e+00               0.00e+00    (  0.0%)         
-combinational             8.21e+06               2.12e+07               6.30e+05               3.01e+07    (  5.1%)         
+combinational             8.22e+06               2.14e+07               6.28e+05               3.02e+07    (  5.1%)         
 -----------------------------------------------------------------------------------------------------------------------------
-Total                     4.40e+08 pW            1.48e+08 pW            1.60e+06 pW            5.89e+08 pW
+Total                     4.40e+08 pW            1.47e+08 pW            1.59e+06 pW            5.89e+08 pW
 1

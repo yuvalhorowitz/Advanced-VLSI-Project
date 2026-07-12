@@ -9,35 +9,35 @@ Number of Macro Cells: 0
 Number of IO Pad Cells: 0
 Number of Blocks: 0
 Loading P/G wires and vias...
-Number of VDD Wires: 6955
-Number of VDD Vias: 9780
-Number of VDD Terminals: 156
+Number of VDD Wires: 6929
+Number of VDD Vias: 9585
+Number of VDD Terminals: 104
 **************Verify net VDD connectivity*****************
-  Number of floating wires: 26
+  Number of floating wires: 0
   Number of floating vias: 0
   Number of floating std cells: 9453
   Number of floating hard macros: 0
   Number of floating I/O pads: 0
-  Number of floating terminals: 52
+  Number of floating terminals: 0
   Number of floating hierarchical blocks: 0
 ************************************************************
 Loading cell instances...
 Loading P/G wires and vias...
-Number of VSS Wires: 6876
-Number of VSS Vias: 9728
-Number of VSS Terminals: 156
+Number of VSS Wires: 6850
+Number of VSS Vias: 9559
+Number of VSS Terminals: 104
 **************Verify net VSS connectivity*****************
-  Number of floating wires: 26
+  Number of floating wires: 0
   Number of floating vias: 0
   Number of floating std cells: 9453
   Number of floating hard macros: 0
   Number of floating I/O pads: 0
-  Number of floating terminals: 52
+  Number of floating terminals: 0
   Number of floating hierarchical blocks: 0
 ************************************************************
 Overall runtime: 0 seconds.
-Command check_pg_drc started  at Wed Jul  8 14:09:45 2026
-Command check_pg_drc finished at Wed Jul  8 14:09:45 2026
+Command check_pg_drc started  at Sun Jul 12 20:26:47 2026
+Command check_pg_drc finished at Sun Jul 12 20:26:47 2026
 CPU usage for check_pg_drc: 0.36 seconds ( 0.00 hours)
 Elapsed time for check_pg_drc: 0.06 seconds ( 0.00 hours)
 No errors found.

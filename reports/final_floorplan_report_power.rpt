@@ -1,24 +1,14 @@
-Information: Corner Fast: no PVT mismatches. (PVT-032)
 Information: Corner Typical: no PVT mismatches. (PVT-032)
 Information: Corner Slow: no PVT mismatches. (PVT-032)
+Information: Corner Fast: no PVT mismatches. (PVT-032)
 ****************************************
 Report : power
         -significant_digits 2
 Design : riscv_core
 Version: V-2023.12-SP3
-Date   : Wed Jul  8 14:09:46 2026
+Date   : Sun Jul 12 20:26:48 2026
 ****************************************
 Information: Activity propagation will be performed for scenario FUNC_Fast.
-Warning: Mapping to scan cell 'SAEDLVT14_FSDPRBSBQ_V2_0P5' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
-Warning: Mapping to scan cell 'SAEDLVT14_FSDPRBSBQ_V2_1' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
-Warning: Mapping to scan cell 'SAEDLVT14_FSDPRBSBQ_V2_2' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
-Warning: Mapping to scan cell 'SAEDLVT14_FSDPRBSBQ_V2_4' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
-Warning: Mapping to scan cell 'SAEDLVT14_FSDPRBSBQ_V2LP_0P5' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
-Warning: Mapping to scan cell 'SAEDLVT14_FSDPRBSBQ_V2LP_1' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
-Warning: Mapping to scan cell 'SAEDLVT14_FSDPRBSBQ_V2LP_2' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
-Warning: Mapping to scan cell 'SAEDRVT14_FSDPRBSBQ_V2_0P5' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
-Warning: Mapping to scan cell 'SAEDRVT14_FSDPRBSBQ_V2_1' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
-Warning: Mapping to scan cell 'SAEDRVT14_FSDPRBSBQ_V2_2' in library is not possible because cell has 'dont_use' attribute. (SQM-1067)
 Information: Doing activity propagation for mode 'FUNC' and corner 'Fast' with effort level 'medium'. (POW-024)
 Information: Timer-derived activity data is cached on scenario FUNC_Fast (POW-052)
 Infomation: Fast mode activity propagation power.rtl_activity_annotation setup is ignored. Always use accurate mode.
@@ -29,8 +19,8 @@ Information: Propagated activity on scenario FUNC_Typical identical to that on F
 Information: Propagated activity on scenario FUNC_Slow identical to that on FUNC_Fast (POW-006)
 Information: The stitching and editing of coupling caps is turned OFF for design 'riscv_core.dlib:riscv_core/final_floorplan.design'. (TIM-125)
 Information: Design Average RC for design riscv_core  (NEX-011)
-Information: r = 2.055319 ohm/um, via_r = 1.232619 ohm/cut, c = 0.103403 ff/um, cc = 0.000000 ff/um (X dir) (NEX-017)
-Information: r = 2.675530 ohm/um, via_r = 0.958471 ohm/cut, c = 0.102168 ff/um, cc = 0.000000 ff/um (Y dir) (NEX-017)
+Information: r = 2.050017 ohm/um, via_r = 1.222376 ohm/cut, c = 0.099848 ff/um, cc = 0.000000 ff/um (X dir) (NEX-017)
+Information: r = 2.664070 ohm/um, via_r = 0.953221 ohm/cut, c = 0.099137 ff/um, cc = 0.000000 ff/um (Y dir) (NEX-017)
 Information: The RC mode used is VR for design 'riscv_core'. (NEX-022)
 Information: Update timing completed net estimation for all the timing graph nets (TIM-111)
 Information: Net estimation statistics: timing graph nets = 12816, routed nets = 0, across physical hierarchy nets = 0, parasitics cached nets = 0, delay annotated nets = 0, parasitics annotated nets = 0, multi-voltage nets = 0. (TIM-112)
@@ -68,14 +58,13 @@ VSS (ground) probability 1.00 (default)
 Warning: Power table extrapolation (extrapolation mode) for port A2 on cell ctmi_48052 for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 1.162872 (POW-046)
 Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_48052 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.385300, value = 0.000568 (POW-046)
 Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_48052 for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 1.162872 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_45737 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.384500, value = 0.000559 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_42465 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.202400, value = 0.000568 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_43847 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.202400, value = 0.000509 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_41989 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.097200, value = 0.000482 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_41993 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.097200, value = 0.000461 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port Q on cell u_issue/u_regfile/REGFILE.reg_r16_q_reg[31] for parameter Cout. Lowest table value = 0.001000, highest table value = 0.384700, value = 0.000479 (POW-046)
-Warning: Power table extrapolation (extrapolation mode) for port QN on cell u_issue/u_regfile/REGFILE.reg_r16_q_reg[31] for parameter Cout. Lowest table value = 0.001000, highest table value = 0.383300, value = 0.000990 (POW-046)
-Note - message 'POW-046' limit (10) exceeded. Remainder will be suppressed.
+Warning: Power table extrapolation (extrapolation mode) for port A1 on cell ctmi_49159 for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 1.162872 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_49159 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.295900, value = 0.000568 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_49159 for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 1.162872 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port A1 on cell ctmi_49160 for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 1.162872 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_49160 for parameter Cout. Lowest table value = 0.001000, highest table value = 0.295900, value = 0.000568 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port X on cell ctmi_49160 for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 1.162872 (POW-046)
+Warning: Power table extrapolation (extrapolation mode) for port A1 on cell ctmi_49161 for parameter Tinp. Lowest table value = 0.001000, highest table value = 1.000000, value = 1.162872 (POW-046)
 Warning: Fall toggles on pin u_issue/u_regfile/REGFILE.reg_r22_q_reg[2]/Q are impossible given input states; converted to rise toggles. (POW-069)
 Warning: Fall toggles on pin u_issue/u_regfile/REGFILE.reg_r26_q_reg[0]/Q are impossible given input states; converted to rise toggles. (POW-069)
 Warning: Fall toggles on pin u_issue/u_regfile/REGFILE.reg_r13_q_reg[0]/Q are impossible given input states; converted to rise toggles. (POW-069)
@@ -127,7 +116,7 @@ Warning: Fall toggles on pin u_issue/u_regfile/REGFILE.reg_r26_q_reg[0]/Q are im
 Warning: Fall toggles on pin u_issue/u_regfile/REGFILE.reg_r13_q_reg[0]/Q are impossible given input states; converted to rise toggles. (POW-069)
 
   Cell Internal Power    = 3.09e+08 pW ( 97.7%)
-  Net Switching Power    = 7.37e+06 pW (  2.3%)
+  Net Switching Power    = 7.36e+06 pW (  2.3%)
 Total Dynamic Power      = 3.17e+08 pW (100.0%)
 
 Cell Leakage Power       = 4.94e+04 pW
@@ -148,7 +137,7 @@ register                  1.31e+06               1.05e+06               2.45e+04
 sequential                0.00e+00               0.00e+00               0.00e+00               0.00e+00    (  0.0%)         
 combinational             5.16e+06               6.31e+06               2.49e+04               1.15e+07    (  3.6%)         
 -----------------------------------------------------------------------------------------------------------------------------
-Total                     3.09e+08 pW            7.37e+06 pW            4.94e+04 pW            3.17e+08 pW
+Total                     3.09e+08 pW            7.36e+06 pW            4.94e+04 pW            3.17e+08 pW
 Mode: FUNC
 Corner: Typical
 Scenario: FUNC_Typical
@@ -168,8 +157,8 @@ scaling for leakage power
 Supply nets:
 VDD (power) probability 1.00 (default)
 VSS (ground) probability 1.00 (default)
-Warning: Fall toggles on pin u_issue/u_regfile/REGFILE.reg_r22_q_reg[2]/Q are impossible given input states; converted to rise toggles. (POW-069)
 Warning: Fall toggles on pin u_issue/u_regfile/REGFILE.reg_r26_q_reg[0]/Q are impossible given input states; converted to rise toggles. (POW-069)
+Warning: Fall toggles on pin u_issue/u_regfile/REGFILE.reg_r22_q_reg[2]/Q are impossible given input states; converted to rise toggles. (POW-069)
 Warning: Fall toggles on pin u_issue/u_regfile/REGFILE.reg_r13_q_reg[0]/Q are impossible given input states; converted to rise toggles. (POW-069)
 
   Cell Internal Power    = 4.43e+08 pW ( 97.5%)

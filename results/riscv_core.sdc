@@ -2,7 +2,7 @@
 #
 # Design name:  riscv_core
 #
-# Created by fc write_sdc on Sun Jul 12 20:00:32 2026
+# Created by fc write_sdc on Sun Jul 12 20:49:24 2026
 #
 ################################################################################
 
@@ -38,7 +38,7 @@ set_operating_conditions -library \
 
 # Set latency for io paths.
 # -origin useful_skew
-set_clock_latency 0.080385 [get_clocks {clk_i}]
+set_clock_latency 0.0760325 [get_clocks {clk_i}]
 # Set propagated on clock sources to avoid removing latency for IO paths.
 set_propagated_clock  [get_ports {clk_i}]
 set_clock_uncertainty -setup 0.15 [get_clocks {clk_i}]

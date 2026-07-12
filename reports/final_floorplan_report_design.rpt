@@ -2,7 +2,7 @@
 Report : design
 Design : riscv_core
 Version: V-2023.12-SP3
-Date   : Wed Jul  8 14:09:50 2026
+Date   : Sun Jul 12 20:26:52 2026
 ****************************************
 
 Total number of std cells in library : 2229
@@ -71,5 +71,5 @@ Number of Tech Layers                : 66 (56 of them have unknown routing dir.)
 
 Total wire length                    : 0.00 micron
 Total number of wires                : 0
-Total number of contacts             : 19508
+Total number of contacts             : 19144
 1

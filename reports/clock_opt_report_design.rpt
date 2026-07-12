@@ -2,7 +2,7 @@
 Report : design
 Design : riscv_core
 Version: V-2023.12-SP3
-Date   : Wed Jul  8 15:02:14 2026
+Date   : Sun Jul 12 20:40:28 2026
 ****************************************
 
 Total number of std cells in library : 2229
@@ -16,34 +16,34 @@ Total number of ICGs                 : 0
 
 Cell Instance Type  Count         Area
 --------------------------------------
-TOTAL LEAF CELLS    14040     7297.673
-unit                12332     6750.842
-Standard cells      12332     6750.842
-unit                12332     6750.842
+TOTAL LEAF CELLS    14042     7292.345
+unit                12334     6745.514
+Standard cells      12334     6745.514
+unit                12334     6745.514
 Hard macro cells        0        0.000
-unit                12332     6750.842
+unit                12334     6745.514
 Soft macro cells        0        0.000
-unit                12332     6750.842
+unit                12334     6745.514
 Always on cells         0        0.000
-unit                12332     6750.842
+unit                12334     6745.514
 Physical only        1708      546.830
-unit                12332     6750.842
+unit                12334     6745.514
 Fixed cells          1708      546.830
-unit                12332     6750.842
-Moveable cells      12332     6750.842
-unit                12332     6750.842
-Placed cells        12265     6716.299
-unit                12332     6750.842
+unit                12334     6745.514
+Moveable cells      12334     6745.514
+unit                12334     6745.514
+Placed cells        12266     6710.705
+unit                12334     6745.514
 Sequential           2319     2879.651
-unit                12332     6750.842
-Buffer/inverter      1315      265.201
-unit                12332     6750.842
+unit                12334     6745.514
+Buffer/inverter      1318      266.134
+unit                12334     6745.514
 ICG cells               0        0.000
-unit                12332     6750.842
+unit                12334     6745.514
 
 Logic Hierarchies                    : 15
-Design Masters count                 : 130
-Total Flat nets count                : 13167
+Design Masters count                 : 124
+Total Flat nets count                : 13169
 Total FloatingNets count             : 2
 Total no of Ports                    : 271
 Number of Master Clocks in design    : 1
@@ -69,7 +69,7 @@ Number of Multibit LS/ISO Cells      : 0
 Number of Top Level RP Groups        : 0
 Number of Tech Layers                : 66 (56 of them have unknown routing dir.)
 
-Total wire length                    : 4447.52 micron
-Total number of wires                : 8026
-Total number of contacts             : 26328
+Total wire length                    : 4400.16 micron
+Total number of wires                : 8012
+Total number of contacts             : 26033
 1
