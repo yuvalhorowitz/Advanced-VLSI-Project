@@ -1,0 +1,47 @@
+Checking secondary net through power switch is enabled. 
+Secondary net will be checked together from primary net. They will be treated as the same net
+Primary Net : VDD    Secondary Net:
+Primary Net : VSS    Secondary Net:
+Loading cell instances...
+Number of Standard Cells: 36846
+Number of Macro Cells: 0
+Number of IO Pad Cells: 0
+Number of Blocks: 0
+Loading P/G wires and vias...
+Number of VDD Wires: 6955
+Number of VDD Vias: 9780
+Number of VDD Terminals: 156
+**************Verify net VDD connectivity*****************
+  Number of floating wires: 26
+  Number of floating vias: 0
+  Number of floating std cells: 0
+  Number of floating hard macros: 0
+  Number of floating I/O pads: 0
+  Number of floating terminals: 52
+  Number of floating hierarchical blocks: 0
+************************************************************
+Loading cell instances...
+Loading P/G wires and vias...
+Number of VSS Wires: 7456
+Number of VSS Vias: 10054
+Number of VSS Terminals: 156
+**************Verify net VSS connectivity*****************
+  Number of floating wires: 38
+  Number of floating vias: 6
+  Number of floating std cells: 0
+  Number of floating hard macros: 0
+  Number of floating I/O pads: 0
+  Number of floating terminals: 52
+  Number of floating hierarchical blocks: 0
+************************************************************
+Overall runtime: 0 seconds.
+Command check_pg_drc started  at Sun Jul 12 20:00:23 2026
+Command check_pg_drc finished at Sun Jul 12 20:00:24 2026
+CPU usage for check_pg_drc: 3.59 seconds ( 0.00 hours)
+Elapsed time for check_pg_drc: 0.49 seconds ( 0.00 hours)
+Total number of errors found: 1261
+   277 shorts on VIA0
+   984 shorts on M1
+------------
+Description of the errors can be seen in gui error set "DRC_report_by_check_pg_drc"
+------------

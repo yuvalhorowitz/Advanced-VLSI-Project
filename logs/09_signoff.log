@@ -1,0 +1,2148 @@
+ 
+                              Fusion Compiler (TM)
+
+                Version V-2023.12-SP3 for linux64 - May 07, 2024
+  This release has significant feature enhancements. Please review the Release
+                       Notes associated with this release.
+
+                    Copyright (c) 1988 - 2024 Synopsys, Inc.
+   This software and the associated documentation are proprietary to Synopsys,
+ Inc. This software may only be used in accordance with the terms and conditions
+ of a written license agreement with Synopsys, Inc. All other use, reproduction,
+   or distribution of this software is strictly prohibited.  Licensed Products
+     communicate with Synopsys servers for the purpose of providing software
+    updates, detecting software piracy and verifying that customers are using
+    Licensed Products in conformity with the applicable License Key for such
+  Licensed Products. Synopsys will use information gathered in connection with
+    this process to deliver software updates and pursue software pirates and
+                                   infringers.
+
+ Inclusivity & Diversity - Visit SolvNetPlus to read the "Synopsys Statement on
+            Inclusivity and Diversity" (Refer to article 000036315 at
+                        https://solvnetplus.synopsys.com)
+
+Loading user preference file /a/home/cc/students/cs/yh3/.synopsys_fc_gui/preferences.tcl
+Information: Term was not able to be set up using xterm-256color . Using "xterm" by default instead. (CLE-10)
+#####################################################################
+#####           Step 09 — Sign-off (chip finish)              #####
+#####################################################################
+#
+# Adapted from Labs reference/labs/lab9_signoff/scripts/{signoff,write_data}.tcl
+# (HW4, Lab 9). Inserts filler cells, runs ICV signoff DRC (+fix), metal fill,
+# collects final reports, and writes out the design data (Verilog/SDC/SPEF/GDS).
+#
+# ICV (IC Validator) must be available on the host. Requires a routed block.
+# Produces block: <DESIGN_NAME>/signoff  and top block <DESIGN_NAME>.
+# Run headless from work/:
+#   fc_shell -f ../scripts/09_signoff.tcl -output_log_file ../logs/09_signoff.log
+#### Sourcing setup scripts
+source -echo ../Setup/fc_common_setup.tcl
+#####################################################################
+#####      Common Setup Script for Fusion Compiler (Project)    #####
+#####################################################################
+#
+# Adapted from Labs reference/labs/setup/fc_common_setup.tcl for the
+# Advanced VLSI final project (RISC-V core, SAED14nm, Fusion Compiler).
+#
+# Runs from the project's work/ directory, one level under the repo root
+# (== /project/advvlsi/users/yh3/ws/project_2026 on the VNC), so project
+# inputs/outputs are reached with a single "../".
+#
+# Large SAED14 EDK data is referenced by absolute server path (EDK_ROOT)
+# and is NOT committed to git. Only the small RISC-V RTL/SDC live in common/.
+set DESIGN_NAME         "riscv_core"                    ; # top module (confirmed: riscv_core_all.v line 42)
+set DESIGN_LIBRARY      "${DESIGN_NAME}.dlib"           ; # design library name
+set WORK_DIR            "[pwd]"                         ; # current working directory (expected: <repo>/work)
+set CLOCK_PORT          "clk_i"                         ; # clock port (riscv.sdc: create_clock -period 10 [get_ports clk_i])
+set RESET_PORT          "rst_i"                         ; # reset port (riscv.sdc: set_case_analysis 0 [get_port rst_i])
+set LIBNAME             "saed14rvt"                     ; # primary std-cell library name
+set CELL_PREFIX         "SAEDRVT14"                     ; # RVT cell prefix (used by PG/boundary/tap/CTS scripts)
+set TECH_NODE           "saed14nm"                      ; # technology node name
+set METAL_STACK         "1p9m"                          ; # metal stack
+#####################################################################
+#####      SAED14 EDK reference data (absolute server paths)    #####
+#####################################################################
+set EDK_ROOT            "/tech/synopsys/lib/SAED14_EDK"
+set TECH_DATA           "${EDK_ROOT}/SAED14nm_EDK_TECH_DATA"
+# Technology file (confirmed by project PDF)
+set TECH_FILE           "${TECH_DATA}/tf/${TECH_NODE}_${METAL_STACK}.tf"
+set TECH_NDM            "path/to/tech_ndm/if/exist"     ; # only used when TECH_BASED == ndm
+# Reference libraries: link all three Vt (LVT + RVT + HVT) frame_timing NDMs.
+set REF_NDM             "base_frame_timing"             ; # project uses *_base_frame_timing.ndm
+set LVT_NDM             "${EDK_ROOT}/SAED14nm_EDK_STD_LVT/ndm/saed14lvt_${REF_NDM}.ndm"
+set RVT_NDM             "${EDK_ROOT}/SAED14nm_EDK_STD_RVT/ndm/saed14rvt_${REF_NDM}.ndm"
+set HVT_NDM             "${EDK_ROOT}/SAED14nm_EDK_STD_HVT/ndm/saed14hvt_${REF_NDM}.ndm"
+set REFERENCE_LIBRARY   [list ${LVT_NDM} ${RVT_NDM} ${HVT_NDM}]
+# Parasitics (tlup, confirmed by project PDF)
+set TLUP_PATH           "${TECH_DATA}/tlup"
+set TLUP_MIN_FILE       "${TLUP_PATH}/${TECH_NODE}_${METAL_STACK}_Cmin.tlup"
+set TLUP_NOM_FILE       "${TLUP_PATH}/${TECH_NODE}_${METAL_STACK}_Cnom.tlup"
+set TLUP_MAX_FILE       "${TLUP_PATH}/${TECH_NODE}_${METAL_STACK}_Cmax.tlup"
+# nxtgrd alternative (only used when PARASITIC == nxtgrd)
+set NXTGRD_PATH         "${TECH_DATA}/nxtgrd"
+set NXTGRD_MIN_FILE     "${NXTGRD_PATH}/${TECH_NODE}_${METAL_STACK}_Cmin.nxtgrd"
+set NXTGRD_NOM_FILE     "${NXTGRD_PATH}/${TECH_NODE}_${METAL_STACK}_Cnom.nxtgrd"
+set NXTGRD_MAX_FILE     "${NXTGRD_PATH}/${TECH_NODE}_${METAL_STACK}_Cmax.nxtgrd"
+# Layer map for read_parasitic_tech (needed from the floorplan stage on). Confirmed on VNC.
+set MAP_PATH            "${TECH_DATA}/map"
+set LAYER_MAP_FILE      "${MAP_PATH}/${TECH_NODE}_tf_itf_tluplus.map"
+# Sign-off / GDS data (used at step 09). Confirmed on VNC.
+set GDS_MAP_FILE        "${MAP_PATH}/${TECH_NODE}_${METAL_STACK}_gdsin_gdsout.map"
+set DRC_RUNSET_FILE     "${TECH_DATA}/icv_drc/${TECH_NODE}_${METAL_STACK}_drc_rules.rs"
+set MFILL_RUNSET_FILE   "${TECH_DATA}/icv_drc/${TECH_NODE}_${METAL_STACK}_mfill_rules.rs"
+# GDS merge files — one per linked Vt library (write_gds -merge_files).
+set GDS_FILE            [list \
+        "${EDK_ROOT}/SAED14nm_EDK_STD_LVT/gds/saed14lvt.gds" \
+        "${EDK_ROOT}/SAED14nm_EDK_STD_RVT/gds/saed14rvt.gds" \
+        "${EDK_ROOT}/SAED14nm_EDK_STD_HVT/gds/saed14hvt.gds" ]
+# Liberty .db (only used for a frame_only fallback; set from fc_flow_setup.tcl)
+set LIBERTY_PATH        "${EDK_ROOT}/liberty"
+#####################################################################
+#####      Project inputs (committed under ../common)           #####
+#####################################################################
+set RTL_PATH            "${WORK_DIR}/../common/rtl"
+set VERILOG_PATH        "${RTL_PATH}/verilog"                   ; # riscv_core_all.v, riscv_defs.v
+set VHDL_PATH           "${RTL_PATH}/vhdl"
+set SDC_PATH            "${WORK_DIR}/../common/sdc"
+set SDC_FILE            "${SDC_PATH}/riscv.sdc"
+#####################################################################
+#####      Project outputs (committed under ../results, ../reports) #####
+#####################################################################
+set RESULTS_PATH        "${WORK_DIR}/../results"                        ; # design library + final netlists/gds/def
+set REPORTS_PATH        "${WORK_DIR}/../reports"                        ; # all .rpt deliverables
+#### Source the reporting utilities
+source ${WORK_DIR}/../Setup/utilities.tcl
+source -echo ../Setup/fc_flow_setup.tcl
+#####################################################################
+#####      Flow Setup Script for Fusion Compiler (Project)      #####
+#####################################################################
+#
+# Adapted from Labs reference/labs/setup/fc_flow_setup.tcl.
+set TECH_BASED  "tf"                            ; # "tf" for TECH_FILE-based flow, "ndm" for TECH_NDM-based flow
+set PARASITIC   "tlup"                          ; # "tlup" for TLUP files, "nxtgrd" for NXTGRD files
+set HDL         "verilog"                       ; # "verilog" or "vhdl"
+# PVT operating conditions (SAED14 RVT liberty corners)
+set PVT_FF      "ff0p88v125c"                   ; # Fast corner
+set PVT_TT      "tt0p8v25c"                     ; # Typical corner
+set PVT_SS      "ss0p72vm40c"                   ; # Slow corner
+# Liberty .db per corner (only used for a frame_only fallback; frame_timing gets timing from NDM)
+set DB_FF       "${LIBERTY_PATH}/${LIBNAME}_${PVT_FF}.db"
+set DB_TT       "${LIBERTY_PATH}/${LIBNAME}_${PVT_TT}.db"
+set DB_SS       "${LIBERTY_PATH}/${LIBNAME}_${PVT_SS}.db"
+# Compute resources (RISC-V core is larger than the lab i2c design)
+set_host_options -max_cores 8
+1
+#### Open the design library and branch a fresh block
+open_lib ${RESULTS_PATH}/${DESIGN_LIBRARY}
+Information: Loading library file '/project/advvlsi/users/yh3/ws/project_2026/results/riscv_core.dlib' (FILE-007)
+Information: Loading library file '/tech/synopsys/lib/SAED14_EDK/SAED14nm_EDK_STD_LVT/ndm/saed14lvt_base_frame_timing.ndm' (FILE-007)
+Information: Loading library file '/tech/synopsys/lib/SAED14_EDK/SAED14nm_EDK_STD_RVT/ndm/saed14rvt_base_frame_timing.ndm' (FILE-007)
+Information: Loading library file '/tech/synopsys/lib/SAED14_EDK/SAED14nm_EDK_STD_HVT/ndm/saed14hvt_base_frame_timing.ndm' (FILE-007)
+{riscv_core.dlib}
+# rerun-safe: drop stale target blocks from a previous run if present
+if {[sizeof_collection [get_blocks -quiet ${DESIGN_NAME}/signoff]] > 0} {
+        remove_blocks -force ${DESIGN_NAME}/signoff
+}
+if {[sizeof_collection [get_blocks -quiet ${DESIGN_NAME}]] > 0} {
+        remove_blocks -force ${DESIGN_NAME}
+}
+copy_block -from ${DESIGN_NAME}/route_opt -to ${DESIGN_NAME}/signoff
+Information: User units loaded from library 'saed14lvt_base_frame_timing' (LNK-040)
+{riscv_core.dlib:riscv_core/signoff.design}
+open_block ${DESIGN_NAME}/signoff
+Information: Incrementing open_count of block 'riscv_core.dlib:riscv_core/signoff.design' to 2. (DES-021)
+{riscv_core.dlib:riscv_core/signoff.design}
+#### Filler cell insertion (provided project script)
+source -echo ../scripts/filler.tcl
+set FILLER_CELLS [get_object_name [sort_collection -descending \
+[get_lib_cells */*_FILL* -filter "name !~ *_LVLFILL* AND name !~ *FILLP* \
+AND name !~ *ECO* AND name !~ *Y2* AND name !~ *SPACER*"] area]]
+create_stdcell_fillers -lib_cells ${FILLER_CELLS}
+Using libraries: riscv_core.dlib saed14lvt_base_frame_timing saed14rvt_base_frame_timing saed14hvt_base_frame_timing
+Visiting block riscv_core.dlib:riscv_core/signoff.design
+Information: Cellem using advance interpolation.
+Design 'riscv_core' was successfully linked.
+CHF: Filler insertion auto mode id 0, current filler mode 0, M0M1Routing = 0 
+* Disjointed site row process : FALSE
+INFO:: begin filler insertions...
+CHF::NPL_CHKQUERY_PNET checking turned off by default
+master SAEDLVT14_FILL64 has site unit
+master SAEDRVT14_FILL64 has site unit
+master SAEDHVT14_FILL64 has site unit
+master SAEDLVT14_FILL32 has site unit
+master SAEDRVT14_FILL32 has site unit
+master SAEDHVT14_FILL32 has site unit
+master SAEDLVT14_FILL16 has site unit
+master SAEDRVT14_FILL16 has site unit
+master SAEDHVT14_FILL16 has site unit
+master SAEDLVT14_FILL3 has site unit
+master SAEDRVT14_FILL3 has site unit
+master SAEDHVT14_FILL3 has site unit
+master SAEDLVT14_FILL2 has site unit
+master SAEDRVT14_FILL2 has site unit
+master SAEDHVT14_FILL2 has site unit
+master SAEDLVT14_FILL1 has site unit
+master SAEDRVT14_FILL1 has site unit
+master SAEDHVT14_FILL1 has site unit
+ Use site unit (740)
+INFO:: process regular filler master min-vth type: 
+Warning: Routing direction of metal layer PO is neither "horizontal" nor "vertical".  PDC checks will not be performed on this layer. (PDC-003)
+PDC app_options settings =========
+        place.legalize.enable_prerouted_net_check: 1
+        place.legalize.num_tracks_for_access_check: 1
+        place.legalize.use_eol_spacing_for_access_check: 0
+        place.legalize.allow_touch_track_for_access_check: 1
+        place.legalize.reduce_conservatism_in_eol_check: 0
+        place.legalize.preroute_shape_merge_distance: 0.0
+        place.legalize.enable_non_preferred_direction_span_check: 0
+
+Layer M1: cached 0 shapes out of 3980 total shapes.
+Layer M2: cached 4498 shapes out of 86623 total shapes.
+Layer M3: cached 4498 shapes out of 50550 total shapes.
+Cached 13494 vias out of 149678 total vias.
+CHF: loading design...
+... VT_P rule: 0.074000
+... VT_N rule: 0.074000
+... max group width rule: 0.074000
+CHF:: Loading blkInsts from NDM...
+CHF:: Building row/inst relations...
+INFO:: Use fillers in order(1000): SAEDLVT14_FILL64 (66 x 1), SAEDRVT14_FILL64 (66 x 1), SAEDHVT14_FILL64 (66 x 1), SAEDLVT14_FILL32 (34 x 1), SAEDRVT14_FILL32 (34 x 1), SAEDHVT14_FILL32 (34 x 1), SAEDLVT14_FILL16 (18 x 1), SAEDRVT14_FILL16 (18 x 1), SAEDHVT14_FILL16 (18 x 1), SAEDLVT14_FILL3 (5 x 1), SAEDRVT14_FILL3 (5 x 1), SAEDHVT14_FILL3 (5 x 1), SAEDLVT14_FILL2 (4 x 1), SAEDRVT14_FILL2 (4 x 1), SAEDHVT14_FILL2 (4 x 1), SAEDLVT14_FILL1 (1 x 1), SAEDRVT14_FILL1 (1 x 1), SAEDHVT14_FILL1 (1 x 1), 
+        10% complete ...
+        20% complete ...
+        30% complete ...
+        40% complete ...
+        50% complete ...
+        60% complete ...
+        70% complete ...
+        80% complete ...
+        90% complete ...
+Regular Filler Insertion Complete
+... 0 of regular filler SAEDLVT14_FILL64 inserted
+... 22 of regular filler SAEDRVT14_FILL64 inserted
+... 43 of regular filler SAEDHVT14_FILL64 inserted
+... 1 of regular filler SAEDLVT14_FILL32 inserted
+... 45 of regular filler SAEDRVT14_FILL32 inserted
+... 199 of regular filler SAEDHVT14_FILL32 inserted
+... 0 of regular filler SAEDLVT14_FILL16 inserted
+... 0 of regular filler SAEDRVT14_FILL16 inserted
+... 0 of regular filler SAEDHVT14_FILL16 inserted
+... 32 of regular filler SAEDLVT14_FILL3 inserted
+... 939 of regular filler SAEDRVT14_FILL3 inserted
+... 8233 of regular filler SAEDHVT14_FILL3 inserted
+... 4 of regular filler SAEDLVT14_FILL2 inserted
+... 132 of regular filler SAEDRVT14_FILL2 inserted
+... 1423 of regular filler SAEDHVT14_FILL2 inserted
+... 68 of regular filler SAEDLVT14_FILL1 inserted
+... 838 of regular filler SAEDRVT14_FILL1 inserted
+... 10827 of regular filler SAEDHVT14_FILL1 inserted
+check_legality
+
+************************
+
+running check_legality
+
+Warning: Routing direction of metal layer PO is neither "horizontal" nor "vertical".  PDC checks will not be performed on this layer. (PDC-003)
+PDC app_options settings =========
+        place.legalize.enable_prerouted_net_check: 1
+        place.legalize.num_tracks_for_access_check: 1
+        place.legalize.use_eol_spacing_for_access_check: 0
+        place.legalize.allow_touch_track_for_access_check: 1
+        place.legalize.reduce_conservatism_in_eol_check: 0
+        place.legalize.preroute_shape_merge_distance: 0.0
+        place.legalize.enable_non_preferred_direction_span_check: 0
+
+Layer M1: cached 0 shapes out of 3980 total shapes.
+Layer M2: cached 4498 shapes out of 86623 total shapes.
+Layer M3: cached 4498 shapes out of 50550 total shapes.
+Cached 13494 vias out of 149678 total vias.
+
+check_legality for block design riscv_core ... 
+Information: Initializing classic cellmap without advanced rules enabled and without PDC enabled
+Information: The following app options are used in cellmap
+        place.legalize.enable_color_aware_placement : false
+        place.legalize.use_nll_query_cm : false
+        place.legalize.enable_advanced_legalizer : false
+        place.legalize.enable_prerouted_net_check : true
+        place.legalize.enable_advanced_prerouted_net_check : false
+        place.legalize.always_continue : true
+        place.legalize.limit_legality_checks : false
+        place.common.pnet_aware_density : 1.0000
+        place.common.pnet_aware_min_width : 0.0000
+        place.common.pnet_aware_layers : {}
+        place.common.use_placement_model : false
+        place.common.enable_advanced_placement_model : true
+        cts.placement.cell_spacing_rule_style : maximum
+Total 0.9229 seconds to build cellmap data
+Information: Creating classic rule checker.
+Warning: Routing direction of metal layer PO is neither "horizontal" nor "vertical".  PDC checks will not be performed on this layer. (PDC-003)
+=====> Processed 198 ref cells (72 fillers) from library
+
+
+****************************************
+  Report : Fillers
+  Site   : unit
+****************************************
+
+Filler widths available for different combinations of VT, OD and TPO:
+----------------------------------------------------------------------
+     VT1      VT2      OD1      OD2      TPO   WIDTHS
+                    height   height            sites
+----------------------------------------------------------------------
+  LVTIMP   LVTIMP     none     none     none   1 4 5 7 9 10 14 17 18 34 66
+  RVTIMP   RVTIMP     none     none     none   1 4 5 7 9 10 14 17 18 34 66
+  HVTIMP   HVTIMP     none     none     none   1 4 5 7 9 10 14 17 18 34 66
+----------------------------------------------------------------------
+Smallest non-OD filler width is 1 sites.
+----------------------------------------------------------------------
+
+Checking legality
+Checking cell legality:
+0%....10%....20%....30%....40%....50%....60%....70%....80%....90%....100%
+Sorting rows.
+Checking spacing rule legality.
+0%....10%....20%....30%....40%....50%....60%....70%....80%....90%....100%
+Checking packing rule legality.
+0%....10%....20%....30%....40%....50%....60%....70%....80%....90%....100%
+Checking layer rule legality.
+0%....10%....20%....30%....40%....50%....60%....70%....80%....90%....100%
+
+****************************************
+  Report : Legality
+****************************************
+
+VIOLATIONS BY CATEGORY:
+   MOVABLE  APP-FIXED USER-FIXED  DESCRIPTION
+         0          0          0  Two objects overlap.
+         0          0          0  A cell violates a pnet.
+         0          0          0  A cell is illegal at a site.
+         0          0          0  A cell is not aligned with a site.
+         0          0          0  A cell has an illegal orientation.
+         0          0          0  A cell spacing rule is violated.
+         0          0          0  A layer rule is violated.
+         0          0          0  A cell is in the wrong region.
+         0          0          0  Two cells violate cts margins.
+         0          0          0  Two cells violate coloring.
+
+         0          0          0  TOTAL
+
+TOTAL 0 Violations.
+
+VIOLATIONS BY SUBCATEGORY:
+     MOVABLE  APP-FIXED USER-FIXED  DESCRIPTION
+
+         0          0          0    Two objects overlap.
+           0          0          0    Two cells overlap.
+           0          0          0    Two cells have overlapping keepout margins.
+           0          0          0    A cell overlaps a blockage.
+           0          0          0    A cell keepout margin overlaps a blockage.
+
+         0          0          0    A cell violates a pnet.
+
+         0          0          0    A cell is illegal at a site.
+           0          0          0    A cell violates pin-track alignment rules.
+           0          0          0    A cell is illegal at a site.
+           0          0          0    A cell violates legal index rule.
+           0          0          0    A cell has the wrong variant for its location.
+
+         0          0          0    A cell is not aligned with a site.
+           0          0          0    A cell is not aligned with the base site.
+           0          0          0    A cell is not aligned with an overlaid site.
+
+         0          0          0    A cell has an illegal orientation.
+
+         0          0          0    A cell spacing rule is violated.
+           0          0          0    A spacing rule is violated in a row.
+           0          0          0    A spacing rule is violated between adjacent rows.
+           0          0          0    A cell violates vertical abutment rule.
+           0          0          0    A cell violates metal spacing rule.
+
+         0          0          0    A layer rule is violated.
+           0          0          0    A layer VTH rule is violated.
+           0          0          0    A layer OD rule is violated.
+           0          0          0    A layer OD max-width rule is violated.
+           0          0          0    A layer ALL_OD corner rule is violated.
+           0          0          0    A layer max-vertical-length rule is violated.
+           0          0          0    A layer TPO rule is violated.
+           0          0          0    Filler cell insertion cannot satisfy layer rules.
+
+         0          0          0    A cell is in the wrong region.
+           0          0          0    A cell is outside its hard bound.
+           0          0          0    A cell is in the wrong voltage area.
+           0          0          0    A cell violates an exclusive movebound.
+
+         0          0          0    Two cells violate cts margins.
+
+         0          0          0    Two cells violate coloring.
+
+
+check_legality for block design riscv_core succeeded!
+
+
+check_legality succeeded.
+
+**************************
+
+1
+#### Remove placement blockages and re-fill those areas
+remove_placement_blockages -all
+0
+source -echo ../scripts/filler.tcl
+set FILLER_CELLS [get_object_name [sort_collection -descending \
+[get_lib_cells */*_FILL* -filter "name !~ *_LVLFILL* AND name !~ *FILLP* \
+AND name !~ *ECO* AND name !~ *Y2* AND name !~ *SPACER*"] area]]
+create_stdcell_fillers -lib_cells ${FILLER_CELLS}
+Information: The command 'create_stdcell_fillers' cleared the undo history. (UNDO-016)
+CHF: Filler insertion auto mode id 0, current filler mode 0, M0M1Routing = 0 
+* Disjointed site row process : FALSE
+INFO:: begin filler insertions...
+CHF::NPL_CHKQUERY_PNET checking turned off by default
+master SAEDLVT14_FILL64 has site unit
+master SAEDRVT14_FILL64 has site unit
+master SAEDHVT14_FILL64 has site unit
+master SAEDLVT14_FILL32 has site unit
+master SAEDRVT14_FILL32 has site unit
+master SAEDHVT14_FILL32 has site unit
+master SAEDLVT14_FILL16 has site unit
+master SAEDRVT14_FILL16 has site unit
+master SAEDHVT14_FILL16 has site unit
+master SAEDLVT14_FILL3 has site unit
+master SAEDRVT14_FILL3 has site unit
+master SAEDHVT14_FILL3 has site unit
+master SAEDLVT14_FILL2 has site unit
+master SAEDRVT14_FILL2 has site unit
+master SAEDHVT14_FILL2 has site unit
+master SAEDLVT14_FILL1 has site unit
+master SAEDRVT14_FILL1 has site unit
+master SAEDHVT14_FILL1 has site unit
+ Use site unit (740)
+INFO:: process regular filler master min-vth type: 
+Warning: Routing direction of metal layer PO is neither "horizontal" nor "vertical".  PDC checks will not be performed on this layer. (PDC-003)
+PDC app_options settings =========
+        place.legalize.enable_prerouted_net_check: 1
+        place.legalize.num_tracks_for_access_check: 1
+        place.legalize.use_eol_spacing_for_access_check: 0
+        place.legalize.allow_touch_track_for_access_check: 1
+        place.legalize.reduce_conservatism_in_eol_check: 0
+        place.legalize.preroute_shape_merge_distance: 0.0
+        place.legalize.enable_non_preferred_direction_span_check: 0
+
+Layer M1: cached 0 shapes out of 3980 total shapes.
+Layer M2: cached 4498 shapes out of 86623 total shapes.
+Layer M3: cached 4498 shapes out of 50550 total shapes.
+Cached 13494 vias out of 149678 total vias.
+CHF: loading design...
+... VT_P rule: 0.074000
+... VT_N rule: 0.074000
+... max group width rule: 0.074000
+CHF:: Loading blkInsts from NDM...
+CHF:: Building row/inst relations...
+INFO:: Use fillers in order(1000): SAEDLVT14_FILL64 (66 x 1), SAEDRVT14_FILL64 (66 x 1), SAEDHVT14_FILL64 (66 x 1), SAEDLVT14_FILL32 (34 x 1), SAEDRVT14_FILL32 (34 x 1), SAEDHVT14_FILL32 (34 x 1), SAEDLVT14_FILL16 (18 x 1), SAEDRVT14_FILL16 (18 x 1), SAEDHVT14_FILL16 (18 x 1), SAEDLVT14_FILL3 (5 x 1), SAEDRVT14_FILL3 (5 x 1), SAEDHVT14_FILL3 (5 x 1), SAEDLVT14_FILL2 (4 x 1), SAEDRVT14_FILL2 (4 x 1), SAEDHVT14_FILL2 (4 x 1), SAEDLVT14_FILL1 (1 x 1), SAEDRVT14_FILL1 (1 x 1), SAEDHVT14_FILL1 (1 x 1), 
+Regular Filler Insertion Complete
+... 0 of regular filler SAEDLVT14_FILL64 inserted
+... 0 of regular filler SAEDRVT14_FILL64 inserted
+... 0 of regular filler SAEDHVT14_FILL64 inserted
+... 0 of regular filler SAEDLVT14_FILL32 inserted
+... 0 of regular filler SAEDRVT14_FILL32 inserted
+... 0 of regular filler SAEDHVT14_FILL32 inserted
+... 0 of regular filler SAEDLVT14_FILL16 inserted
+... 0 of regular filler SAEDRVT14_FILL16 inserted
+... 0 of regular filler SAEDHVT14_FILL16 inserted
+... 0 of regular filler SAEDLVT14_FILL3 inserted
+... 0 of regular filler SAEDRVT14_FILL3 inserted
+... 0 of regular filler SAEDHVT14_FILL3 inserted
+... 0 of regular filler SAEDLVT14_FILL2 inserted
+... 0 of regular filler SAEDRVT14_FILL2 inserted
+... 0 of regular filler SAEDHVT14_FILL2 inserted
+... 0 of regular filler SAEDLVT14_FILL1 inserted
+... 0 of regular filler SAEDRVT14_FILL1 inserted
+... 0 of regular filler SAEDHVT14_FILL1 inserted
+check_legality
+
+************************
+
+running check_legality
+
+Warning: Routing direction of metal layer PO is neither "horizontal" nor "vertical".  PDC checks will not be performed on this layer. (PDC-003)
+PDC app_options settings =========
+        place.legalize.enable_prerouted_net_check: 1
+        place.legalize.num_tracks_for_access_check: 1
+        place.legalize.use_eol_spacing_for_access_check: 0
+        place.legalize.allow_touch_track_for_access_check: 1
+        place.legalize.reduce_conservatism_in_eol_check: 0
+        place.legalize.preroute_shape_merge_distance: 0.0
+        place.legalize.enable_non_preferred_direction_span_check: 0
+
+Layer M1: cached 0 shapes out of 3980 total shapes.
+Layer M2: cached 4498 shapes out of 86623 total shapes.
+Layer M3: cached 4498 shapes out of 50550 total shapes.
+Cached 13494 vias out of 149678 total vias.
+
+check_legality for block design riscv_core ... 
+Information: Initializing classic cellmap without advanced rules enabled and without PDC enabled
+Information: The following app options are used in cellmap
+        place.legalize.enable_color_aware_placement : false
+        place.legalize.use_nll_query_cm : false
+        place.legalize.enable_advanced_legalizer : false
+        place.legalize.enable_prerouted_net_check : true
+        place.legalize.enable_advanced_prerouted_net_check : false
+        place.legalize.always_continue : true
+        place.legalize.limit_legality_checks : false
+        place.common.pnet_aware_density : 1.0000
+        place.common.pnet_aware_min_width : 0.0000
+        place.common.pnet_aware_layers : {}
+        place.common.use_placement_model : false
+        place.common.enable_advanced_placement_model : true
+        cts.placement.cell_spacing_rule_style : maximum
+Total 0.9165 seconds to build cellmap data
+Information: Creating classic rule checker.
+Warning: Routing direction of metal layer PO is neither "horizontal" nor "vertical".  PDC checks will not be performed on this layer. (PDC-003)
+=====> Processed 198 ref cells (72 fillers) from library
+
+
+****************************************
+  Report : Fillers
+  Site   : unit
+****************************************
+
+Filler widths available for different combinations of VT, OD and TPO:
+----------------------------------------------------------------------
+     VT1      VT2      OD1      OD2      TPO   WIDTHS
+                    height   height            sites
+----------------------------------------------------------------------
+  LVTIMP   LVTIMP     none     none     none   1 4 5 7 9 10 14 17 18 34 66
+  RVTIMP   RVTIMP     none     none     none   1 4 5 7 9 10 14 17 18 34 66
+  HVTIMP   HVTIMP     none     none     none   1 4 5 7 9 10 14 17 18 34 66
+----------------------------------------------------------------------
+Smallest non-OD filler width is 1 sites.
+----------------------------------------------------------------------
+
+Checking legality
+Checking cell legality:
+0%....10%....20%....30%....40%....50%....60%....70%....80%....90%....100%
+Sorting rows.
+Checking spacing rule legality.
+0%....10%....20%....30%....40%....50%....60%....70%....80%....90%....100%
+Checking packing rule legality.
+0%....10%....20%....30%....40%....50%....60%....70%....80%....90%....100%
+Checking layer rule legality.
+0%....10%....20%....30%....40%....50%....60%....70%....80%....90%....100%
+
+****************************************
+  Report : Legality
+****************************************
+
+VIOLATIONS BY CATEGORY:
+   MOVABLE  APP-FIXED USER-FIXED  DESCRIPTION
+         0          0          0  Two objects overlap.
+         0          0          0  A cell violates a pnet.
+         0          0          0  A cell is illegal at a site.
+         0          0          0  A cell is not aligned with a site.
+         0          0          0  A cell has an illegal orientation.
+         0          0          0  A cell spacing rule is violated.
+         0          0          0  A layer rule is violated.
+         0          0          0  A cell is in the wrong region.
+         0          0          0  Two cells violate cts margins.
+         0          0          0  Two cells violate coloring.
+
+         0          0          0  TOTAL
+
+TOTAL 0 Violations.
+
+VIOLATIONS BY SUBCATEGORY:
+     MOVABLE  APP-FIXED USER-FIXED  DESCRIPTION
+
+         0          0          0    Two objects overlap.
+           0          0          0    Two cells overlap.
+           0          0          0    Two cells have overlapping keepout margins.
+           0          0          0    A cell overlaps a blockage.
+           0          0          0    A cell keepout margin overlaps a blockage.
+
+         0          0          0    A cell violates a pnet.
+
+         0          0          0    A cell is illegal at a site.
+           0          0          0    A cell violates pin-track alignment rules.
+           0          0          0    A cell is illegal at a site.
+           0          0          0    A cell violates legal index rule.
+           0          0          0    A cell has the wrong variant for its location.
+
+         0          0          0    A cell is not aligned with a site.
+           0          0          0    A cell is not aligned with the base site.
+           0          0          0    A cell is not aligned with an overlaid site.
+
+         0          0          0    A cell has an illegal orientation.
+
+         0          0          0    A cell spacing rule is violated.
+           0          0          0    A spacing rule is violated in a row.
+           0          0          0    A spacing rule is violated between adjacent rows.
+           0          0          0    A cell violates vertical abutment rule.
+           0          0          0    A cell violates metal spacing rule.
+
+         0          0          0    A layer rule is violated.
+           0          0          0    A layer VTH rule is violated.
+           0          0          0    A layer OD rule is violated.
+           0          0          0    A layer OD max-width rule is violated.
+           0          0          0    A layer ALL_OD corner rule is violated.
+           0          0          0    A layer max-vertical-length rule is violated.
+           0          0          0    A layer TPO rule is violated.
+           0          0          0    Filler cell insertion cannot satisfy layer rules.
+
+         0          0          0    A cell is in the wrong region.
+           0          0          0    A cell is outside its hard bound.
+           0          0          0    A cell is in the wrong voltage area.
+           0          0          0    A cell violates an exclusive movebound.
+
+         0          0          0    Two cells violate cts margins.
+
+         0          0          0    Two cells violate coloring.
+
+
+check_legality for block design riscv_core succeeded!
+
+
+check_legality succeeded.
+
+**************************
+
+1
+#### Connect PG of the newly added filler cells
+connect_pg_net -net VDD [get_pins -hierarchical */VDD]
+1
+connect_pg_net -net VSS [get_pins -hierarchical */VSS]
+1
+save_block
+Information: The command 'save_block' cleared the undo history. (UNDO-016)
+RDE-checksum: 383186d3
+Information: Saving block 'riscv_core.dlib:riscv_core/signoff.design'
+1
+#### ICV in-design signoff DRC
+set_host_options -target ICV -max_cores 2
+1
+set_app_options -name signoff.check_drc.runset             -value ${DRC_RUNSET_FILE}
+signoff.check_drc.runset /tech/synopsys/lib/SAED14_EDK/SAED14nm_EDK_TECH_DATA/icv_drc/saed14nm_1p9m_drc_rules.rs
+set_app_options -name signoff.check_drc.max_errors_per_rule -value 1000
+signoff.check_drc.max_errors_per_rule 1000
+set_app_options -name signoff.check_drc.run_dir            -value "./signoff_drc_run/"
+signoff.check_drc.run_dir ./signoff_drc_run/
+set_app_options -name signoff.physical.layer_map_file      -value ${GDS_MAP_FILE}
+signoff.physical.layer_map_file /tech/synopsys/lib/SAED14_EDK/SAED14nm_EDK_TECH_DATA/map/saed14nm_1p9m_gdsin_gdsout.map
+save_block
+RDE-checksum: 383186d3
+Information: Saving block 'riscv_core.dlib:riscv_core/signoff.design'
+1
+signoff_check_drc                  ;# authoritative foundry-rule DRC (results in ./signoff_drc_run/)
+Warning: Attribute 'technology_node' does not exist on design riscv_core (ATTR-3)
+Name /project/advvlsi/users/yh3/ws/project_2026/work/signoff_drc_run/_icv.started End /project/advvlsi/users/yh3/ws/project_2026/work/signoff_drc_run/_icv.finished Value1 0 Value2 0
+Num filler cells found = 22806, skipped = 0
+
+Start to run ICV ...
+Running new impl for popen..
+............................................. 1% complete [0:00:01]
+............................................. 2% complete [0:00:09]
+............................................. 5% complete [0:00:11]
+............................................. 5% complete [0:00:11]
+............................................. 10% complete [0:00:12]
+............................................. 15% complete [0:00:13]
+............................................. 20% complete [0:00:14]
+............................................. 20% complete [0:00:14]
+............................................. 25% complete [0:00:14]
+............................................. 30% complete [0:00:15]
+............................................. 35% complete [0:00:15]
+............................................. 40% complete [0:00:16]
+............................................. 45% complete [0:00:18]
+............................................. 45% complete [0:00:18]
+............................................. 50% complete [0:00:18]
+............................................. 55% complete [0:00:19]
+............................................. 60% complete [0:00:19]
+............................................. 65% complete [0:00:20]
+............................................. 70% complete [0:00:20]
+............................................. 75% complete [0:00:20]
+............................................. 75% complete [0:00:20]
+............................................. 85% complete [0:00:20]
+............................................. 90% complete [0:00:20]
+............................................. 95% complete [0:00:20]
+................Updated tech file has been written at: /project/advvlsi/users/yh3/ws/project_2026/work/signoff_drc_run/tech.tf
+
+ICV is done!
+For more details see /project/advvlsi/users/yh3/ws/project_2026/work/signoff_drc_run/signoff_check_drc.log
+Overall engine Time=0:00:29 Highest command Mem=0.162 GB
+Errdm data is attached to the main block successfully
+
+-------------------------------------------------------------------------------
+Rule: M6.S.3.1: Minimum spacing if metal width of one of lines > 0.08 and their parallel run length > 0.08 from metal widght >= 0.06 must be 0.06                    22 errors
+Rule: M6.S.3.3: Minimum spacing if metal width of one of lines > 0.08 and their parallel run length > 0.08 from metal widght >= 0.1 must be 0.075                    16 errors
+Rule: M6.S.3.4: Minimum spacing if metal width of one of lines > 0.08 and their parallel run length > 0.08 from metal widght >= 0.12 must be 0.1                     18 errors
+Rule: M6.S.4.1: Minimum spacing if metal width of one of lines > 0.7 and their parallel run length > 0.08 from metal widght >= 0 must be 0.17                 1 error
+Rule: M9.S.3.1: Minimum spacing if metal width of one of lines > 0.08 and their parallel run length > 0.08 from metal widght >= 0.06 must be 0.06                     2 errors
+Rule: VIA0.E.1: Minimum VIA0 enclosure by M1 must be 0.002                    2 errors
+-------------------------------------------------------------------------------
+
+signoff_check_drc is finished.
+
+Create error data signoff_check_drc.err ...
+
+Info: Populated ICV Heat Map Data on current block.
+RDE-checksum: 383186d3
+signoff_fix_drc                    ;# reruns the router to fix detected DRCs
+Information: Running the advanced guidance based ADR flow.
+User-specified unselected rule patterns: { USER_GUIDE.M* USER_GUIDE.VIA* *:*Density*of* M*.DN.*:* VIA*.DN.*:* CSR*:* DM*:* Rule*DEN*:* Rule:.*USER_GUIDE.M* Rule:.*USER_GUIDE.VIA* Rule:.*:*Density*of* Rule:.*M*.DN.*:* Rule:.*VIA*.DN.*:* Rule:.*CSR*:* Rule:.*DM*:* *M*.R.14* *USER_GUIDE* *:WARNING* *:LOGO* *NW.[A-Z].* *NWRSTI.[A-Z].* *NWROD.[A-Z].* *OD[0-1].[A-Z].* *OD.[A-Z].* *Gate *PP.[A-Z].* *NP.[A-Z].* *SSD.[A-Z].* *DIODMY.[A-Z].* *RH_OD.[A-Z].* *RH_TN.[A-Z].* *HV_N.[A-Z].* *SR.[A-Z].* *:*Density*of* *ESD.[A-Z].* *SRAM.[A-Z].[0-9]* *ROM.[A-Z].[0-9]* *LUP.[A-Z][0-9].* *[0-9][A-Z]:HIADMY *[A-Z][0-9]:BJTDMY* *[A-Z][0-9]:BJTHDMY* *AN.R.[0-9]* *DOD.[A-Z].[0-9]* *DIODMY.[A-Z].[0-9]* *DTCD.[A-Z].[0-9]* *GRMx.C.2_M1* *GRMx.C.2_M2* *GRMx.C.2_M3* *GRMx.C.2_M4* *GRV1.C.6* *GRVx.C.6_V2* *GRVx.C.6_V3* *M1.G0.1__M1.G0.2__M1.G0.3* *M2.G0.1__M2.G0.2__M2.G0.3* *M3.G0.1__M3.G0.2__M3.G0.3* *M4.G0.1__M4.G0.2__M4.G0.3* *M5.G0.1__M5.G0.2__M5.G0.3* *M6.G0.1__M6.G0.2__M6.G0.3*}
+Warning: Attribute 'technology_node' does not exist on design riscv_core (ATTR-3)
+Name /project/advvlsi/users/yh3/ws/project_2026/work/signoff_fix_drc_run/signoff_check_drc_run/_icv.started End /project/advvlsi/users/yh3/ws/project_2026/work/signoff_fix_drc_run/signoff_check_drc_run/_icv.finished Value1 0 Value2 0
+
+Start to run ICV ...
+Running new impl for popen..
+............................................. 1% complete [0:00:02]
+............................................. 2% complete [0:00:09]
+............................................. 4% complete [0:00:12]
+............................................. 5% complete [0:00:12]
+............................................. 10% complete [0:00:12]
+............................................. 15% complete [0:00:13]
+............................................. 15% complete [0:00:13]
+............................................. 20% complete [0:00:14]
+............................................. 25% complete [0:00:15]
+............................................. 30% complete [0:00:15]
+............................................. 35% complete [0:00:16]
+............................................. 40% complete [0:00:17]
+............................................. 45% complete [0:00:18]
+............................................. 45% complete [0:00:18]
+............................................. 50% complete [0:00:19]
+............................................. 55% complete [0:00:19]
+............................................. 60% complete [0:00:20]
+............................................. 65% complete [0:00:20]
+............................................. 70% complete [0:00:20]
+............................................. 75% complete [0:00:20]
+............................................. 75% complete [0:00:20]
+............................................. 80% complete [0:00:20]
+............................................. 90% complete [0:00:21]
+............................................. 95% complete [0:00:21]
+......................Updated tech file has been written at: /project/advvlsi/users/yh3/ws/project_2026/work/signoff_fix_drc_run/signoff_check_drc_run/tech.tf
+
+ICV is done!
+For more details see /project/advvlsi/users/yh3/ws/project_2026/work/signoff_fix_drc_run/signoff_check_drc_run/signoff_check_drc.log
+Overall engine Time=0:00:28 Highest command Mem=0.162 GB
+Errdm data is attached to the main block successfully
+
+-------------------------------------------------------------------------------
+Rule: M6.S.3.1: Minimum spacing if metal width of one of lines > 0.08 and their parallel run length > 0.08 from metal widght >= 0.06 must be 0.06                    22 errors
+Rule: M6.S.3.3: Minimum spacing if metal width of one of lines > 0.08 and their parallel run length > 0.08 from metal widght >= 0.1 must be 0.075                    16 errors
+Rule: M6.S.3.4: Minimum spacing if metal width of one of lines > 0.08 and their parallel run length > 0.08 from metal widght >= 0.12 must be 0.1                     18 errors
+Rule: M6.S.4.1: Minimum spacing if metal width of one of lines > 0.7 and their parallel run length > 0.08 from metal widght >= 0 must be 0.17                 1 error
+Rule: M9.S.3.1: Minimum spacing if metal width of one of lines > 0.08 and their parallel run length > 0.08 from metal widght >= 0.06 must be 0.06                     2 errors
+Rule: VIA0.E.1: Minimum VIA0 enclosure by M1 must be 0.002                    2 errors
+-------------------------------------------------------------------------------
+
+signoff_check_drc is finished.
+
+Create error data signoff_check_drc.err ...
+
+Info: Populated ICV Heat Map Data on current block.
+Warning: Cell contains tie connections which are not connected to real PG. (ZRT-511)
+Cell Min-Routing-Layer = M2
+Cell Max-Routing-Layer = MRDL
+Turn off antenna since no rule is specified
+Information: Option route.detail.force_end_on_preferred_grid will be ignored since none of the layers have preferred grid. (ZRT-703)
+Warning: Cannot find a default contact code for layer VIA0. (ZRT-022)
+Warning: Port VDD of cell riscv_core is unplaced.  This may impact routing result. (ZRT-740)
+Warning: Port VSS of cell riscv_core is unplaced.  This may impact routing result. (ZRT-740)
+Warning: Ignore 2 top cell ports with no pins. (ZRT-027)
+Info: number of net_type_blockage: 0 
+Information: Via ladder engine would be activated for pattern must join connection in certain commands. Please refer to man-page for the command list. (ZRT-619)
+Via on layer (VIA1) needs more than one tracks
+Warning: Layer M1 default pitch 0.074 may be too small to handle up/down via. Note, that minimum requirements are "wire/via-down 0.074" & "wire/via-up 0.078". (ZRT-026)
+Via on layer (VIA1) needs more than one tracks
+Warning: Layer M2 default pitch 0.060 may be too small to handle up/down via. Note, that minimum requirements are "wire/via-down 0.078" & "wire/via-up 0.060". (ZRT-026)
+Via on layer (VIA4) needs more than one tracks
+Warning: Layer M5 default pitch 0.100 may be too small to handle up/down via. Note, that minimum requirements are "wire/via-down 0.120" & "wire/via-up 0.100". (ZRT-026)
+Via on layer (VIA7) needs more than one tracks
+Warning: Layer M7 default pitch 0.100 may be too small to handle up/down via. Note, that minimum requirements are "wire/via-down 0.100" & "wire/via-up 0.102". (ZRT-026)
+Via on layer (VIA7) needs more than one tracks
+Warning: Layer M8 default pitch 0.100 may be too small to handle up/down via. Note, that minimum requirements are "wire/via-down 0.102" & "wire/via-up 0.100". (ZRT-026)
+Via on layer (VIARDL) needs more than one tracks
+Warning: Layer M9 default pitch 0.100 may be too small to handle up/down via. Note, that minimum requirements are "wire/via-down 0.100" & "wire/via-up 1.570". (ZRT-026)
+Via on layer (VIARDL) needs more than one tracks
+Warning: Layer MRDL default pitch 4.000 may be too small to handle up/down via. Note, that minimum requirements are "wire/via-down 4.500" & "wire/via-up 4.000". (ZRT-026)
+Information: When applicable Min-max layer allow_pin_connection mode will allow paths of length 0.90 outside the layer range. (ZRT-707)
+Information: When applicable Min-max layer allow_pin_connection mode will allow paths of length 0.90 outside the layer range on clock nets. (ZRT-718)
+Information: When applicable layer based tapering will taper up to 0.00 in distance from the pin. (ZRT-706)
+Set do DRC check for soft spacing DRC!
+Printing options for 'route.common.*'
+common.eco_route_fix_existing_drc                       :        true                
+common.via_on_grid_by_layer_name                        :        {VIA1 false} {VIA2 true}
+common.wire_on_grid_by_layer_name                       :        {M1 true} {M2 true} {M3 true}
+
+Printing options for 'route.detail.*'
+detail.antenna                                          :        true                
+detail.eco_route_use_soft_spacing_for_timing_optimization:       true                
+detail.timing_driven                                    :        true                
+
+Printing options for 'route.auto_via_ladder.*'
+
+[Dr init] Elapsed real time: 0:00:00 
+[Dr init] Elapsed cpu  time: sys=0:00:00 usr=0:00:03 total=0:00:03
+[Dr init] Stage (MB): Used  100  Alloctr  101  Proc    2 
+[Dr init] Total (MB): Used  104  Alloctr  105  Proc 9202 
+Opened the error data successfully.
+Loaded the guidance data successfully.
+
+Begin Route Guidance Fixing ...
+
+Routed  1/33 Partitions, Violations =   57
+Routed  2/33 Partitions, Violations =   54
+Routed  3/33 Partitions, Violations =   55
+Routed  4/33 Partitions, Violations =   56
+Routed  5/33 Partitions, Violations =   59
+Routed  6/33 Partitions, Violations =   59
+Routed  7/33 Partitions, Violations =   62
+Routed  8/33 Partitions, Violations =   62
+Routed  9/33 Partitions, Violations =   62
+Routed  10/33 Partitions, Violations =  62
+Routed  11/33 Partitions, Violations =  63
+Routed  12/33 Partitions, Violations =  65
+Routed  13/33 Partitions, Violations =  62
+Routed  14/33 Partitions, Violations =  66
+Routed  15/33 Partitions, Violations =  65
+Routed  16/33 Partitions, Violations =  66
+Routed  17/33 Partitions, Violations =  68
+Routed  18/33 Partitions, Violations =  65
+Routed  19/33 Partitions, Violations =  70
+Routed  20/33 Partitions, Violations =  70
+Routed  21/33 Partitions, Violations =  69
+Routed  22/33 Partitions, Violations =  72
+Routed  23/33 Partitions, Violations =  71
+Routed  24/33 Partitions, Violations =  72
+Routed  25/33 Partitions, Violations =  68
+Routed  26/33 Partitions, Violations =  71
+Routed  27/33 Partitions, Violations =  71
+Routed  28/33 Partitions, Violations =  69
+Routed  29/33 Partitions, Violations =  71
+Routed  30/33 Partitions, Violations =  71
+Routed  31/33 Partitions, Violations =  71
+Routed  32/33 Partitions, Violations =  72
+Routed  33/33 Partitions, Violations =  72
+
+FIXING-ROUTE-GUIDANCE-SUMMARY:
+Fixed 3 out of total 57 route guidances.
+
+FixRouteGuidance finished with 72 violations
+
+
+DRC-SUMMARY:
+        @@@@@@@ TOTAL VIOLATIONS =      72
+        Diff net via-cut spacing : 1
+        Polygon not rectangle : 1
+        Route guidance : 70
+
+
+Total Wire Length =                    134211 micron
+Total Number of Contacts =             130165
+Total Number of Wires =                137839
+Total Number of PtConns =              12553
+Total Number of Routed Wires =       136884
+Total Routed Wire Length =           132946 micron
+Total Number of Routed Contacts =       129839
+        Layer                   M1 :        148 micron
+        Layer                   M2 :      33065 micron
+        Layer                   M3 :      39018 micron
+        Layer                   M4 :      23748 micron
+        Layer                   M5 :      18485 micron
+        Layer                   M6 :      10920 micron
+        Layer                   M7 :       4617 micron
+        Layer                   M8 :       2525 micron
+        Layer                   M9 :        421 micron
+        Layer                 MRDL :          0 micron
+        Via             VIA89_Base :         28
+        Via         VIA89_Base_1x2 :          2
+        Via                VIA78SQ :        215
+        Via            VIA78SQ_1x2 :          9
+        Via              VIA67SQ_C :        690
+        Via          VIA67SQ_C_1x2 :          1
+        Via          VIA67SQ_C_2x1 :         15
+        Via               VIA5SQ_C :       2087
+        Via           VIA5SQ_C_1x2 :         44
+        Via             VIA4BAR1_C :          1
+        Via                 VIA4SQ :       5703
+        Via             VIA4SQ_2x1 :          4
+        Via         VIA34SQ_C(rot) :         15
+        Via           VIA34SQ(rot) :         20
+        Via       VIA3_34SQ_C(rot) :         51
+        Via              VIA3_34SQ :        119
+        Via         VIA3_34SQ(rot) :      14903
+        Via     VIA34SQ_C(rot)_1x2 :       1613
+        Via   VIA34BAR2_C(rot)_1x2 :         10
+        Via              VIA2_Base :      24497
+        Via              VIA23SQ_C :        692
+        Via            VIA2_33SQ_C :          1
+        Via          VIA23_3BAR1_C :          1
+        Via          VIA2_Base_1x2 :      35948
+        Via          VIA2_Base_2x1 :          2
+        Via         VIA12SQ_C(rot) :        148
+        Via              VIA1_Base :      30711
+        Via          VIA1_Base_1x2 :       3722
+        Via          VIA1_Base_2x1 :       8587
+
+ 
+Redundant via conversion report:
+--------------------------------
+
+  Total optimized via conversion rate = 38.42% (50008 / 130165 vias)
+ 
+    Layer VIA1       = 28.53% (12322  / 43183   vias)
+        Weight 1     = 28.53% (12322   vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 71.47% (30861   vias)
+    Layer VIA2       = 58.80% (35965  / 61160   vias)
+        Weight 1     = 58.80% (35965   vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 41.20% (25195   vias)
+    Layer VIA3       =  9.69% (1623   / 16750   vias)
+        Weight 1     =  9.69% (1623    vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 90.31% (15127   vias)
+    Layer VIA4       =  0.07% (4      / 5745    vias)
+        Weight 1     =  0.07% (4       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 99.93% (5741    vias)
+    Layer VIA5       =  2.51% (59     / 2348    vias)
+        Weight 1     =  2.51% (59      vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 97.49% (2289    vias)
+    Layer VIA6       =  3.31% (24     / 725     vias)
+        Weight 1     =  3.31% (24      vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 96.69% (701     vias)
+    Layer VIA7       =  4.02% (9      / 224     vias)
+        Weight 1     =  4.02% (9       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 95.98% (215     vias)
+    Layer VIA8       =  6.67% (2      / 30      vias)
+        Weight 1     =  6.67% (2       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 93.33% (28      vias)
+ 
+  Total double via conversion rate    = 38.42% (50008 / 130165 vias)
+ 
+    Layer VIA1       = 28.53% (12322  / 43183   vias)
+    Layer VIA2       = 58.80% (35965  / 61160   vias)
+    Layer VIA3       =  9.69% (1623   / 16750   vias)
+    Layer VIA4       =  0.07% (4      / 5745    vias)
+    Layer VIA5       =  2.51% (59     / 2348    vias)
+    Layer VIA6       =  3.31% (24     / 725     vias)
+    Layer VIA7       =  4.02% (9      / 224     vias)
+    Layer VIA8       =  6.67% (2      / 30      vias)
+ 
+  The optimized via conversion rate based on total routed via count = 38.42% (50008 / 130165 vias)
+ 
+    Layer VIA1       = 28.53% (12322  / 43183   vias)
+        Weight 1     = 28.53% (12322   vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 71.47% (30861   vias)
+    Layer VIA2       = 58.80% (35965  / 61160   vias)
+        Weight 1     = 58.80% (35965   vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 41.20% (25195   vias)
+    Layer VIA3       =  9.69% (1623   / 16750   vias)
+        Weight 1     =  9.69% (1623    vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 90.31% (15127   vias)
+    Layer VIA4       =  0.07% (4      / 5745    vias)
+        Weight 1     =  0.07% (4       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 99.93% (5741    vias)
+    Layer VIA5       =  2.51% (59     / 2348    vias)
+        Weight 1     =  2.51% (59      vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 97.49% (2289    vias)
+    Layer VIA6       =  3.31% (24     / 725     vias)
+        Weight 1     =  3.31% (24      vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 96.69% (701     vias)
+    Layer VIA7       =  4.02% (9      / 224     vias)
+        Weight 1     =  4.02% (9       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 95.98% (215     vias)
+    Layer VIA8       =  6.67% (2      / 30      vias)
+        Weight 1     =  6.67% (2       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 93.33% (28      vias)
+ 
+
+[FixRouteGuidance] Elapsed real time: 0:00:02 
+[FixRouteGuidance] Elapsed cpu  time: sys=0:00:00 usr=0:00:06 total=0:00:07
+[FixRouteGuidance] Stage (MB): Used  163  Alloctr  165  Proc  801 
+[FixRouteGuidance] Total (MB): Used  166  Alloctr  168  Proc 10001 
+
+Begin DRC fixing ...
+
+[Dr init] Elapsed real time: 0:00:02 
+[Dr init] Elapsed cpu  time: sys=0:00:00 usr=0:00:06 total=0:00:07
+[Dr init] Stage (MB): Used  163  Alloctr  165  Proc  801 
+[Dr init] Total (MB): Used  166  Alloctr  168  Proc 10001 
+Total number of nets = 13166, of which 0 are not extracted
+Total number of open nets = 0, of which 0 are frozen
+Information: Using 8 threads for routing. (ZRT-444)
+Start DR iteration 1: non-uniform partition
+Routed  1/2 Partitions, Violations =    1
+Routed  2/2 Partitions, Violations =    1
+
+DRC-SUMMARY:
+        @@@@@@@ TOTAL VIOLATIONS =      1
+        Polygon not rectangle : 1
+
+[Iter 1] Elapsed real time: 0:00:02 
+[Iter 1] Elapsed cpu  time: sys=0:00:01 usr=0:00:07 total=0:00:08
+[Iter 1] Stage (MB): Used  225  Alloctr  228  Proc  801 
+[Iter 1] Total (MB): Used  229  Alloctr  231  Proc 10001 
+
+End DR iteration 1 with 2 parts
+
+Start DR iteration 2: non-uniform partition
+Routed  1/1 Partitions, Violations =    0
+
+DRC-SUMMARY:
+        @@@@@@@ TOTAL VIOLATIONS =      0
+
+[Iter 2] Elapsed real time: 0:00:02 
+[Iter 2] Elapsed cpu  time: sys=0:00:01 usr=0:00:08 total=0:00:09
+[Iter 2] Stage (MB): Used  225  Alloctr  228  Proc  801 
+[Iter 2] Total (MB): Used  229  Alloctr  231  Proc 10001 
+
+End DR iteration 2 with 1 parts
+
+Start DR iteration 3: non-uniform partition
+Routed  1/1 Partitions, Violations =    0
+
+DRC-SUMMARY:
+        @@@@@@@ TOTAL VIOLATIONS =      0
+
+[Iter 3] Elapsed real time: 0:00:02 
+[Iter 3] Elapsed cpu  time: sys=0:00:01 usr=0:00:08 total=0:00:10
+[Iter 3] Stage (MB): Used  225  Alloctr  228  Proc  801 
+[Iter 3] Total (MB): Used  229  Alloctr  231  Proc 10001 
+
+End DR iteration 3 with 1 parts
+
+Finish DR since reached 0 DRC
+
+Checked 1/25 Partitions, Violations =   0
+Checked 2/25 Partitions, Violations =   0
+Checked 3/25 Partitions, Violations =   0
+Checked 4/25 Partitions, Violations =   0
+Checked 5/25 Partitions, Violations =   0
+Checked 6/25 Partitions, Violations =   0
+Checked 7/25 Partitions, Violations =   0
+Checked 8/25 Partitions, Violations =   0
+Checked 9/25 Partitions, Violations =   0
+Checked 10/25 Partitions, Violations =  0
+Checked 11/25 Partitions, Violations =  0
+Checked 12/25 Partitions, Violations =  0
+Checked 13/25 Partitions, Violations =  0
+Checked 14/25 Partitions, Violations =  0
+Checked 15/25 Partitions, Violations =  0
+Checked 16/25 Partitions, Violations =  0
+Checked 17/25 Partitions, Violations =  0
+Checked 18/25 Partitions, Violations =  0
+Checked 19/25 Partitions, Violations =  0
+Checked 20/25 Partitions, Violations =  0
+Checked 21/25 Partitions, Violations =  0
+Checked 22/25 Partitions, Violations =  0
+Checked 23/25 Partitions, Violations =  0
+Checked 24/25 Partitions, Violations =  0
+Checked 25/25 Partitions, Violations =  0
+[DBOUT: Write Incremental File] Elapsed real time: 0:00:00 
+[DBOUT: Write Incremental File] Elapsed cpu  time: sys=0:00:00 usr=0:00:00 total=0:00:00
+[DBOUT: Write Incremental File] Stage (MB): Used    0  Alloctr    0  Proc    0 
+[DBOUT: Write Incremental File] Total (MB): Used  166  Alloctr  169  Proc 10068 
+[DR] Elapsed real time: 0:00:06 
+[DR] Elapsed cpu  time: sys=0:00:02 usr=0:00:15 total=0:00:18
+[DR] Stage (MB): Used  147  Alloctr  149  Proc  868 
+[DR] Total (MB): Used  150  Alloctr  153  Proc 10068 
+
+Route Guidance Fixing finished with 0 open nets, of which 0 are frozen
+
+Route Guidance Fixing finished with 0 violations
+
+DRC-SUMMARY:
+        @@@@@@@ TOTAL VIOLATIONS =      0
+
+
+
+Total Wire Length =                    134211 micron
+Total Number of Contacts =             130163
+Total Number of Wires =                137856
+Total Number of PtConns =              12553
+Total Number of Routed Wires =       136901
+Total Routed Wire Length =           132946 micron
+Total Number of Routed Contacts =       129837
+        Layer                   M1 :        148 micron
+        Layer                   M2 :      33065 micron
+        Layer                   M3 :      39017 micron
+        Layer                   M4 :      23747 micron
+        Layer                   M5 :      18485 micron
+        Layer                   M6 :      10923 micron
+        Layer                   M7 :       4617 micron
+        Layer                   M8 :       2523 micron
+        Layer                   M9 :        421 micron
+        Layer                 MRDL :          0 micron
+        Via             VIA89_Base :         28
+        Via         VIA89_Base_1x2 :          2
+        Via                VIA78SQ :        216
+        Via            VIA78SQ_1x2 :          8
+        Via              VIA67SQ_C :        690
+        Via          VIA67SQ_C_1x2 :          1
+        Via          VIA67SQ_C_2x1 :         15
+        Via               VIA5SQ_C :       2087
+        Via           VIA5SQ_C_1x2 :         44
+        Via             VIA4BAR1_C :          1
+        Via                 VIA4SQ :       5703
+        Via             VIA4SQ_2x1 :          4
+        Via         VIA34SQ_C(rot) :         15
+        Via           VIA34SQ(rot) :         20
+        Via       VIA3_34SQ_C(rot) :         51
+        Via              VIA3_34SQ :        119
+        Via         VIA3_34SQ(rot) :      14903
+        Via     VIA34SQ_C(rot)_1x2 :       1613
+        Via   VIA34BAR2_C(rot)_1x2 :         10
+        Via              VIA2_Base :      24497
+        Via              VIA23SQ_C :        692
+        Via            VIA2_33SQ_C :          1
+        Via          VIA23_3BAR1_C :          1
+        Via          VIA2_Base_1x2 :      35946
+        Via          VIA2_Base_2x1 :          2
+        Via         VIA12SQ_C(rot) :        148
+        Via              VIA1_Base :      30711
+        Via          VIA1_Base_1x2 :       3722
+        Via          VIA1_Base_2x1 :       8587
+
+ 
+Redundant via conversion report:
+--------------------------------
+
+  Total optimized via conversion rate = 38.42% (50005 / 130163 vias)
+ 
+    Layer VIA1       = 28.53% (12322  / 43183   vias)
+        Weight 1     = 28.53% (12322   vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 71.47% (30861   vias)
+    Layer VIA2       = 58.80% (35963  / 61158   vias)
+        Weight 1     = 58.80% (35963   vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 41.20% (25195   vias)
+    Layer VIA3       =  9.69% (1623   / 16750   vias)
+        Weight 1     =  9.69% (1623    vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 90.31% (15127   vias)
+    Layer VIA4       =  0.07% (4      / 5745    vias)
+        Weight 1     =  0.07% (4       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 99.93% (5741    vias)
+    Layer VIA5       =  2.51% (59     / 2348    vias)
+        Weight 1     =  2.51% (59      vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 97.49% (2289    vias)
+    Layer VIA6       =  3.31% (24     / 725     vias)
+        Weight 1     =  3.31% (24      vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 96.69% (701     vias)
+    Layer VIA7       =  3.57% (8      / 224     vias)
+        Weight 1     =  3.57% (8       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 96.43% (216     vias)
+    Layer VIA8       =  6.67% (2      / 30      vias)
+        Weight 1     =  6.67% (2       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 93.33% (28      vias)
+ 
+  Total double via conversion rate    = 38.42% (50005 / 130163 vias)
+ 
+    Layer VIA1       = 28.53% (12322  / 43183   vias)
+    Layer VIA2       = 58.80% (35963  / 61158   vias)
+    Layer VIA3       =  9.69% (1623   / 16750   vias)
+    Layer VIA4       =  0.07% (4      / 5745    vias)
+    Layer VIA5       =  2.51% (59     / 2348    vias)
+    Layer VIA6       =  3.31% (24     / 725     vias)
+    Layer VIA7       =  3.57% (8      / 224     vias)
+    Layer VIA8       =  6.67% (2      / 30      vias)
+ 
+  The optimized via conversion rate based on total routed via count = 38.42% (50005 / 130163 vias)
+ 
+    Layer VIA1       = 28.53% (12322  / 43183   vias)
+        Weight 1     = 28.53% (12322   vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 71.47% (30861   vias)
+    Layer VIA2       = 58.80% (35963  / 61158   vias)
+        Weight 1     = 58.80% (35963   vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 41.20% (25195   vias)
+    Layer VIA3       =  9.69% (1623   / 16750   vias)
+        Weight 1     =  9.69% (1623    vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 90.31% (15127   vias)
+    Layer VIA4       =  0.07% (4      / 5745    vias)
+        Weight 1     =  0.07% (4       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 99.93% (5741    vias)
+    Layer VIA5       =  2.51% (59     / 2348    vias)
+        Weight 1     =  2.51% (59      vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 97.49% (2289    vias)
+    Layer VIA6       =  3.31% (24     / 725     vias)
+        Weight 1     =  3.31% (24      vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 96.69% (701     vias)
+    Layer VIA7       =  3.57% (8      / 224     vias)
+        Weight 1     =  3.57% (8       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 96.43% (216     vias)
+    Layer VIA8       =  6.67% (2      / 30      vias)
+        Weight 1     =  6.67% (2       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 93.33% (28      vias)
+ 
+
+Total number of nets = 13166
+0 open nets, of which 0 are frozen
+Total number of excluded ports = 0 ports of 0 unplaced cells connected to 0 nets
+                                 0 ports without pins of 0 cells connected to 0 nets
+                                 0 ports of 0 cover cells connected to 0 non-pg nets
+Total number of DRCs = 0
+Total number of antenna violations = antenna checking not active
+Information: Routes in non-preferred voltage areas = 0 (ZRT-559)
+
+Updating the database ...
+Information: Saving 'riscv_core.dlib:riscv_core/signoff.design' to 'riscv_core.dlib:riscv_core_ADR.design'. (DES-028)
+RDE-checksum: 383186d3
+Opening block 'riscv_core.dlib:riscv_core_ADR.design' in edit mode
+Information: Automatically running signoff_check_drc as part of ADR flow.
+Using libraries: riscv_core.dlib saed14lvt_base_frame_timing saed14rvt_base_frame_timing saed14hvt_base_frame_timing
+Visiting block riscv_core.dlib:riscv_core_ADR.design
+Information: Cellem using advance interpolation.
+Design 'riscv_core' was successfully linked.
+User-specified unselected rule patterns: { USER_GUIDE.M* USER_GUIDE.VIA* *:*Density*of* M*.DN.*:* VIA*.DN.*:* CSR*:* DM*:* Rule*DEN*:* Rule:.*USER_GUIDE.M* Rule:.*USER_GUIDE.VIA* Rule:.*:*Density*of* Rule:.*M*.DN.*:* Rule:.*VIA*.DN.*:* Rule:.*CSR*:* Rule:.*DM*:* *M*.R.14* *USER_GUIDE* *:WARNING* *:LOGO* *NW.[A-Z].* *NWRSTI.[A-Z].* *NWROD.[A-Z].* *OD[0-1].[A-Z].* *OD.[A-Z].* *Gate *PP.[A-Z].* *NP.[A-Z].* *SSD.[A-Z].* *DIODMY.[A-Z].* *RH_OD.[A-Z].* *RH_TN.[A-Z].* *HV_N.[A-Z].* *SR.[A-Z].* *:*Density*of* *ESD.[A-Z].* *SRAM.[A-Z].[0-9]* *ROM.[A-Z].[0-9]* *LUP.[A-Z][0-9].* *[0-9][A-Z]:HIADMY *[A-Z][0-9]:BJTDMY* *[A-Z][0-9]:BJTHDMY* *AN.R.[0-9]* *DOD.[A-Z].[0-9]* *DIODMY.[A-Z].[0-9]* *DTCD.[A-Z].[0-9]* *GRMx.C.2_M1* *GRMx.C.2_M2* *GRMx.C.2_M3* *GRMx.C.2_M4* *GRV1.C.6* *GRVx.C.6_V2* *GRVx.C.6_V3* *M1.G0.1__M1.G0.2__M1.G0.3* *M2.G0.1__M2.G0.2__M2.G0.3* *M3.G0.1__M3.G0.2__M3.G0.3* *M4.G0.1__M4.G0.2__M4.G0.3* *M5.G0.1__M5.G0.2__M5.G0.3* *M6.G0.1__M6.G0.2__M6.G0.3*}
+Warning: Attribute 'technology_node' does not exist on design riscv_core (ATTR-3)
+Warning: Attribute 'technology_node' does not exist on design riscv_core (ATTR-3)
+Name /project/advvlsi/users/yh3/ws/project_2026/work/signoff_fix_drc_run/riscv_core_ADR/_icv.started End /project/advvlsi/users/yh3/ws/project_2026/work/signoff_fix_drc_run/riscv_core_ADR/_icv.finished Value1 0 Value2 0
+
+Start to run ICV ...
+Running new impl for popen..
+............................................. 1% complete [0:00:02]
+............................................. 2% complete [0:00:08]
+............................................. 4% complete [0:00:11]
+............................................. 5% complete [0:00:11]
+............................................. 10% complete [0:00:11]
+............................................. 15% complete [0:00:12]
+............................................. 15% complete [0:00:12]
+............................................. 20% complete [0:00:13]
+............................................. 25% complete [0:00:13]
+............................................. 30% complete [0:00:14]
+............................................. 35% complete [0:00:14]
+............................................. 40% complete [0:00:14]
+............................................. 45% complete [0:00:15]
+............................................. 45% complete [0:00:15]
+............................................. 50% complete [0:00:16]
+............................................. 55% complete [0:00:16]
+............................................. 60% complete [0:00:17]
+............................................. 65% complete [0:00:17]
+............................................. 70% complete [0:00:17]
+............................................. 75% complete [0:00:17]
+............................................. 75% complete [0:00:17]
+............................................. 80% complete [0:00:18]
+............................................. 90% complete [0:00:18]
+............................................. 95% complete [0:00:18]
+....................Updated tech file has been written at: /project/advvlsi/users/yh3/ws/project_2026/work/signoff_fix_drc_run/riscv_core_ADR/tech.tf
+
+ICV is done!
+For more details see /project/advvlsi/users/yh3/ws/project_2026/work/signoff_fix_drc_run/riscv_core_ADR/signoff_check_drc.log
+Overall engine Time=0:00:25 Highest command Mem=0.162 GB
+Errdm data is attached to the main block successfully
+
+-------------------------------------------------------------------------------
+Rule: M9.S.3.1: Minimum spacing if metal width of one of lines > 0.08 and their parallel run length > 0.08 from metal widght >= 0.06 must be 0.06                     2 errors
+Rule: VIA0.E.1: Minimum VIA0 enclosure by M1 must be 0.002                    1 error
+-------------------------------------------------------------------------------
+
+signoff_check_drc is finished.
+
+Create error data signoff_check_drc.err ...
+
+Info: Populated ICV Heat Map Data on current block.
+Closing block 'riscv_core.dlib:riscv_core_ADR.design'
+NEX: clear MLVR predict values 
+Warning: The design name, riscv_core_ADR, in the error data is now set to, riscv_core, the current design name.
+Warning: Cell contains tie connections which are not connected to real PG. (ZRT-511)
+Cell Min-Routing-Layer = M2
+Cell Max-Routing-Layer = MRDL
+Turn off antenna since no rule is specified
+Information: Option route.detail.force_end_on_preferred_grid will be ignored since none of the layers have preferred grid. (ZRT-703)
+Warning: Cannot find a default contact code for layer VIA0. (ZRT-022)
+Warning: Port VDD of cell riscv_core is unplaced.  This may impact routing result. (ZRT-740)
+Warning: Port VSS of cell riscv_core is unplaced.  This may impact routing result. (ZRT-740)
+Warning: Ignore 2 top cell ports with no pins. (ZRT-027)
+Info: number of net_type_blockage: 0 
+Information: Via ladder engine would be activated for pattern must join connection in certain commands. Please refer to man-page for the command list. (ZRT-619)
+Via on layer (VIA1) needs more than one tracks
+Warning: Layer M1 default pitch 0.074 may be too small to handle up/down via. Note, that minimum requirements are "wire/via-down 0.074" & "wire/via-up 0.078". (ZRT-026)
+Via on layer (VIA1) needs more than one tracks
+Warning: Layer M2 default pitch 0.060 may be too small to handle up/down via. Note, that minimum requirements are "wire/via-down 0.078" & "wire/via-up 0.060". (ZRT-026)
+Via on layer (VIA4) needs more than one tracks
+Warning: Layer M5 default pitch 0.100 may be too small to handle up/down via. Note, that minimum requirements are "wire/via-down 0.120" & "wire/via-up 0.100". (ZRT-026)
+Via on layer (VIA7) needs more than one tracks
+Warning: Layer M7 default pitch 0.100 may be too small to handle up/down via. Note, that minimum requirements are "wire/via-down 0.100" & "wire/via-up 0.102". (ZRT-026)
+Via on layer (VIA7) needs more than one tracks
+Warning: Layer M8 default pitch 0.100 may be too small to handle up/down via. Note, that minimum requirements are "wire/via-down 0.102" & "wire/via-up 0.100". (ZRT-026)
+Via on layer (VIARDL) needs more than one tracks
+Warning: Layer M9 default pitch 0.100 may be too small to handle up/down via. Note, that minimum requirements are "wire/via-down 0.100" & "wire/via-up 1.570". (ZRT-026)
+Via on layer (VIARDL) needs more than one tracks
+Warning: Layer MRDL default pitch 4.000 may be too small to handle up/down via. Note, that minimum requirements are "wire/via-down 4.500" & "wire/via-up 4.000". (ZRT-026)
+Information: When applicable Min-max layer allow_pin_connection mode will allow paths of length 0.90 outside the layer range. (ZRT-707)
+Information: When applicable Min-max layer allow_pin_connection mode will allow paths of length 0.90 outside the layer range on clock nets. (ZRT-718)
+Information: When applicable layer based tapering will taper up to 0.00 in distance from the pin. (ZRT-706)
+Set do DRC check for soft spacing DRC!
+Printing options for 'route.common.*'
+common.eco_route_fix_existing_drc                       :        true                
+common.via_on_grid_by_layer_name                        :        {VIA1 false} {VIA2 true}
+common.wire_on_grid_by_layer_name                       :        {M1 true} {M2 true} {M3 true}
+
+Printing options for 'route.detail.*'
+detail.antenna                                          :        true                
+detail.eco_route_use_soft_spacing_for_timing_optimization:       true                
+detail.timing_driven                                    :        true                
+
+Printing options for 'route.auto_via_ladder.*'
+
+[Dr init] Elapsed real time: 0:00:00 
+[Dr init] Elapsed cpu  time: sys=0:00:00 usr=0:00:03 total=0:00:03
+[Dr init] Stage (MB): Used  100  Alloctr  101  Proc   -2 
+[Dr init] Total (MB): Used  104  Alloctr  105  Proc 10072 
+Opened the error data successfully.
+Loaded the guidance data successfully.
+
+Begin Route Guidance Fixing ...
+
+Routed  1/6 Partitions, Violations =    4
+Routed  2/6 Partitions, Violations =    4
+Routed  3/6 Partitions, Violations =    7
+Routed  4/6 Partitions, Violations =    10
+Routed  5/6 Partitions, Violations =    13
+Routed  6/6 Partitions, Violations =    15
+
+FIXING-ROUTE-GUIDANCE-SUMMARY:
+Fixed 0 out of total 2 route guidances.
+
+FixRouteGuidance finished with 15 violations
+
+
+DRC-SUMMARY:
+        @@@@@@@ TOTAL VIOLATIONS =      15
+        Route guidance : 15
+
+
+Total Wire Length =                    134212 micron
+Total Number of Contacts =             130163
+Total Number of Wires =                137831
+Total Number of PtConns =              12556
+Total Number of Routed Wires =       136878
+Total Routed Wire Length =           132947 micron
+Total Number of Routed Contacts =       129837
+        Layer                   M1 :        148 micron
+        Layer                   M2 :      33065 micron
+        Layer                   M3 :      39018 micron
+        Layer                   M4 :      23748 micron
+        Layer                   M5 :      18485 micron
+        Layer                   M6 :      10923 micron
+        Layer                   M7 :       4617 micron
+        Layer                   M8 :       2523 micron
+        Layer                   M9 :        421 micron
+        Layer                 MRDL :          0 micron
+        Via             VIA89_Base :         28
+        Via         VIA89_Base_1x2 :          2
+        Via                VIA78SQ :        216
+        Via            VIA78SQ_1x2 :          8
+        Via              VIA67SQ_C :        690
+        Via          VIA67SQ_C_1x2 :          1
+        Via          VIA67SQ_C_2x1 :         15
+        Via               VIA5SQ_C :       2087
+        Via           VIA5SQ_C_1x2 :         44
+        Via             VIA4BAR1_C :          1
+        Via                 VIA4SQ :       5703
+        Via             VIA4SQ_2x1 :          4
+        Via         VIA34SQ_C(rot) :         15
+        Via           VIA34SQ(rot) :         20
+        Via       VIA3_34SQ_C(rot) :         51
+        Via              VIA3_34SQ :        119
+        Via         VIA3_34SQ(rot) :      14903
+        Via     VIA34SQ_C(rot)_1x2 :       1613
+        Via   VIA34BAR2_C(rot)_1x2 :         10
+        Via              VIA2_Base :      24497
+        Via              VIA23SQ_C :        692
+        Via            VIA2_33SQ_C :          1
+        Via          VIA23_3BAR1_C :          1
+        Via          VIA2_Base_1x2 :      35946
+        Via          VIA2_Base_2x1 :          2
+        Via         VIA12SQ_C(rot) :        148
+        Via              VIA1_Base :      30711
+        Via          VIA1_Base_1x2 :       3722
+        Via          VIA1_Base_2x1 :       8587
+
+ 
+Redundant via conversion report:
+--------------------------------
+
+  Total optimized via conversion rate = 38.42% (50005 / 130163 vias)
+ 
+    Layer VIA1       = 28.53% (12322  / 43183   vias)
+        Weight 1     = 28.53% (12322   vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 71.47% (30861   vias)
+    Layer VIA2       = 58.80% (35963  / 61158   vias)
+        Weight 1     = 58.80% (35963   vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 41.20% (25195   vias)
+    Layer VIA3       =  9.69% (1623   / 16750   vias)
+        Weight 1     =  9.69% (1623    vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 90.31% (15127   vias)
+    Layer VIA4       =  0.07% (4      / 5745    vias)
+        Weight 1     =  0.07% (4       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 99.93% (5741    vias)
+    Layer VIA5       =  2.51% (59     / 2348    vias)
+        Weight 1     =  2.51% (59      vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 97.49% (2289    vias)
+    Layer VIA6       =  3.31% (24     / 725     vias)
+        Weight 1     =  3.31% (24      vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 96.69% (701     vias)
+    Layer VIA7       =  3.57% (8      / 224     vias)
+        Weight 1     =  3.57% (8       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 96.43% (216     vias)
+    Layer VIA8       =  6.67% (2      / 30      vias)
+        Weight 1     =  6.67% (2       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 93.33% (28      vias)
+ 
+  Total double via conversion rate    = 38.42% (50005 / 130163 vias)
+ 
+    Layer VIA1       = 28.53% (12322  / 43183   vias)
+    Layer VIA2       = 58.80% (35963  / 61158   vias)
+    Layer VIA3       =  9.69% (1623   / 16750   vias)
+    Layer VIA4       =  0.07% (4      / 5745    vias)
+    Layer VIA5       =  2.51% (59     / 2348    vias)
+    Layer VIA6       =  3.31% (24     / 725     vias)
+    Layer VIA7       =  3.57% (8      / 224     vias)
+    Layer VIA8       =  6.67% (2      / 30      vias)
+ 
+  The optimized via conversion rate based on total routed via count = 38.42% (50005 / 130163 vias)
+ 
+    Layer VIA1       = 28.53% (12322  / 43183   vias)
+        Weight 1     = 28.53% (12322   vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 71.47% (30861   vias)
+    Layer VIA2       = 58.80% (35963  / 61158   vias)
+        Weight 1     = 58.80% (35963   vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 41.20% (25195   vias)
+    Layer VIA3       =  9.69% (1623   / 16750   vias)
+        Weight 1     =  9.69% (1623    vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 90.31% (15127   vias)
+    Layer VIA4       =  0.07% (4      / 5745    vias)
+        Weight 1     =  0.07% (4       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 99.93% (5741    vias)
+    Layer VIA5       =  2.51% (59     / 2348    vias)
+        Weight 1     =  2.51% (59      vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 97.49% (2289    vias)
+    Layer VIA6       =  3.31% (24     / 725     vias)
+        Weight 1     =  3.31% (24      vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 96.69% (701     vias)
+    Layer VIA7       =  3.57% (8      / 224     vias)
+        Weight 1     =  3.57% (8       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 96.43% (216     vias)
+    Layer VIA8       =  6.67% (2      / 30      vias)
+        Weight 1     =  6.67% (2       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 93.33% (28      vias)
+ 
+
+[FixRouteGuidance] Elapsed real time: 0:00:01 
+[FixRouteGuidance] Elapsed cpu  time: sys=0:00:00 usr=0:00:04 total=0:00:05
+[FixRouteGuidance] Stage (MB): Used  163  Alloctr  164  Proc   -2 
+[FixRouteGuidance] Total (MB): Used  166  Alloctr  168  Proc 10072 
+
+Begin DRC fixing ...
+
+[Dr init] Elapsed real time: 0:00:01 
+[Dr init] Elapsed cpu  time: sys=0:00:00 usr=0:00:04 total=0:00:05
+[Dr init] Stage (MB): Used  163  Alloctr  164  Proc   -2 
+[Dr init] Total (MB): Used  166  Alloctr  168  Proc 10072 
+Total number of nets = 13166, of which 0 are not extracted
+Total number of open nets = 0, of which 0 are frozen
+Information: Using 8 threads for routing. (ZRT-444)
+Finish DR since reached 0 DRC
+
+Checked 1/25 Partitions, Violations =   0
+Checked 2/25 Partitions, Violations =   0
+Checked 3/25 Partitions, Violations =   0
+Checked 4/25 Partitions, Violations =   0
+Checked 5/25 Partitions, Violations =   0
+Checked 6/25 Partitions, Violations =   0
+Checked 7/25 Partitions, Violations =   0
+Checked 8/25 Partitions, Violations =   0
+Checked 9/25 Partitions, Violations =   0
+Checked 10/25 Partitions, Violations =  0
+Checked 11/25 Partitions, Violations =  0
+Checked 12/25 Partitions, Violations =  0
+Checked 13/25 Partitions, Violations =  0
+Checked 14/25 Partitions, Violations =  0
+Checked 15/25 Partitions, Violations =  0
+Checked 16/25 Partitions, Violations =  0
+Checked 17/25 Partitions, Violations =  0
+Checked 18/25 Partitions, Violations =  0
+Checked 19/25 Partitions, Violations =  0
+Checked 20/25 Partitions, Violations =  0
+Checked 21/25 Partitions, Violations =  0
+Checked 22/25 Partitions, Violations =  0
+Checked 23/25 Partitions, Violations =  0
+Checked 24/25 Partitions, Violations =  0
+Checked 25/25 Partitions, Violations =  0
+[DBOUT: Write Incremental File] Elapsed real time: 0:00:00 
+[DBOUT: Write Incremental File] Elapsed cpu  time: sys=0:00:00 usr=0:00:00 total=0:00:00
+[DBOUT: Write Incremental File] Stage (MB): Used    0  Alloctr    0  Proc    0 
+[DBOUT: Write Incremental File] Total (MB): Used  166  Alloctr  169  Proc 10075 
+[DR] Elapsed real time: 0:00:04 
+[DR] Elapsed cpu  time: sys=0:00:00 usr=0:00:10 total=0:00:11
+[DR] Stage (MB): Used  147  Alloctr  149  Proc    1 
+[DR] Total (MB): Used  150  Alloctr  152  Proc 10075 
+
+Route Guidance Fixing finished with 0 open nets, of which 0 are frozen
+
+Route Guidance Fixing finished with 0 violations
+
+DRC-SUMMARY:
+        @@@@@@@ TOTAL VIOLATIONS =      0
+
+
+
+Total Wire Length =                    134212 micron
+Total Number of Contacts =             130163
+Total Number of Wires =                137851
+Total Number of PtConns =              12556
+Total Number of Routed Wires =       136898
+Total Routed Wire Length =           132947 micron
+Total Number of Routed Contacts =       129837
+        Layer                   M1 :        148 micron
+        Layer                   M2 :      33065 micron
+        Layer                   M3 :      39018 micron
+        Layer                   M4 :      23748 micron
+        Layer                   M5 :      18485 micron
+        Layer                   M6 :      10923 micron
+        Layer                   M7 :       4617 micron
+        Layer                   M8 :       2523 micron
+        Layer                   M9 :        421 micron
+        Layer                 MRDL :          0 micron
+        Via             VIA89_Base :         28
+        Via         VIA89_Base_1x2 :          2
+        Via                VIA78SQ :        216
+        Via            VIA78SQ_1x2 :          8
+        Via              VIA67SQ_C :        690
+        Via          VIA67SQ_C_1x2 :          1
+        Via          VIA67SQ_C_2x1 :         15
+        Via               VIA5SQ_C :       2087
+        Via           VIA5SQ_C_1x2 :         44
+        Via             VIA4BAR1_C :          1
+        Via                 VIA4SQ :       5703
+        Via             VIA4SQ_2x1 :          4
+        Via         VIA34SQ_C(rot) :         15
+        Via           VIA34SQ(rot) :         20
+        Via       VIA3_34SQ_C(rot) :         51
+        Via              VIA3_34SQ :        119
+        Via         VIA3_34SQ(rot) :      14903
+        Via     VIA34SQ_C(rot)_1x2 :       1613
+        Via   VIA34BAR2_C(rot)_1x2 :         10
+        Via              VIA2_Base :      24497
+        Via              VIA23SQ_C :        692
+        Via            VIA2_33SQ_C :          1
+        Via          VIA23_3BAR1_C :          1
+        Via          VIA2_Base_1x2 :      35946
+        Via          VIA2_Base_2x1 :          2
+        Via         VIA12SQ_C(rot) :        148
+        Via              VIA1_Base :      30711
+        Via          VIA1_Base_1x2 :       3722
+        Via          VIA1_Base_2x1 :       8587
+
+ 
+Redundant via conversion report:
+--------------------------------
+
+  Total optimized via conversion rate = 38.42% (50005 / 130163 vias)
+ 
+    Layer VIA1       = 28.53% (12322  / 43183   vias)
+        Weight 1     = 28.53% (12322   vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 71.47% (30861   vias)
+    Layer VIA2       = 58.80% (35963  / 61158   vias)
+        Weight 1     = 58.80% (35963   vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 41.20% (25195   vias)
+    Layer VIA3       =  9.69% (1623   / 16750   vias)
+        Weight 1     =  9.69% (1623    vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 90.31% (15127   vias)
+    Layer VIA4       =  0.07% (4      / 5745    vias)
+        Weight 1     =  0.07% (4       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 99.93% (5741    vias)
+    Layer VIA5       =  2.51% (59     / 2348    vias)
+        Weight 1     =  2.51% (59      vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 97.49% (2289    vias)
+    Layer VIA6       =  3.31% (24     / 725     vias)
+        Weight 1     =  3.31% (24      vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 96.69% (701     vias)
+    Layer VIA7       =  3.57% (8      / 224     vias)
+        Weight 1     =  3.57% (8       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 96.43% (216     vias)
+    Layer VIA8       =  6.67% (2      / 30      vias)
+        Weight 1     =  6.67% (2       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 93.33% (28      vias)
+ 
+  Total double via conversion rate    = 38.42% (50005 / 130163 vias)
+ 
+    Layer VIA1       = 28.53% (12322  / 43183   vias)
+    Layer VIA2       = 58.80% (35963  / 61158   vias)
+    Layer VIA3       =  9.69% (1623   / 16750   vias)
+    Layer VIA4       =  0.07% (4      / 5745    vias)
+    Layer VIA5       =  2.51% (59     / 2348    vias)
+    Layer VIA6       =  3.31% (24     / 725     vias)
+    Layer VIA7       =  3.57% (8      / 224     vias)
+    Layer VIA8       =  6.67% (2      / 30      vias)
+ 
+  The optimized via conversion rate based on total routed via count = 38.42% (50005 / 130163 vias)
+ 
+    Layer VIA1       = 28.53% (12322  / 43183   vias)
+        Weight 1     = 28.53% (12322   vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 71.47% (30861   vias)
+    Layer VIA2       = 58.80% (35963  / 61158   vias)
+        Weight 1     = 58.80% (35963   vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 41.20% (25195   vias)
+    Layer VIA3       =  9.69% (1623   / 16750   vias)
+        Weight 1     =  9.69% (1623    vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 90.31% (15127   vias)
+    Layer VIA4       =  0.07% (4      / 5745    vias)
+        Weight 1     =  0.07% (4       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 99.93% (5741    vias)
+    Layer VIA5       =  2.51% (59     / 2348    vias)
+        Weight 1     =  2.51% (59      vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 97.49% (2289    vias)
+    Layer VIA6       =  3.31% (24     / 725     vias)
+        Weight 1     =  3.31% (24      vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 96.69% (701     vias)
+    Layer VIA7       =  3.57% (8      / 224     vias)
+        Weight 1     =  3.57% (8       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 96.43% (216     vias)
+    Layer VIA8       =  6.67% (2      / 30      vias)
+        Weight 1     =  6.67% (2       vias)
+        Un-optimized =  0.00% (0       vias)
+        Un-mapped    = 93.33% (28      vias)
+ 
+
+Total number of nets = 13166
+0 open nets, of which 0 are frozen
+Total number of excluded ports = 0 ports of 0 unplaced cells connected to 0 nets
+                                 0 ports without pins of 0 cells connected to 0 nets
+                                 0 ports of 0 cover cells connected to 0 non-pg nets
+Total number of DRCs = 0
+Total number of antenna violations = antenna checking not active
+Information: Routes in non-preferred voltage areas = 0 (ZRT-559)
+
+Updating the database ...
+Information: Removed design 'riscv_core.dlib:riscv_core_ADR.design' from memory and disk. (NDMUI-064)
+Information: Saving 'riscv_core.dlib:riscv_core/signoff.design' to 'riscv_core.dlib:riscv_core_ADR.design'. (DES-028)
+RDE-checksum: 383186d3
+Opening block 'riscv_core.dlib:riscv_core_ADR.design' in edit mode
+Information: Automatically running signoff_check_drc as part of ADR flow.
+Using libraries: riscv_core.dlib saed14lvt_base_frame_timing saed14rvt_base_frame_timing saed14hvt_base_frame_timing
+Visiting block riscv_core.dlib:riscv_core_ADR.design
+Information: Cellem using advance interpolation.
+Design 'riscv_core' was successfully linked.
+User-specified unselected rule patterns: { USER_GUIDE.M* USER_GUIDE.VIA* *:*Density*of* M*.DN.*:* VIA*.DN.*:* CSR*:* DM*:* Rule*DEN*:* Rule:.*USER_GUIDE.M* Rule:.*USER_GUIDE.VIA* Rule:.*:*Density*of* Rule:.*M*.DN.*:* Rule:.*VIA*.DN.*:* Rule:.*CSR*:* Rule:.*DM*:* *M*.R.14* *USER_GUIDE* *:WARNING* *:LOGO* *NW.[A-Z].* *NWRSTI.[A-Z].* *NWROD.[A-Z].* *OD[0-1].[A-Z].* *OD.[A-Z].* *Gate *PP.[A-Z].* *NP.[A-Z].* *SSD.[A-Z].* *DIODMY.[A-Z].* *RH_OD.[A-Z].* *RH_TN.[A-Z].* *HV_N.[A-Z].* *SR.[A-Z].* *:*Density*of* *ESD.[A-Z].* *SRAM.[A-Z].[0-9]* *ROM.[A-Z].[0-9]* *LUP.[A-Z][0-9].* *[0-9][A-Z]:HIADMY *[A-Z][0-9]:BJTDMY* *[A-Z][0-9]:BJTHDMY* *AN.R.[0-9]* *DOD.[A-Z].[0-9]* *DIODMY.[A-Z].[0-9]* *DTCD.[A-Z].[0-9]* *GRMx.C.2_M1* *GRMx.C.2_M2* *GRMx.C.2_M3* *GRMx.C.2_M4* *GRV1.C.6* *GRVx.C.6_V2* *GRVx.C.6_V3* *M1.G0.1__M1.G0.2__M1.G0.3* *M2.G0.1__M2.G0.2__M2.G0.3* *M3.G0.1__M3.G0.2__M3.G0.3* *M4.G0.1__M4.G0.2__M4.G0.3* *M5.G0.1__M5.G0.2__M5.G0.3* *M6.G0.1__M6.G0.2__M6.G0.3*}
+Warning: Attribute 'technology_node' does not exist on design riscv_core (ATTR-3)
+Warning: Attribute 'technology_node' does not exist on design riscv_core (ATTR-3)
+Name /project/advvlsi/users/yh3/ws/project_2026/work/signoff_fix_drc_run/riscv_core_ADR/_icv.started End /project/advvlsi/users/yh3/ws/project_2026/work/signoff_fix_drc_run/riscv_core_ADR/_icv.finished Value1 0 Value2 0
+
+Start to run ICV ...
+Running new impl for popen..
+............................................. 1% complete [0:00:01]
+............................................. 2% complete [0:00:08]
+............................................. 4% complete [0:00:10]
+............................................. 5% complete [0:00:10]
+............................................. 10% complete [0:00:11]
+............................................. 15% complete [0:00:12]
+............................................. 15% complete [0:00:12]
+............................................. 20% complete [0:00:12]
+............................................. 25% complete [0:00:13]
+............................................. 30% complete [0:00:13]
+............................................. 35% complete [0:00:13]
+............................................. 40% complete [0:00:14]
+............................................. 45% complete [0:00:15]
+............................................. 45% complete [0:00:15]
+............................................. 50% complete [0:00:15]
+............................................. 55% complete [0:00:15]
+............................................. 60% complete [0:00:16]
+............................................. 65% complete [0:00:16]
+............................................. 70% complete [0:00:16]
+............................................. 75% complete [0:00:16]
+............................................. 75% complete [0:00:16]
+............................................. 80% complete [0:00:17]
+............................................. 90% complete [0:00:17]
+............................................. 95% complete [0:00:17]
+..................Updated tech file has been written at: /project/advvlsi/users/yh3/ws/project_2026/work/signoff_fix_drc_run/riscv_core_ADR/tech.tf
+
+ICV is done!
+For more details see /project/advvlsi/users/yh3/ws/project_2026/work/signoff_fix_drc_run/riscv_core_ADR/signoff_check_drc.log
+Overall engine Time=0:00:21 Highest command Mem=0.162 GB
+Errdm data is attached to the main block successfully
+
+-------------------------------------------------------------------------------
+Rule: M9.S.3.1: Minimum spacing if metal width of one of lines > 0.08 and their parallel run length > 0.08 from metal widght >= 0.06 must be 0.06                     2 errors
+Rule: VIA0.E.1: Minimum VIA0 enclosure by M1 must be 0.002                    2 errors
+-------------------------------------------------------------------------------
+
+signoff_check_drc is finished.
+
+Create error data signoff_check_drc.err ...
+
+Info: Populated ICV Heat Map Data on current block.
+Closing block 'riscv_core.dlib:riscv_core_ADR.design'
+NEX: clear MLVR predict values 
+Warning: The design name, riscv_core_ADR, in the error data is now set to, riscv_core, the current design name.
+Information: Removed design 'riscv_core.dlib:riscv_core_ADR.design' from memory and disk. (NDMUI-064)
+signoff.check_drc.max_errors_per_rule 1000 signoff.check_drc.run_dir ./signoff_drc_run/ signoff.check_drc.user_defined_options {}
+save_block
+RDE-checksum: 383186d3
+Information: Saving block 'riscv_core.dlib:riscv_core/signoff.design'
+1
+signoff_check_drc                  ;# re-check after fixing
+Warning: Attribute 'technology_node' does not exist on design riscv_core (ATTR-3)
+Name /project/advvlsi/users/yh3/ws/project_2026/work/signoff_drc_run/_icv.started End /project/advvlsi/users/yh3/ws/project_2026/work/signoff_drc_run/_icv.finished Value1 0 Value2 0
+Num filler cells found = 22806, skipped = 0
+
+Start to run ICV ...
+Running new impl for popen..
+............................................. 1% complete [0:00:02]
+............................................. 2% complete [0:00:09]
+............................................. 5% complete [0:00:11]
+............................................. 5% complete [0:00:11]
+............................................. 10% complete [0:00:12]
+............................................. 15% complete [0:00:13]
+............................................. 20% complete [0:00:14]
+............................................. 20% complete [0:00:14]
+............................................. 25% complete [0:00:15]
+............................................. 30% complete [0:00:15]
+............................................. 35% complete [0:00:15]
+............................................. 40% complete [0:00:16]
+............................................. 45% complete [0:00:18]
+............................................. 45% complete [0:00:18]
+............................................. 50% complete [0:00:18]
+............................................. 55% complete [0:00:19]
+............................................. 60% complete [0:00:19]
+............................................. 65% complete [0:00:20]
+............................................. 70% complete [0:00:20]
+............................................. 75% complete [0:00:20]
+............................................. 75% complete [0:00:20]
+............................................. 85% complete [0:00:20]
+............................................. 90% complete [0:00:20]
+............................................. 95% complete [0:00:20]
+..............Updated tech file has been written at: /project/advvlsi/users/yh3/ws/project_2026/work/signoff_drc_run/tech.tf
+
+ICV is done!
+For more details see /project/advvlsi/users/yh3/ws/project_2026/work/signoff_drc_run/signoff_check_drc.log
+Overall engine Time=0:00:24 Highest command Mem=0.162 GB
+Errdm data is attached to the main block successfully
+
+-------------------------------------------------------------------------------
+Rule: M9.S.3.1: Minimum spacing if metal width of one of lines > 0.08 and their parallel run length > 0.08 from metal widght >= 0.06 must be 0.06                     2 errors
+Rule: VIA0.E.1: Minimum VIA0 enclosure by M1 must be 0.002                    2 errors
+-------------------------------------------------------------------------------
+
+signoff_check_drc is finished.
+
+Create error data signoff_check_drc.err ...
+
+Info: Populated ICV Heat Map Data on current block.
+RDE-checksum: 383186d3
+#### Signoff metal fill (density rules)
+set_app_options -name signoff.create_metal_fill.runset -value ${MFILL_RUNSET_FILE}
+signoff.create_metal_fill.runset /tech/synopsys/lib/SAED14_EDK/SAED14nm_EDK_TECH_DATA/icv_drc/saed14nm_1p9m_mfill_rules.rs
+signoff_report_metal_density -output ${REPORTS_PATH}/pre_metal_fill_density.rpt
+Found density rules for layer: M2
+Found density rules for layer: M3
+Found density rules for layer: M4
+Found density rules for layer: M5
+Found density rules for layer: M6
+Found density rules for layer: M7
+Found density rules for layer: M8
+Found density rules for layer: M9
+
+Start to run ICV ...
+Running new impl for popen..
+............................................. 1% complete [0:00:01]
+............................................. 2% complete [0:00:08]
+............................................. 5% complete [0:00:10]
+............................................. 5% complete [0:00:10]
+............................................. 10% complete [0:00:10]
+............................................. 15% complete [0:00:10]
+............................................. 20% complete [0:00:10]
+............................................. 20% complete [0:00:10]
+............................................. 25% complete [0:00:10]
+............................................. 30% complete [0:00:10]
+............................................. 35% complete [0:00:10]
+............................................. 40% complete [0:00:11]
+............................................. 45% complete [0:00:11]
+............................................. 50% complete [0:00:11]
+............................................. 55% complete [0:00:11]
+............................................. 60% complete [0:00:11]
+............................................. 65% complete [0:00:11]
+............................................. 70% complete [0:00:11]
+............................................. 75% complete [0:00:11]
+............................................. 75% complete [0:00:11]
+............................................. 85% complete [0:00:11]
+............................................. 85% complete [0:00:11]
+............................................. 90% complete [0:00:11]
+............................................. 95% complete [0:00:11]
+.........................................Updated tech file has been written at: /project/advvlsi/users/yh3/ws/project_2026/work/signoff_report_density_run/tech.tf
+
+WARNING: Could not open SAEDHVT14_AO21_1.design, using frame view instead.
+WARNING: Could not open SAEDHVT14_OAI22_0P5.design, using frame view instead.
+WARNING: Could not open SAEDHVT14_ND2_CDC_0P5.design, using frame view instead.
+WARNING: Could not open SAEDHVT14_FSDPQB_V2LP_1.design, using frame view instead.
+WARNING: Could not open SAEDHVT14_FSDPRBQ_V2LP_2.design, using frame view instead.
+
+
+Total icv runtime = Overall engine Time=0:00:19 Highest command Mem=0.205 GB 
+
+signoff_create_metal_fill -select_layers {M2 M3 M4 M5 M6}
+Running ICV version check
+ICV version check ok.
+Num filler cells found = 22806, skipped = 0
+Warning: Attribute 'technology_node' does not exist on design riscv_core (ATTR-3)
+Saving top-block before calling ICV
+RDE-checksum: 383186d3
+Information: Saving block 'riscv_core.dlib:riscv_core/signoff.design'
+
+Start to run ICV ...
+Running new impl for popen..
+............................................. 4% complete [0:00:01]
+............................................. 5% complete [0:00:08]
+............................................. 10% complete [0:00:11]
+............................................. 20% complete [0:00:11]
+............................................. 25% complete [0:00:11]
+............................................. 35% complete [0:00:13]
+............................................. 45% complete [0:00:14]
+............................................. 50% complete [0:00:14]
+............................................. 55% complete [0:00:14]
+............................................. 65% complete [0:00:14]
+............................................. 70% complete [0:00:15]
+............................................. 70% complete [0:00:15]
+............................................. 75% complete [0:00:15]
+............................................. 75% complete [0:00:15]
+............................................. 80% complete [0:00:15]
+............................................. 85% complete [0:00:16]
+............................................. 95% complete [0:00:16]
+............................Updated tech file has been written at: /project/advvlsi/users/yh3/ws/project_2026/work/signoff_fill_run/icv_run_1/tech.tf
+
+ICV is done!
+Run status:
+Fills created successfully. For more details, see /project/advvlsi/users/yh3/ws/project_2026/work/signoff_fill_run/icv_run_1/signoff_create_metal_fill.log
+Overall engine Time=0:00:26 Highest command Mem=0.509 GB
+RDE-checksum: 383186d3
+1
+signoff_report_metal_density -output ${REPORTS_PATH}/post_metal_fill_density.rpt
+Found density rules for layer: M2
+Found density rules for layer: M3
+Found density rules for layer: M4
+Found density rules for layer: M5
+Found density rules for layer: M6
+Found density rules for layer: M7
+Found density rules for layer: M8
+Found density rules for layer: M9
+
+Start to run ICV ...
+Running new impl for popen..
+............................................. 1% complete [0:00:02]
+............................................. 2% complete [0:00:11]
+............................................. 5% complete [0:00:14]
+............................................. 5% complete [0:00:14]
+............................................. 10% complete [0:00:14]
+............................................. 10% complete [0:00:14]
+............................................. 15% complete [0:00:14]
+............................................. 20% complete [0:00:14]
+............................................. 25% complete [0:00:14]
+............................................. 25% complete [0:00:14]
+............................................. 30% complete [0:00:14]
+............................................. 35% complete [0:00:15]
+............................................. 40% complete [0:00:16]
+............................................. 45% complete [0:00:16]
+............................................. 50% complete [0:00:16]
+............................................. 55% complete [0:00:16]
+............................................. 60% complete [0:00:16]
+............................................. 60% complete [0:00:16]
+............................................. 65% complete [0:00:16]
+............................................. 70% complete [0:00:16]
+............................................. 70% complete [0:00:16]
+............................................. 75% complete [0:00:17]
+............................................. 80% complete [0:00:17]
+............................................. 80% complete [0:00:17]
+............................................. 85% complete [0:00:17]
+............................................. 90% complete [0:00:18]
+............................................. 90% complete [0:00:18]
+............................................. 95% complete [0:00:18]
+.............................Updated tech file has been written at: /project/advvlsi/users/yh3/ws/project_2026/work/signoff_report_density_run/tech.tf
+
+WARNING: Could not open SAEDHVT14_AO21_1.design, using frame view instead.
+WARNING: Could not open SAEDHVT14_OAI22_0P5.design, using frame view instead.
+WARNING: Could not open SAEDHVT14_ND2_CDC_0P5.design, using frame view instead.
+WARNING: Could not open SAEDHVT14_FSDPQB_V2LP_1.design, using frame view instead.
+WARNING: Could not open SAEDHVT14_FSDPRBQ_V2LP_2.design, using frame view instead.
+
+
+Total icv runtime = Overall engine Time=0:00:26 Highest command Mem=0.236 GB 
+
+#### Analyze the final design + deliverables
+check_legality
+
+************************
+
+running check_legality
+
+Warning: Routing direction of metal layer PO is neither "horizontal" nor "vertical".  PDC checks will not be performed on this layer. (PDC-003)
+PDC app_options settings =========
+        place.legalize.enable_prerouted_net_check: 1
+        place.legalize.num_tracks_for_access_check: 1
+        place.legalize.use_eol_spacing_for_access_check: 0
+        place.legalize.allow_touch_track_for_access_check: 1
+        place.legalize.reduce_conservatism_in_eol_check: 0
+        place.legalize.preroute_shape_merge_distance: 0.0
+        place.legalize.enable_non_preferred_direction_span_check: 0
+
+Layer M1: cached 0 shapes out of 3980 total shapes.
+Layer M2: cached 4498 shapes out of 86549 total shapes.
+Layer M3: cached 4498 shapes out of 50434 total shapes.
+Cached 13494 vias out of 149671 total vias.
+
+check_legality for block design riscv_core ... 
+Information: Initializing classic cellmap without advanced rules enabled and without PDC enabled
+Information: The following app options are used in cellmap
+        place.legalize.enable_color_aware_placement : false
+        place.legalize.use_nll_query_cm : false
+        place.legalize.enable_advanced_legalizer : false
+        place.legalize.enable_prerouted_net_check : true
+        place.legalize.enable_advanced_prerouted_net_check : false
+        place.legalize.always_continue : true
+        place.legalize.limit_legality_checks : false
+        place.common.pnet_aware_density : 1.0000
+        place.common.pnet_aware_min_width : 0.0000
+        place.common.pnet_aware_layers : {}
+        place.common.use_placement_model : false
+        place.common.enable_advanced_placement_model : true
+        cts.placement.cell_spacing_rule_style : maximum
+Total 0.9043 seconds to build cellmap data
+Information: Creating classic rule checker.
+Warning: Routing direction of metal layer PO is neither "horizontal" nor "vertical".  PDC checks will not be performed on this layer. (PDC-003)
+=====> Processed 198 ref cells (72 fillers) from library
+
+
+****************************************
+  Report : Fillers
+  Site   : unit
+****************************************
+
+Filler widths available for different combinations of VT, OD and TPO:
+----------------------------------------------------------------------
+     VT1      VT2      OD1      OD2      TPO   WIDTHS
+                    height   height            sites
+----------------------------------------------------------------------
+  LVTIMP   LVTIMP     none     none     none   1 4 5 7 9 10 14 17 18 34 66
+  RVTIMP   RVTIMP     none     none     none   1 4 5 7 9 10 14 17 18 34 66
+  HVTIMP   HVTIMP     none     none     none   1 4 5 7 9 10 14 17 18 34 66
+----------------------------------------------------------------------
+Smallest non-OD filler width is 1 sites.
+----------------------------------------------------------------------
+
+Checking legality
+Checking cell legality:
+0%....10%....20%....30%....40%....50%....60%....70%....80%....90%....100%
+Sorting rows.
+Checking spacing rule legality.
+0%....10%....20%....30%....40%....50%....60%....70%....80%....90%....100%
+Checking packing rule legality.
+0%....10%....20%....30%....40%....50%....60%....70%....80%....90%....100%
+Checking layer rule legality.
+0%....10%....20%....30%....40%....50%....60%....70%....80%....90%....100%
+
+****************************************
+  Report : Legality
+****************************************
+
+VIOLATIONS BY CATEGORY:
+   MOVABLE  APP-FIXED USER-FIXED  DESCRIPTION
+         0          0          0  Two objects overlap.
+         0          0          0  A cell violates a pnet.
+         0          0          0  A cell is illegal at a site.
+         0          0          0  A cell is not aligned with a site.
+         0          0          0  A cell has an illegal orientation.
+         0          0          0  A cell spacing rule is violated.
+         0          0          0  A layer rule is violated.
+         0          0          0  A cell is in the wrong region.
+         0          0          0  Two cells violate cts margins.
+         0          0          0  Two cells violate coloring.
+
+         0          0          0  TOTAL
+
+TOTAL 0 Violations.
+
+VIOLATIONS BY SUBCATEGORY:
+     MOVABLE  APP-FIXED USER-FIXED  DESCRIPTION
+
+         0          0          0    Two objects overlap.
+           0          0          0    Two cells overlap.
+           0          0          0    Two cells have overlapping keepout margins.
+           0          0          0    A cell overlaps a blockage.
+           0          0          0    A cell keepout margin overlaps a blockage.
+
+         0          0          0    A cell violates a pnet.
+
+         0          0          0    A cell is illegal at a site.
+           0          0          0    A cell violates pin-track alignment rules.
+           0          0          0    A cell is illegal at a site.
+           0          0          0    A cell violates legal index rule.
+           0          0          0    A cell has the wrong variant for its location.
+
+         0          0          0    A cell is not aligned with a site.
+           0          0          0    A cell is not aligned with the base site.
+           0          0          0    A cell is not aligned with an overlaid site.
+
+         0          0          0    A cell has an illegal orientation.
+
+         0          0          0    A cell spacing rule is violated.
+           0          0          0    A spacing rule is violated in a row.
+           0          0          0    A spacing rule is violated between adjacent rows.
+           0          0          0    A cell violates vertical abutment rule.
+           0          0          0    A cell violates metal spacing rule.
+
+         0          0          0    A layer rule is violated.
+           0          0          0    A layer VTH rule is violated.
+           0          0          0    A layer OD rule is violated.
+           0          0          0    A layer OD max-width rule is violated.
+           0          0          0    A layer ALL_OD corner rule is violated.
+           0          0          0    A layer max-vertical-length rule is violated.
+           0          0          0    A layer TPO rule is violated.
+           0          0          0    Filler cell insertion cannot satisfy layer rules.
+
+         0          0          0    A cell is in the wrong region.
+           0          0          0    A cell is outside its hard bound.
+           0          0          0    A cell is in the wrong voltage area.
+           0          0          0    A cell violates an exclusive movebound.
+
+         0          0          0    Two cells violate cts margins.
+
+         0          0          0    Two cells violate coloring.
+
+
+check_legality for block design riscv_core succeeded!
+
+
+check_legality succeeded.
+
+**************************
+
+1
+report_congestion
+****************************************
+Report : congestion
+Design : riscv_core
+Version: V-2023.12-SP3
+Date   : Sun Jul 12 20:00:23 2026
+****************************************
+
+Layer     |    overflow     |              # GRCs has
+Name      |  total  |  max  | overflow (%)      | max overflow
+---------------------------------------------------------------
+Both Dirs |     821 |     7 |     595  ( 0.84%) |       2
+H routing |     606 |     7 |     401  ( 1.13%) |       2
+V routing |     215 |     3 |     194  ( 0.55%) |       2
+
+1
+report_utilization
+****************************************
+Report : report_utilization
+Design : riscv_core
+Version: V-2023.12-SP3
+Date   : Sun Jul 12 20:00:23 2026
+****************************************
+Utilization Ratio:                      0.6310
+Utilization options:
+ - Area calculation based on:           site_row of block riscv_core/signoff
+ - Categories of objects excluded:      hard_macros macro_keepouts soft_macros io_cells hard_blockages 
+Total Area:                             10699.1568
+Total Capacity Area:                    10699.1568
+Total Area of cells:                    6750.8868
+Area of excluded objects:
+ - hard_macros         :                0.0000
+ - macro_keepouts      :                0.0000
+ - soft_macros         :                0.0000
+ - io_cells            :                0.0000
+ - hard_blockages      :                0.0000
+Total Area of excluded objects:         0.0000
+Ratio of excluded objects:              0.0000
+
+Utilization of site-rows with:
+ - Site 'unit':                         0.6310
+
+0.6310
+report_pg_drc chip_finish          ;# Final PG (Power/Ground) DRC report (deliverable)
+Collecting PG connectivity/DRC report for chip_finish stage...
+collect_reports chip_finish        ;# Final timing/power/area/qor reports (deliverables)
+Collecting reports for chip_finish stage...
+Reports are generated for chip_finish stage.
+#### Write out design data (from lab9 write_data.tcl)
+# Verilog netlist (logical cells only) and PG-annotated netlist
+write_verilog -exclude {physical_only_cells} ${RESULTS_PATH}/${DESIGN_NAME}.v
+1
+write_verilog -include {pg_objects pg_netlist} ${RESULTS_PATH}/${DESIGN_NAME}.pg.v
+1
+# Constraints
+write_sdc -output ${RESULTS_PATH}/${DESIGN_NAME}.sdc
+Information: The command 'write_sdc' cleared the undo history. (UNDO-016)
+
+Warning: Multiply cell derates are skipped!
+
+Warning: Multiply net derates are skipped!
+1
+# Parasitics
+write_parasitics -format SPEF -output ${RESULTS_PATH}/${DESIGN_NAME}.spef
+Information: Design riscv_core has 13165 nets, 0 global routed, 13162 detail routed. (NEX-024)
+NEX: extract design riscv_core
+Information: batch extract takes 0.00 seconds, elapse 0.00 seconds (NEX-015)
+Information: The stitching and editing of coupling caps is turned OFF for design 'riscv_core.dlib:riscv_core/signoff.design'. (TIM-125)
+NEX: write corner ID 0 parasitics to /project/advvlsi/users/yh3/ws/project_2026/work/../results/riscv_core.spef.minTLU_125.spef 
+spefName /project/advvlsi/users/yh3/ws/project_2026/work/../results/riscv_core.spef.minTLU_125.spef, corner name Fast 
+NEX: write corner ID 1 parasitics to /project/advvlsi/users/yh3/ws/project_2026/work/../results/riscv_core.spef.nomTLU_25.spef 
+spefName /project/advvlsi/users/yh3/ws/project_2026/work/../results/riscv_core.spef.nomTLU_25.spef, corner name Typical 
+NEX: write corner ID 2 parasitics to /project/advvlsi/users/yh3/ws/project_2026/work/../results/riscv_core.spef.maxTLU_-40.spef 
+spefName /project/advvlsi/users/yh3/ws/project_2026/work/../results/riscv_core.spef.maxTLU_-40.spef, corner name Slow 
+Information: SPEF output -mt with 8 threads (NEX-014)
