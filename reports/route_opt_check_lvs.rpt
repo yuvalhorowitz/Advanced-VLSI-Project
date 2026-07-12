@@ -1,0 +1,61 @@
+# Extracted from logs/08_route.log (route_opt stage) — check_lvs
+check_lvs
+Information: Using 8 threads for LVS
+[Check Net] Init        [Check Short] Stage 1   Elapsed =    0:00:00, CPU =    0:00:01
+Elapsed =    0:00:00, CPU =    0:00:01
+Warning: Port VDD have no valid pin shapes. Skip this port. (RT-203)
+Warning: Port VSS have no valid pin shapes. Skip this port. (RT-203)
+[Check Short] Stage 1-2 Elapsed =    0:00:00, CPU =    0:00:01
+[Check Short] Stage 2   Elapsed =    0:00:00, CPU =    0:00:02
+Detected more than 20 short violations. Skip checking short violations
+[Check Short] Stage 3   Elapsed =    0:00:00, CPU =    0:00:03
+[Check Short] End       Elapsed =    0:00:00, CPU =    0:00:03
+[Check Net] 10%         Elapsed =    0:00:00, CPU =    0:00:03
+[Check Net] 20%         Elapsed =    0:00:00, CPU =    0:00:04
+[Check Net] 30%         Elapsed =    0:00:00, CPU =    0:00:04
+[Check Net] 40%         Elapsed =    0:00:00, CPU =    0:00:04
+[Check Net] 50%         Elapsed =    0:00:00, CPU =    0:00:04
+[Check Net] 60%         Elapsed =    0:00:01, CPU =    0:00:04
+[Check Net] 70%         Elapsed =    0:00:01, CPU =    0:00:04
+[Check Net] 80%         Elapsed =    0:00:01, CPU =    0:00:04
+[Check Net] 90%         Elapsed =    0:00:01, CPU =    0:00:04
+[Check Net] All nets are submitted.
+Warning: Net place_optHFSNET_9 has less than 2 valid port. Skip open checking for this net. (RT-204)
+[Check Net] 100%        Elapsed =    0:00:01, CPU =    0:00:04
+Information: Detected short violation. Cell1: snps_ADD_163/U_82. Net2: VSS. BBox: (22.2810 27.1530)(24.4300 27.2470). Layer: M1. (RT-586)
+Information: Detected open violation for Net VDD. BBox: (0.0000 0.0000)(113.6740 113.2000). (RT-585)
+Information: Detected open violation for Net VSS. BBox: (0.0000 0.0000)(113.6740 113.2000). (RT-585)
+Information: Detected short violation. Cell1: ctmi_46793. Cell2: snps_ADD_163/ctmi_49899. BBox: (21.7560 28.9530)(21.7660 29.0470). Layer: M1. (RT-586)
+Information: Detected short violation. Cell1: snps_ADD_163/U_85. Net2: VDD. BBox: (23.4650 27.7830)(23.5350 27.8170). Layer: M1. (RT-586)
+Information: Detected short violation. Cell1: ctmi_46793. Cell2: snps_ADD_163/ctmi_49899. BBox: (21.7560 28.3520)(21.7660 28.4460). Layer: M1. (RT-586)
+Information: Detected short violation. Cell1: ctmi_46792. Cell2: snps_ADD_163/ctmi_49899. BBox: (21.3860 28.9530)(21.7660 29.0470). Layer: M1. (RT-586)
+Information: Detected short violation. Cell1: snps_ADD_163/U_80. Cell2: snps_ADD_163/ctmi_49899. BBox: (21.3860 28.3530)(21.7660 28.4460). Layer: M1. (RT-586)
+Information: Detected short violation. Cell1: snps_ADD_163/U_82. Net2: VDD. BBox: (23.4650 27.7830)(23.5350 27.8170). Layer: M1. (RT-586)
+Information: Detected short violation. Cell1: snps_ADD_163/ctmi_49901. Net2: VDD. BBox: (23.4650 28.9830)(23.5350 29.0170). Layer: M1. (RT-586)
+Information: Detected short violation. Cell1: snps_ADD_163/U_80. Net2: VSS. BBox: (20.8750 28.3530)(23.0240 28.4470). Layer: M1. (RT-586)
+Information: Detected short violation. Cell1: snps_ADD_163/ctmi_49900. Net2: VSS. BBox: (22.5700 28.3530)(22.9500 28.4460). Layer: M1. (RT-586)
+Information: Detected short violation. Cell1: snps_ADD_163/ctmi_49899. Net2: VSS. BBox: (21.3860 28.3530)(21.7660 28.4460). Layer: M1. (RT-586)
+Information: Detected short violation. Cell1: snps_ADD_163/ctmi_49900. Net2: VDD. BBox: (22.5700 28.9530)(22.9500 29.0470). Layer: M1. (RT-586)
+Information: Detected short violation. Cell1: snps_ADD_163/U_82. Net2: VDD. BBox: (22.2810 27.7530)(24.4300 27.8470). Layer: M1. (RT-586)
+Information: Detected short violation. Cell1: snps_ADD_163/ctmi_49899. Net2: VDD. BBox: (21.3860 28.9530)(21.7660 29.0470). Layer: M1. (RT-586)
+Information: Detected short violation. Cell1: snps_ADD_163/U_80. Net2: VDD. BBox: (20.8750 27.7530)(23.0240 27.8470). Layer: M1. (RT-586)
+Information: Detected short violation. Cell1: u_lsu/add_4452/ctmi_49878. Net2: VDD. BBox: (17.1680 28.9530)(17.5480 29.0470). Layer: M1. (RT-586)
+Information: Detected short violation. Cell1: snps_ADD_163/U_80. Net2: VSS. BBox: (21.4650 28.3830)(21.5350 28.4170). Layer: M1. (RT-586)
+Information: Detected short violation. Cell1: snps_ADD_163/ctmi_49899. Net2: VSS. BBox: (21.4650 28.3830)(21.5350 28.4170). Layer: M1. (RT-586)
+Information: Detected short violation. Cell1: ctmi_46790. Cell2: snps_ADD_163/U_82. BBox: (23.0140 27.1540)(23.3940 27.2470). Layer: M1. (RT-586)
+Information: Detected short violation. Cell1: ctmi_48370. Cell2: snps_ADD_163/U_82. BBox: (24.3460 27.1530)(24.4300 27.2470). Layer: M1. (RT-586)
+
+===============================================================
+    Maximum number of violations is set to 20
+    Abort checking when more than 20 violations are found
+    All violations might not be found.
+===============================================================
+Total number of input nets is 13167.
+Total number of short violations is 20.
+Total number of open nets is 2.
+Open nets are VDD VSS 
+Total number of floating route violations is 0.
+
+Elapsed =    0:00:02, CPU =    0:00:05
+1
+#### Connect PG nets

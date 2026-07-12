@@ -1,0 +1,28 @@
+# Extracted from logs/08_route.log (route_opt stage) — report_utilization
+report_utilization
+****************************************
+Report : report_utilization
+Design : riscv_core
+Version: V-2023.12-SP3
+Date   : Sun Jul 12 18:21:23 2026
+****************************************
+Utilization Ratio:                      0.6310
+Utilization options:
+ - Area calculation based on:           site_row of block riscv_core/route_opt
+ - Categories of objects excluded:      hard_macros macro_keepouts soft_macros io_cells hard_blockages 
+Total Area:                             10699.1568
+Total Capacity Area:                    10699.1568
+Total Area of cells:                    6750.8868
+Area of excluded objects:
+ - hard_macros         :                0.0000
+ - macro_keepouts      :                0.0000
+ - soft_macros         :                0.0000
+ - io_cells            :                0.0000
+ - hard_blockages      :                0.0000
+Total Area of excluded objects:         0.0000
+Ratio of excluded objects:              0.0000
+
+Utilization of site-rows with:
+ - Site 'unit':                         0.6310
+
+0.6310

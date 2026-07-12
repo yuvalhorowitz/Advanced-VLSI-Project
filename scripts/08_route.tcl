@@ -48,9 +48,9 @@ route_opt
 add_redundant_vias
 route_eco
 
-#### Check routing quality
-check_routes
-check_lvs
+#### Check routing quality (captured to reports/)
+redirect -file ${REPORTS_PATH}/route_opt_check_routes.rpt {check_routes}
+redirect -file ${REPORTS_PATH}/route_opt_check_lvs.rpt    {check_lvs}
 
 #### Connect PG nets
 connect_pg_net -net VDD [get_pins -hierarchical */VDD]
@@ -58,9 +58,9 @@ connect_pg_net -net VSS [get_pins -hierarchical */VSS]
 
 #### Analyze the design + collect reports
 check_legality
-report_congestion
-report_utilization
-report_pg_drc route_opt        ;# post-route PG check (should now resolve the pre-route NULL-net shorts)
+redirect -file ${REPORTS_PATH}/route_opt_congestion.rpt  {report_congestion}
+redirect -file ${REPORTS_PATH}/route_opt_utilization.rpt {report_utilization}
+report_pg_drc route_opt        ;# post-route PG check
 collect_reports route_opt
 
 get_blocks -all
