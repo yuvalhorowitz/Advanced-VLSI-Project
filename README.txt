@@ -4,13 +4,7 @@
  Advanced VLSI final project - RISC-V core (riscv_core), SAED14nm 1p9m,
  Synopsys Fusion Compiler.
 
- This file lists WHERE the deliverables live and EVERY metric extractable
- from the run reports (non-GUI). Values are the final signed-off design
- (chip_finish / signoff block).
- See IMPLEMENTATION.md for the build log and ISSUES_AND_FIXES.md for the
- provided-file bugs and the accepted residual DRCs.
-
-
+Yuval horowitz 206587719
 ------------------------------------------------------------------------
  1. PROJECT DIRECTORY STRUCTURE
 ------------------------------------------------------------------------
@@ -106,20 +100,17 @@
    Total ICV DRC violations ......... 5 (accepted)
    Breakdown ........................ 3x M5.S.2.1, 2x M9.S.3.1
                                       (minor M5/M9 metal spacing)
-   History .......................... 61 -> 5 after M6 PG-mesh spacing fix
-                                      + ICV auto-repair
 
  PG CONNECTIVITY / BUILT-IN PG-DRC  (chip_finish_pg_drc.rpt)
    Floating std cells (VDD / VSS) ... 0 / 0
    Floating wires / terminals ....... 0 / 0
    Built-in check_pg_drc entries .... 1,245 (M1/VIA0) - net-tracing artifacts,
-                                      NOT real (ICV is clean; see
-                                      ISSUES_AND_FIXES.md)
+                                      NOT real (ICV is clean)
 
  LVS  (route_opt_check_lvs.rpt)
    Built-in check_lvs shorts/opens are the same PG net-tracing artifacts
    (VDD/VSS have no top-level port pins). A true sign-off LVS was not run
-   (not a project deliverable). See ISSUES_AND_FIXES.md.
+   (not a project deliverable).
 
  METAL DENSITY AFTER FILL  (post_metal_fill_density.rpt)
    M2 40.5 %   M3 37.6 %   M4 46.3 %   M5 50.7 %
@@ -153,6 +144,4 @@
  route_opt_utilization.rpt ....... report_utilization: core utilization
  pre_/post_metal_fill_density.rpt  signoff_report_metal_density: metal density
 
- Full command transcripts are in logs/NN_<stage>.log
- (some tool output uses control characters - read with 'grep -a').
 ========================================================================
