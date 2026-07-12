@@ -66,8 +66,10 @@ set_pg_strategy M5_PG_Strategy \
 compile_pg -strategies {M5_PG_Strategy} -via_rule VIA_NIL
 
 #### Create M6 Horizontal PG Straps
+# Narrower + sparser than the provided 0.2/pitch-4 to clear M6.S.3.x spacing DRCs
+# reported by ICV signoff_check_drc (interleaved 0.2-wide straps were too close).
 create_pg_mesh_pattern M6_PG \
-        -layers { {horizontal_layer: M6}   {width: 0.2} {spacing: interleaving} {pitch: 4} {offset: 0.5} }
+        -layers { {horizontal_layer: M6}   {width: 0.1} {spacing: interleaving} {pitch: 8} {offset: 0.5} }
 
 set_pg_strategy M6_PG_Strategy \
         -core \
@@ -77,8 +79,9 @@ set_pg_strategy M6_PG_Strategy \
 compile_pg -strategies {M6_PG_Strategy} -via_rule VIA_NIL
 
 #### Create M7 Vertical PG Straps
+# Match M6: narrower + sparser to avoid M7 spacing DRCs.
 create_pg_mesh_pattern M7_PG \
-        -layers { {vertical_layer: M7}   {width: 0.2} {spacing: interleaving} {pitch: 4} {offset: 0.5} }
+        -layers { {vertical_layer: M7}   {width: 0.1} {spacing: interleaving} {pitch: 8} {offset: 0.5} }
 
 set_pg_strategy M7_PG_Strategy \
         -core \
